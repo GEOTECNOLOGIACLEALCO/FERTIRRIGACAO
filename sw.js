@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clealco-solinftec-v1';
+const CACHE_NAME = 'ferti-clealco-v2'; // Alterado para v2 para forçar atualização
 const ASSETS = [
   './',
   './index.html',

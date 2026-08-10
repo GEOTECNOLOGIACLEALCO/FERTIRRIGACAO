@@ -3,30 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Fertirrigação SOLINFTEC</title>
+  <title>FERTIRRIGAÇÃO | CLEALCO</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Google Font Modern -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
+    
+    /* O mapa agora inicia invisivel ou desfocado ate sumir o loader, fica mais profissional */
     #map { width: 100%; height: 100%; z-index: 1; }
 
-    /* Glassmorphism UI elements */
+    /* Estilo Glassmorphism */
     .glass {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    /* Floating Menu Controls */
+    /* Paineis Superiores */
     .top-panel {
       position: absolute;
       top: 16px;
@@ -36,7 +38,6 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .header-bar {
@@ -49,9 +50,9 @@
 
     .title {
       font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      background: linear-gradient(135deg, #38bdf8, #4ade80);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffffff, #94a3b8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -70,6 +71,7 @@
       gap: 6px;
     }
 
+    /* Caixa de Pesquisa */
     .search-body {
       padding: 16px;
       border-radius: 18px;
@@ -77,28 +79,34 @@
       flex-direction: column;
       gap: 12px;
       transition: all 0.3s ease;
+      transform-origin: top;
     }
 
     .search-body.collapsed {
-      display: none;
+      opacity: 0;
+      transform: scaleY(0);
+      pointer-events: none;
+      position: absolute;
+      visibility: hidden;
     }
 
     label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
 
-    select, input {
+    select {
       width: 100%;
       padding: 12px 14px;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 12px;
       color: #fff;
-      font-size: 14px;
+      font-size: 15px;
       outline: none;
+      font-weight: 500;
     }
 
-    select option { background: #1e293b; color: #fff; }
+    select option { background: #0f172a; color: #fff; }
 
-    /* Action Floating Buttons */
+    /* Botoes Flutuantes (GPS e Reset) */
     .fab-group {
       position: absolute;
       bottom: 24px;
@@ -120,13 +128,13 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
 
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* Loading Spinner Overlay */
+    /* Tela de Carregamento (Spinner) */
     #loader {
       position: fixed;
       inset: 0;
@@ -136,22 +144,32 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
+      gap: 20px;
       transition: opacity 0.5s ease;
     }
 
     .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid rgba(56, 189, 248, 0.1);
-      border-top: 4px solid #38bdf8;
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top: 5px solid #38bdf8;
       border-radius: 50%;
-      animation: spin 0.9s linear infinite;
+      animation: spin 1s linear infinite;
     }
 
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    .loader-text {
+        font-size: 16px; 
+        font-weight: 700; 
+        color: #f8fafc;
+        letter-spacing: 0.5px;
+        animation: pulse 1.5s infinite;
+    }
 
-    /* Custom Update Toast */
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+    /* Aviso de Atualizacao */
     #update-toast {
       position: absolute;
       bottom: 84px;
@@ -160,73 +178,76 @@
       z-index: 2000;
       padding: 14px;
       border-radius: 14px;
-      background: #2563eb;
+      background: #16a34a;
       color: #fff;
       display: none;
       justify-content: space-between;
       align-items: center;
       font-weight: 600;
       font-size: 13px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
     }
 
-    /* Start / End Markers */
-    .dot-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.6); }
-    .start-dot { background-color: #22c55e; }
-    .end-dot { background-color: #ef4444; }
+    /* Marcadores Iniciais e Finais */
+    .dot-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.8); }
+    .start-dot { background-color: #22c55e; } /* Verde */
+    .end-dot { background-color: #ef4444; }   /* Vermelho */
   </style>
 </head>
 <body>
 
-  <!-- Spinner Overlay -->
+  <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
-    <div style="font-size: 14px; font-weight: 600; color: #94a3b8;">Carregando Mapa Fertirrigação...</div>
+    <div class="loader-text">Carregando mapa e fazendas...</div>
   </div>
 
-  <!-- Painel Flutuante -->
+  <!-- Menu Superior -->
   <div class="top-panel">
     <div class="header-bar glass">
-      <div class="title">SOLINFTEC | Clealco</div>
+      <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
       <button class="btn-toggle" onclick="toggleMenu()">
-        <span id="toggle-icon">👁️</span> Menu
+        <span>👁️</span> Menu
       </button>
     </div>
 
     <div class="search-body glass" id="search-box">
       <div>
-        <label>Pesquisar Campo Layer</label>
+        <label>Pesquisar Fazenda (Layer)</label>
         <select id="layerSelect" onchange="filterMap()">
-          <option value="">-- Selecione para Enquadrar --</option>
+          <option value="">-- Todas as Fazendas --</option>
         </select>
       </div>
-      <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
+      <div style="font-size: 12px; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 500;">
         <span>🟢 Início da Linha</span>
         <span>🔴 Fim da Linha</span>
       </div>
     </div>
   </div>
 
-  <!-- Botões de Ação -->
+  <!-- Botoes -->
   <div class="fab-group">
     <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
     <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
   </div>
 
-  <!-- Notificação de Atualização -->
-  <div id="update-toast" class="glass">
+  <!-- Aviso de Atualizacao do PWA -->
+  <div id="update-toast">
     <span>Nova atualização disponível!</span>
-    <button style="background:#fff; color:#2563eb; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="window.location.reload()">Atualizar</button>
+    <button style="background:#fff; color:#16a34a; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="window.location.reload()">Atualizar</button>
   </div>
 
+  <!-- Mapa -->
   <div id="map"></div>
 
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Inicialização do Mapa
-    const map = L.map('map', { zoomControl: false }).setView([-21.2, -50.3], 12);
+    // Inicia o mapa (Centro provisorio, vai mudar sozinho ao carregar)
+    const map = L.map('map', { zoomControl: false }).setView([-21.2, -50.3], 6);
 
-    // Mapeamento de Camadas Base (Satélite HD Esri + OSM)
-    const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    // Mapa Base: Satelite Esri
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Esri'
     }).addTo(map);
@@ -236,38 +257,50 @@
     let markersLayer = L.layerGroup().addTo(map);
     let userLocationMarker = null;
 
-    // Alternar visibilidade do menu
+    // Abrir/Fechar Menu
     function toggleMenu() {
       const box = document.getElementById('search-box');
       box.classList.toggle('collapsed');
     }
 
-    // Carregamento de Dados GeoJSON
+    // Busca o arquivo de dados GeoJSON
     fetch('./data.geojson')
       .then(res => res.json())
       .then(data => {
         rawData = data;
         populateDropdown(data);
         renderData(data);
-        document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        
+        // Enquadramento Inicial (Carrega onde está a região das linhas)
+        if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
+          map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+        }
+
+        // Esconde o loader suavemente
+        setTimeout(() => {
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        }, 800); // 800ms de folga pra garantir que renderizou visualmente
       })
       .catch(err => {
-        console.error("Erro ao carregar os dados:", err);
-        alert("Erro ao carregar arquivo de dados!");
+        console.error("Erro ao carregar dados:", err);
+        document.querySelector('.loader-text').innerText = "Erro ao carregar mapa!";
+        document.querySelector('.spinner').style.display = 'none';
       });
 
+    // Povoa o Dropdown "Fazenda"
     function populateDropdown(data) {
       const select = document.getElementById('layerSelect');
       const layersSet = new Set();
 
+      // Procura pela propriedade 'layer' (agora convertida pra minúsculo no python)
       data.features.forEach(f => {
-        if (f.properties && f.properties.layer !== undefined) {
+        if (f.properties && f.properties.layer !== undefined && f.properties.layer !== '') {
           layersSet.add(f.properties.layer);
         }
       });
 
-      // Ordenação Numérica Inteligente
+      // Ordena de forma numérica
       const sortedLayers = Array.from(layersSet).sort((a, b) => {
         return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
       });
@@ -275,32 +308,35 @@
       sortedLayers.forEach(lyr => {
         const opt = document.createElement('option');
         opt.value = lyr;
-        opt.textContent = `Layer: ${lyr}`;
+        opt.textContent = `Fazenda: ${lyr}`;
         select.appendChild(opt);
       });
     }
 
+    // Desenha as Linhas e Pontos
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
 
       geojsonLayer = L.geoJSON(dataFilter, {
         style: {
-          color: '#38bdf8',
+          color: '#000000', // LINHA PRETA COMO SOLICITADO
           weight: 4,
-          opacity: 0.9
+          opacity: 1.0
         },
         onEachFeature: (feature, layer) => {
-          let popupContent = '<div style="color:#0f172a; font-size:13px;">';
+          let popupContent = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
           for (let key in feature.properties) {
             if (key !== 'start_point' && key !== 'end_point') {
-              popupContent += `<b>${key}:</b> ${feature.properties[key]}<br/>`;
+              // Deixa a primeira letra maiuscula por estetica no popup
+              let keyName = key.charAt(0).toUpperCase() + key.slice(1);
+              popupContent += `<b>${keyName}:</b> ${feature.properties[key]}<br/>`;
             }
           }
           popupContent += '</div>';
           layer.bindPopup(popupContent);
 
-          // Criar Ponto Inicial (Verde) e Final (Vermelho)
+          // Renderiza as "bolinhas" verde e vermelha nas pontas
           if (feature.properties.start_point) {
             const startIcon = L.divIcon({ className: 'dot-marker start-dot', iconSize: [12, 12] });
             L.marker(feature.properties.start_point, { icon: startIcon }).addTo(markersLayer);
@@ -313,35 +349,36 @@
       }).addTo(map);
     }
 
-    // Filtro e Enquadramento automático da Fazenda/Linha
+    // Filtra pelo Dropdown e da Zoom (Enquadra a Fazenda)
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
       if (!val) {
-        renderData(rawData);
         resetView();
         return;
       }
 
+      // Filtra os dados cujo campo layer é igual ao selecionado
       const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
       const filteredGeoJSON = { type: 'FeatureCollection', features: filteredFeatures };
 
       renderData(filteredGeoJSON);
 
-      // Enquadra na tela exatamente e apenas o conjunto filtrado
+      // Enquadra a tela SOMENTE na fazenda/linhas filtradas
       if (geojsonLayer.getBounds().isValid()) {
-        map.fitBounds(geojsonLayer.getBounds(), { padding: [50, 50], maxZoom: 18, animate: true });
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [40, 40], maxZoom: 17, animate: true });
       }
     }
 
+    // Reseta o mapa para a visão global
     function resetView() {
       document.getElementById('layerSelect').value = '';
       renderData(rawData);
       if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
-        map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30] });
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30], animate: true });
       }
     }
 
-    // Localização do Dispositivo (GPS)
+    // GPS - Pega localização atual
     function locateUser() {
       if (!navigator.geolocation) {
         alert("Geolocalização não suportada no seu navegador.");
@@ -356,28 +393,32 @@
           if (userLocationMarker) map.removeLayer(userLocationMarker);
 
           userLocationMarker = L.circleMarker([lat, lng], {
-            radius: 9,
+            radius: 8,
             fillColor: '#3b82f6',
             color: '#ffffff',
             weight: 3,
             opacity: 1,
-            fillOpacity: 0.9
+            fillOpacity: 1
           }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
 
-          map.setView([lat, lng], 16, { animate: true });
+          map.setView([lat, lng], 17, { animate: true });
         },
-        (err) => alert("Erro ao obter localização: " + err.message),
+        (err) => {
+            if(err.code === 1) alert("Por favor, permita o acesso à sua localização no navegador.");
+            else alert("Erro ao obter localização: " + err.message);
+        },
         { enableHighAccuracy: true }
       );
     }
 
-    // Registro do Service Worker & Notificação de Atualização
+    // Service Worker - Offline e Aviso de Atualização
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then(reg => {
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
           installingWorker.onstatechange = () => {
             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Aparece aviso se tem atualização disponível
               document.getElementById('update-toast').style.display = 'flex';
             }
           };
