@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferti-clealco-v4'; 
+const CACHE_NAME = 'ferti-clealco-v5'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
@@ -23,15 +23,13 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Se for imagem de mapa (Esri), tenta buscar do cache offline primeiro.
   if (url.hostname.includes('arcgisonline.com')) {
     e.respondWith(
       caches.match(e.request).then((res) => {
-        return res || fetch(e.request).catch(() => new Response('')); // Retorna vazio se offline e sem cache
+        return res || fetch(e.request).catch(() => new Response(''));
       })
     );
   } else {
-    // Para o app e os dados, tenta Cache, depois rede.
     e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
   }
 });
