@@ -13,15 +13,12 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
-    
     #map { width: 100%; height: 100%; z-index: 1; }
 
     .glass {
       background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
     .top-panel { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
@@ -36,57 +33,67 @@
     select { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; font-size: 15px; outline: none; font-weight: 500; }
     select option { background: #0f172a; color: #fff; }
 
+    .action-btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
+    .action-btn:active { transform: scale(0.98); }
+    .btn-download { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+    .btn-update { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+
     .fab-group { position: absolute; bottom: 24px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
     .fab { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
+    /* Tela de carregamento Inicial */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
     .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .loader-text { font-size: 16px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px; animation: pulse 1.5s infinite; }
+    .loader-text { font-size: 16px; font-weight: 700; color: #f8fafc; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-    #update-toast { position: absolute; bottom: 84px; left: 16px; right: 16px; z-index: 2000; padding: 14px; border-radius: 14px; background: #16a34a; color: #fff; display: none; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+    /* Progresso de Download do Mapa */
+    #progress-container { position: absolute; bottom: 24px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.9); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
+    .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .progress-fill { width: 0%; height: 100%; background: #22c55e; transition: width 0.2s; }
+    .progress-text { font-size: 11px; font-weight: 600; color: #fff; }
   </style>
 </head>
 <body>
 
-  <div id="loader">
-    <div class="spinner"></div>
-    <div class="loader-text">Carregando mapa e fazendas...</div>
-  </div>
+  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando mapa e fazendas...</div></div>
 
   <div class="top-panel">
     <div class="header-bar glass">
       <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-      <button class="btn-toggle" onclick="toggleMenu()">
-        <span>👁️</span> Menu
-      </button>
+      <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
     </div>
 
-    <div class="search-body glass" id="search-box">
+    <div class="search-body glass collapsed" id="search-box">
       <div>
-        <label>Pesquisar Fazenda (Layer)</label>
+        <label>Pesquisar Fazenda</label>
         <select id="layerSelect" onchange="filterMap()">
           <option value="">-- Todas as Fazendas --</option>
         </select>
       </div>
       <div style="font-size: 12px; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 500;">
-        <span>(Visível com Zoom)</span>
-        <span>🟢 Início | 🔴 Fim</span>
+        <span>(Visível com Zoom)</span><span>🟢 Início | 🔴 Fim</span>
       </div>
+      
+      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
+      
+      <!-- BOTOES NOVOS -->
+      <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Salvar Satélite Offline</button>
+      <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Tudo (Limpar Cache)</button>
     </div>
+  </div>
+
+  <div id="progress-container">
+    <div class="progress-text" id="progress-text">Baixando satélite... 0%</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
   </div>
 
   <div class="fab-group">
     <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
     <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
-  </div>
-
-  <div id="update-toast">
-    <span>Nova atualização disponível!</span>
-    <button style="background:#fff; color:#16a34a; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="window.location.reload()">Atualizar</button>
   </div>
 
   <div id="map"></div>
@@ -95,20 +102,14 @@
   <script>
     const map = L.map('map', { zoomControl: false }).setView([-21.2, -50.3], 6);
 
+    // Adicionado crossOrigin para permitir salvar o cache direito
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Esri'
+      maxZoom: 19, attribution: 'Esri', crossOrigin: true
     }).addTo(map);
 
-    let geojsonLayer = null;
-    let rawData = null;
-    let userLocationMarker = null;
-    
-    // MELHORIA DE PERFORMANCE: Camada de marcadores separada
-    let markersLayer = L.layerGroup(); 
-    const ZOOM_THRESHOLD = 14; // Zoom mínimo para os pontos aparecerem
+    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(); 
+    const ZOOM_THRESHOLD = 14; 
 
-    // Controle inteligente de exibição dos pontos pelo zoom
     map.on('zoomend', function() {
       if (map.getZoom() >= ZOOM_THRESHOLD) {
         if (!map.hasLayer(markersLayer)) map.addLayer(markersLayer);
@@ -117,153 +118,147 @@
       }
     });
 
-    function toggleMenu() {
-      document.getElementById('search-box').classList.toggle('collapsed');
-    }
+    function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
 
-    fetch('./data.geojson')
-      .then(res => res.json())
-      .then(data => {
+    fetch('./data.geojson').then(res => res.json()).then(data => {
         rawData = data;
         populateDropdown(data);
         renderData(data);
-        
-        if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
-          map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
-        }
-
-        setTimeout(() => {
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        }, 800); 
-      })
-      .catch(err => {
-        console.error(err);
-        document.querySelector('.loader-text').innerText = "Erro ao carregar mapa!";
-        document.querySelector('.spinner').style.display = 'none';
-      });
+        if (geojsonLayer && geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+        setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 500); }, 500); 
+    }).catch(err => { document.querySelector('.loader-text').innerText = "Erro ao carregar os dados. Você tá sem internet e não atualizou o cache, né?"; document.querySelector('.spinner').style.display = 'none'; });
 
     function populateDropdown(data) {
       const select = document.getElementById('layerSelect');
       const layersSet = new Set();
-
-      data.features.forEach(f => {
-        if (f.properties && f.properties.layer !== undefined && f.properties.layer !== '') {
-          layersSet.add(f.properties.layer);
-        }
-      });
-
-      const sortedLayers = Array.from(layersSet).sort((a, b) => {
-        return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
-      });
-
-      sortedLayers.forEach(lyr => {
-        const opt = document.createElement('option');
-        opt.value = lyr;
-        opt.textContent = `Fazenda: ${lyr}`;
-        select.appendChild(opt);
+      data.features.forEach(f => { if (f.properties && f.properties.layer) layersSet.add(f.properties.layer); });
+      Array.from(layersSet).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})).forEach(lyr => {
+        const opt = document.createElement('option'); opt.value = lyr; opt.textContent = `Fazenda: ${lyr}`; select.appendChild(opt);
       });
     }
 
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
-
       geojsonLayer = L.geoJSON(dataFilter, {
-        style: {
-          color: '#000000', // Linha preta
-          weight: 4,
-          opacity: 1.0
-        },
+        style: { color: '#000000', weight: 4, opacity: 1.0 },
         onEachFeature: (feature, layer) => {
-          let popupContent = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
-          for (let key in feature.properties) {
-            if (key !== 'start_point' && key !== 'end_point') {
-              let keyName = key.charAt(0).toUpperCase() + key.slice(1);
-              popupContent += `<b>${keyName}:</b> ${feature.properties[key]}<br/>`;
-            }
-          }
-          popupContent += '</div>';
-          layer.bindPopup(popupContent);
-
-          // MELHORIA DE PERFORMANCE: Uso de circleMarker (desenha via canvas/placa de video, nao trava o html)
-          if (feature.properties.start_point) {
-            L.circleMarker(feature.properties.start_point, {
-                radius: 5, fillColor: '#22c55e', color: '#ffffff', weight: 1.5, opacity: 1, fillOpacity: 1
-            }).addTo(markersLayer);
-          }
-          if (feature.properties.end_point) {
-            L.circleMarker(feature.properties.end_point, {
-                radius: 5, fillColor: '#ef4444', color: '#ffffff', weight: 1.5, opacity: 1, fillOpacity: 1
-            }).addTo(markersLayer);
-          }
+          let pop = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
+          for (let k in feature.properties) if (k !== 'start_point' && k !== 'end_point') pop += `<b>${k.charAt(0).toUpperCase() + k.slice(1)}:</b> ${feature.properties[k]}<br/>`;
+          layer.bindPopup(pop + '</div>');
+          if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1}).addTo(markersLayer);
+          if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1}).addTo(markersLayer);
         }
       }).addTo(map);
-      
-      // Força a checagem do zoom pra saber se já mostra os pontos ou não
       map.fire('zoomend');
     }
 
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
-      if (!val) {
-        resetView();
-        return;
-      }
-
-      const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
-      const filteredGeoJSON = { type: 'FeatureCollection', features: filteredFeatures };
-
-      renderData(filteredGeoJSON);
-
-      if (geojsonLayer.getBounds().isValid()) {
-        map.fitBounds(geojsonLayer.getBounds(), { padding: [40, 40], maxZoom: 17, animate: true });
-      }
+      if (!val) return resetView();
+      renderData({ type: 'FeatureCollection', features: rawData.features.filter(f => String(f.properties.layer) === String(val)) });
+      if (geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [40, 40], maxZoom: 17, animate: true });
     }
 
     function resetView() {
-      document.getElementById('layerSelect').value = '';
-      renderData(rawData);
-      if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
-        map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30], animate: true });
-      }
+      document.getElementById('layerSelect').value = ''; renderData(rawData);
+      if (geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30], animate: true });
     }
 
     function locateUser() {
-      if (!navigator.geolocation) {
-        alert("Geolocalização não suportada no seu navegador.");
-        return;
-      }
+      if (!navigator.geolocation) return alert("Seu navegador jurássico não tem GPS.");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          if (userLocationMarker) map.removeLayer(userLocationMarker);
-          userLocationMarker = L.circleMarker([lat, lng], {
-            radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1
-          }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
           map.setView([lat, lng], 17, { animate: true });
         },
-        (err) => {
-            if(err.code === 1) alert("Por favor, permita o acesso à sua localização.");
-            else alert("Erro ao obter localização: " + err.message);
-        },
+        (err) => alert(err.code === 1 ? "Ei, deixa eu acessar sua localização!" : "Erro do GPS: " + err.message),
         { enableHighAccuracy: true }
       );
     }
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').then(reg => {
-        reg.onupdatefound = () => {
-          const installingWorker = reg.installing;
-          installingWorker.onstatechange = () => {
-            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              document.getElementById('update-toast').style.display = 'flex';
-            }
-          };
-        };
-      });
+    // ==========================================
+    // BRUXARIA: BAIXAR MAPA OFFLINE (TILES)
+    // ==========================================
+    async function downloadOfflineMap() {
+      if (!geojsonLayer || !geojsonLayer.getBounds().isValid()) return alert("Calma apressado, os dados nem carregaram ainda!");
+      
+      const bounds = geojsonLayer.getBounds();
+      const minZ = 12; // Zoom de longe
+      const maxZ = 16; // Zoom perto o bastante pra ver o trator (não mude pra muito alto ou o celular explode)
+      const urls = [];
+
+      for (let z = minZ; z <= maxZ; z++) {
+        const nw = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
+        const se = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
+        for (let x = nw.x; x <= se.x; x++) {
+          for (let y = nw.y; y <= se.y; y++) {
+            urls.push(`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`);
+          }
+        }
+      }
+
+      if (urls.length > 3000) {
+        if(!confirm(`Olha a audácia: são ${urls.length} imagens pra baixar. Isso vai gastar sua bateria, dados e paciência. Continuar mesmo assim?`)) return;
+      } else {
+        if(!confirm(`Vou roubar ${urls.length} quadradinhos de mapa do satélite pro seu celular. Bora?`)) return;
+      }
+
+      toggleMenu(); // esconde menu
+      document.getElementById('progress-container').style.display = 'block';
+      const progFill = document.getElementById('progress-fill');
+      const progText = document.getElementById('progress-text');
+
+      try {
+        const cache = await caches.open('ferti-tiles-v1');
+        let downloaded = 0;
+        
+        // Baixa em lotes pra não dar tela azul no navegador
+        const chunk = 25; 
+        for (let i = 0; i < urls.length; i += chunk) {
+          const lote = urls.slice(i, i + chunk);
+          await Promise.all(lote.map(async (url) => {
+            try {
+              const existe = await caches.match(url);
+              if (!existe) {
+                const req = await fetch(url, { mode: 'cors' });
+                if (req.ok) await cache.put(url, req);
+              }
+            } catch(e) { /* Ignora se uma ou outra falhar */ }
+            downloaded++;
+          }));
+          const p = Math.round((downloaded / urls.length) * 100);
+          progFill.style.width = p + '%';
+          progText.innerText = `Chupando do satélite... ${p}% (${downloaded}/${urls.length})`;
+        }
+        alert("Pronto chefe! Imagens garantidas. Agora você pode ir pro meio do mato sem sinal.");
+      } catch (err) {
+        alert("Deu ruim no meio do caminho: " + err.message);
+      }
+      document.getElementById('progress-container').style.display = 'none';
     }
+
+    // ==========================================
+    // BRUXARIA: ATUALIZAR TUDO (LIMPAR CACHE)
+    // ==========================================
+    async function clearAndRefresh() {
+      if(!confirm("Tem certeza? Isso vai jogar o mapa offline no lixo e baixar tudo novo da internet! (Faça isso com Wi-Fi/4G)")) return;
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+        if (navigator.serviceWorker) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (let r of regs) await r.unregister();
+        }
+        alert("Faxina completada com sucesso! Recarregando pra buscar as novidades...");
+        window.location.reload(true);
+      } catch(e) {
+        alert("Ih, erro ao limpar cache: " + e.message);
+      }
+    }
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
   </script>
 </body>
 </html>
