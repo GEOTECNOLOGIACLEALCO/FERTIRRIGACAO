@@ -75,13 +75,13 @@
         <span>(Visível com Zoom)</span><span>🟢 Início | 🔴 Fim</span>
       </div>
       <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
-      <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Salvar Satélite Offline</button>
-      <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Tudo (Limpar Cache)</button>
+      <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Baixar Mapa para Uso Offline</button>
+      <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Aplicativo (Requer Internet)</button>
     </div>
   </div>
 
   <div id="progress-container">
-    <div class="progress-text" id="progress-text">Calculando o prejuízo no 4G...</div>
+    <div class="progress-text" id="progress-text">Calculando o tamanho do download...</div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
   </div>
 
@@ -120,7 +120,7 @@
         if (geojsonLayer && geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
         setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 500); }, 500); 
     }).catch(err => { 
-        document.querySelector('.loader-text').innerText = "Erro ao carregar os dados. Cadê a internet?"; 
+        document.querySelector('.loader-text').innerText = "Erro ao carregar os dados. Verifique sua conexão com a internet."; 
         document.querySelector('.spinner').style.display = 'none'; 
     });
 
@@ -162,49 +162,47 @@
     }
 
     function locateUser() {
-      if (!navigator.geolocation) return alert("Sem GPS nesse navegador pré-histórico.");
+      if (!navigator.geolocation) return alert("Seu dispositivo ou navegador não suporta a função de localização (GPS).");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
           L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
           map.setView([lat, lng], 17, { animate: true });
         },
-        (err) => alert(err.code === 1 ? "Permite a localização aí mestre!" : "Erro do GPS: " + err.message),
+        (err) => alert(err.code === 1 ? "Por favor, permita o acesso à sua localização no navegador." : "Não foi possível obter a localização: " + err.message),
         { enableHighAccuracy: true }
       );
     }
 
     // ==========================================
-    // BRUXARIA NIVEL MÁXIMO: DOWNLOAD OTIMIZADO POR COORDENADA + CÁLCULO DE MB
+    // DOWNLOAD OTIMIZADO POR COORDENADA + CÁLCULO DE MB
     // ==========================================
     async function downloadOfflineMap() {
-      if (!rawData || !rawData.features) return alert("Calma apressado, os dados nem carregaram ainda!");
+      if (!rawData || !rawData.features) return alert("Por favor, aguarde o carregamento completo dos dados antes de continuar.");
       
       const val = document.getElementById('layerSelect').value;
       const featuresToDownload = val 
             ? rawData.features.filter(f => String(f.properties.layer) === String(val)) 
             : rawData.features;
 
-      const minZ = 12; // Longe
-      const maxZ = 16; // Perto
+      const minZ = 12; // Zoom externo
+      const maxZ = 16; // Zoom detalhado
       const tilesSet = new Set();
 
       document.getElementById('progress-container').style.display = 'block';
       const progText = document.getElementById('progress-text');
-      progText.innerText = "Mapeando as linhas pra não baixar lixo... Aguarde.";
+      progText.innerText = "Identificando as áreas necessárias para o download... Por favor, aguarde.";
       
-      // Gambiarra necessária para não travar a tela enquanto faz as contas
+      // Pausa leve para não bloquear a renderização da interface
       await new Promise(r => setTimeout(r, 50)); 
 
-      // Pega EXATAMENTE os quadradinhos que tocam nas linhas, com uma gordurinha ao redor
       featuresToDownload.forEach(feature => {
         const coordsList = feature.geometry.type === 'MultiLineString' ? feature.geometry.coordinates : [feature.geometry.coordinates];
         coordsList.forEach(line => {
           line.forEach(coord => {
-            const latLng = L.latLng(coord[1], coord[0]); // GeoJSON inverte
+            const latLng = L.latLng(coord[1], coord[0]); 
             for (let z = minZ; z <= maxZ; z++) {
               const p = map.project(latLng, z).divideBy(256).floor();
-              // Adiciona o tile exato e os 8 ao redor pra garantir margem
               for(let dx = -1; dx <= 1; dx++) {
                 for(let dy = -1; dy <= 1; dy++) {
                   tilesSet.add(`${z}/${p.y + dy}/${p.x + dx}`);
@@ -217,16 +215,16 @@
 
       const urls = Array.from(tilesSet).map(t => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${t}`);
       
-      // Cada imagem da Esri tem em média 25KB. Matemática básica de buteco:
+      // Média estimada de 25KB por tile
       const totalTiles = urls.length;
       const estimatedMB = ((totalTiles * 25) / 1024).toFixed(2);
 
-      if(!confirm(`Olha aí, sua muquiranice deu certo!
-Vão ser exatos ${totalTiles} quadradinhos tocando as linhas.
+      if(!confirm(`Cálculo concluído.
+Serão baixados ${totalTiles} blocos de imagem que cobrem a área selecionada.
 
-Tamanho estimado: ${estimatedMB} MB.
+Tamanho estimado do download: ${estimatedMB} MB.
 
-Bora torrar esses dados ou vai arregar?`)) {
+Deseja prosseguir com o download?`)) {
           document.getElementById('progress-container').style.display = 'none';
           return;
       }
@@ -238,7 +236,7 @@ Bora torrar esses dados ou vai arregar?`)) {
         const cache = await caches.open('ferti-tiles-v1');
         let downloaded = 0;
         
-        // Baixa de 20 em 20 pra não congestionar tudo
+        // Download em lotes para otimizar desempenho
         const chunk = 20; 
         for (let i = 0; i < urls.length; i += chunk) {
           const lote = urls.slice(i, i + chunk);
@@ -255,17 +253,17 @@ Bora torrar esses dados ou vai arregar?`)) {
           const p = Math.round((downloaded / totalTiles) * 100);
           const currentMB = ((downloaded * 25) / 1024).toFixed(2);
           progFill.style.width = p + '%';
-          progText.innerText = `Gastando ${currentMB} de ${estimatedMB} MB (${p}%)`;
+          progText.innerText = `Baixando: ${currentMB} MB de ${estimatedMB} MB (${p}%)`;
         }
-        alert("Feito! Mapa devidamente enfiado no seu celular. Pode ir pro canavial agora.");
+        alert("Download concluído com sucesso. O mapa da área selecionada agora está disponível para uso offline.");
       } catch (err) {
-        alert("Deu ruim: " + err.message);
+        alert("Ocorreu um erro durante o download: " + err.message);
       }
       setTimeout(() => { document.getElementById('progress-container').style.display = 'none'; }, 2000);
     }
 
     async function clearAndRefresh() {
-      if(!confirm("Certeza? Isso vai deletar TUDO que você salvou offline e tentar baixar a versão nova (gasta internet!).")) return;
+      if(!confirm("Tem certeza? Esta ação apagará o mapa offline salvo no dispositivo e fará o download da versão mais recente, utilizando sua conexão com a internet.")) return;
       try {
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
@@ -273,9 +271,9 @@ Bora torrar esses dados ou vai arregar?`)) {
           const regs = await navigator.serviceWorker.getRegistrations();
           for (let r of regs) await r.unregister();
         }
-        alert("Faxina completada! Reiniciando a bagaça...");
+        alert("Dados atualizados com sucesso. O aplicativo será recarregado.");
         window.location.reload(true);
-      } catch(e) { alert("Ih, erro ao limpar cache: " + e.message); }
+      } catch(e) { alert("Ocorreu um erro ao atualizar os dados: " + e.message); }
     }
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
