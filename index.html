@@ -7,19 +7,15 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
     
-    /* O mapa agora inicia invisivel ou desfocado ate sumir o loader, fica mais profissional */
     #map { width: 100%; height: 100%; z-index: 1; }
 
-    /* Estilo Glassmorphism */
     .glass {
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
@@ -28,181 +24,39 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    /* Paineis Superiores */
-    .top-panel {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .top-panel { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+    .header-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 16px; }
+    .title { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(135deg, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .btn-toggle { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-    .header-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-radius: 16px;
-    }
-
-    .title {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #ffffff, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .btn-toggle {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Caixa de Pesquisa */
-    .search-body {
-      padding: 16px;
-      border-radius: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: all 0.3s ease;
-      transform-origin: top;
-    }
-
-    .search-body.collapsed {
-      opacity: 0;
-      transform: scaleY(0);
-      pointer-events: none;
-      position: absolute;
-      visibility: hidden;
-    }
+    .search-body { padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; transform-origin: top; }
+    .search-body.collapsed { opacity: 0; transform: scaleY(0); pointer-events: none; position: absolute; visibility: hidden; }
 
     label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
-
-    select {
-      width: 100%;
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 15px;
-      outline: none;
-      font-weight: 500;
-    }
-
+    select { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; font-size: 15px; outline: none; font-weight: 500; }
     select option { background: #0f172a; color: #fff; }
 
-    /* Botoes Flutuantes (GPS e Reset) */
-    .fab-group {
-      position: absolute;
-      bottom: 24px;
-      right: 16px;
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .fab {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      color: white;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    }
-
+    .fab-group { position: absolute; bottom: 24px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
+    .fab { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* Tela de Carregamento (Spinner) */
-    #loader {
-      position: fixed;
-      inset: 0;
-      background: #0f172a;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      transition: opacity 0.5s ease;
-    }
-
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(255, 255, 255, 0.1);
-      border-top: 5px solid #38bdf8;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
+    #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
+    .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    
-    .loader-text {
-        font-size: 16px; 
-        font-weight: 700; 
-        color: #f8fafc;
-        letter-spacing: 0.5px;
-        animation: pulse 1.5s infinite;
-    }
-
+    .loader-text { font-size: 16px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-    /* Aviso de Atualizacao */
-    #update-toast {
-      position: absolute;
-      bottom: 84px;
-      left: 16px;
-      right: 16px;
-      z-index: 2000;
-      padding: 14px;
-      border-radius: 14px;
-      background: #16a34a;
-      color: #fff;
-      display: none;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      font-size: 13px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-    }
-
-    /* Marcadores Iniciais e Finais */
-    .dot-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.8); }
-    .start-dot { background-color: #22c55e; } /* Verde */
-    .end-dot { background-color: #ef4444; }   /* Vermelho */
+    #update-toast { position: absolute; bottom: 84px; left: 16px; right: 16px; z-index: 2000; padding: 14px; border-radius: 14px; background: #16a34a; color: #fff; display: none; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
   </style>
 </head>
 <body>
 
-  <!-- Loading Screen -->
   <div id="loader">
     <div class="spinner"></div>
     <div class="loader-text">Carregando mapa e fazendas...</div>
   </div>
 
-  <!-- Menu Superior -->
   <div class="top-panel">
     <div class="header-bar glass">
       <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
@@ -219,34 +73,28 @@
         </select>
       </div>
       <div style="font-size: 12px; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 500;">
-        <span>🟢 Início da Linha</span>
-        <span>🔴 Fim da Linha</span>
+        <span>(Visível com Zoom)</span>
+        <span>🟢 Início | 🔴 Fim</span>
       </div>
     </div>
   </div>
 
-  <!-- Botoes -->
   <div class="fab-group">
     <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
     <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
   </div>
 
-  <!-- Aviso de Atualizacao do PWA -->
   <div id="update-toast">
     <span>Nova atualização disponível!</span>
     <button style="background:#fff; color:#16a34a; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="window.location.reload()">Atualizar</button>
   </div>
 
-  <!-- Mapa -->
   <div id="map"></div>
 
-  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Inicia o mapa (Centro provisorio, vai mudar sozinho ao carregar)
     const map = L.map('map', { zoomControl: false }).setView([-21.2, -50.3], 6);
 
-    // Mapa Base: Satelite Esri
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Esri'
@@ -254,16 +102,25 @@
 
     let geojsonLayer = null;
     let rawData = null;
-    let markersLayer = L.layerGroup().addTo(map);
     let userLocationMarker = null;
+    
+    // MELHORIA DE PERFORMANCE: Camada de marcadores separada
+    let markersLayer = L.layerGroup(); 
+    const ZOOM_THRESHOLD = 14; // Zoom mínimo para os pontos aparecerem
 
-    // Abrir/Fechar Menu
+    // Controle inteligente de exibição dos pontos pelo zoom
+    map.on('zoomend', function() {
+      if (map.getZoom() >= ZOOM_THRESHOLD) {
+        if (!map.hasLayer(markersLayer)) map.addLayer(markersLayer);
+      } else {
+        if (map.hasLayer(markersLayer)) map.removeLayer(markersLayer);
+      }
+    });
+
     function toggleMenu() {
-      const box = document.getElementById('search-box');
-      box.classList.toggle('collapsed');
+      document.getElementById('search-box').classList.toggle('collapsed');
     }
 
-    // Busca o arquivo de dados GeoJSON
     fetch('./data.geojson')
       .then(res => res.json())
       .then(data => {
@@ -271,36 +128,31 @@
         populateDropdown(data);
         renderData(data);
         
-        // Enquadramento Inicial (Carrega onde está a região das linhas)
         if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
           map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
         }
 
-        // Esconde o loader suavemente
         setTimeout(() => {
             document.getElementById('loader').style.opacity = '0';
             setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        }, 800); // 800ms de folga pra garantir que renderizou visualmente
+        }, 800); 
       })
       .catch(err => {
-        console.error("Erro ao carregar dados:", err);
+        console.error(err);
         document.querySelector('.loader-text').innerText = "Erro ao carregar mapa!";
         document.querySelector('.spinner').style.display = 'none';
       });
 
-    // Povoa o Dropdown "Fazenda"
     function populateDropdown(data) {
       const select = document.getElementById('layerSelect');
       const layersSet = new Set();
 
-      // Procura pela propriedade 'layer' (agora convertida pra minúsculo no python)
       data.features.forEach(f => {
         if (f.properties && f.properties.layer !== undefined && f.properties.layer !== '') {
           layersSet.add(f.properties.layer);
         }
       });
 
-      // Ordena de forma numérica
       const sortedLayers = Array.from(layersSet).sort((a, b) => {
         return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
       });
@@ -313,14 +165,13 @@
       });
     }
 
-    // Desenha as Linhas e Pontos
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
 
       geojsonLayer = L.geoJSON(dataFilter, {
         style: {
-          color: '#000000', // LINHA PRETA COMO SOLICITADO
+          color: '#000000', // Linha preta
           weight: 4,
           opacity: 1.0
         },
@@ -328,7 +179,6 @@
           let popupContent = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
           for (let key in feature.properties) {
             if (key !== 'start_point' && key !== 'end_point') {
-              // Deixa a primeira letra maiuscula por estetica no popup
               let keyName = key.charAt(0).toUpperCase() + key.slice(1);
               popupContent += `<b>${keyName}:</b> ${feature.properties[key]}<br/>`;
             }
@@ -336,20 +186,24 @@
           popupContent += '</div>';
           layer.bindPopup(popupContent);
 
-          // Renderiza as "bolinhas" verde e vermelha nas pontas
+          // MELHORIA DE PERFORMANCE: Uso de circleMarker (desenha via canvas/placa de video, nao trava o html)
           if (feature.properties.start_point) {
-            const startIcon = L.divIcon({ className: 'dot-marker start-dot', iconSize: [12, 12] });
-            L.marker(feature.properties.start_point, { icon: startIcon }).addTo(markersLayer);
+            L.circleMarker(feature.properties.start_point, {
+                radius: 5, fillColor: '#22c55e', color: '#ffffff', weight: 1.5, opacity: 1, fillOpacity: 1
+            }).addTo(markersLayer);
           }
           if (feature.properties.end_point) {
-            const endIcon = L.divIcon({ className: 'dot-marker end-dot', iconSize: [12, 12] });
-            L.marker(feature.properties.end_point, { icon: endIcon }).addTo(markersLayer);
+            L.circleMarker(feature.properties.end_point, {
+                radius: 5, fillColor: '#ef4444', color: '#ffffff', weight: 1.5, opacity: 1, fillOpacity: 1
+            }).addTo(markersLayer);
           }
         }
       }).addTo(map);
+      
+      // Força a checagem do zoom pra saber se já mostra os pontos ou não
+      map.fire('zoomend');
     }
 
-    // Filtra pelo Dropdown e da Zoom (Enquadra a Fazenda)
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
       if (!val) {
@@ -357,19 +211,16 @@
         return;
       }
 
-      // Filtra os dados cujo campo layer é igual ao selecionado
       const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
       const filteredGeoJSON = { type: 'FeatureCollection', features: filteredFeatures };
 
       renderData(filteredGeoJSON);
 
-      // Enquadra a tela SOMENTE na fazenda/linhas filtradas
       if (geojsonLayer.getBounds().isValid()) {
         map.fitBounds(geojsonLayer.getBounds(), { padding: [40, 40], maxZoom: 17, animate: true });
       }
     }
 
-    // Reseta o mapa para a visão global
     function resetView() {
       document.getElementById('layerSelect').value = '';
       renderData(rawData);
@@ -378,47 +229,35 @@
       }
     }
 
-    // GPS - Pega localização atual
     function locateUser() {
       if (!navigator.geolocation) {
         alert("Geolocalização não suportada no seu navegador.");
         return;
       }
-
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
-
           if (userLocationMarker) map.removeLayer(userLocationMarker);
-
           userLocationMarker = L.circleMarker([lat, lng], {
-            radius: 8,
-            fillColor: '#3b82f6',
-            color: '#ffffff',
-            weight: 3,
-            opacity: 1,
-            fillOpacity: 1
+            radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1
           }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
-
           map.setView([lat, lng], 17, { animate: true });
         },
         (err) => {
-            if(err.code === 1) alert("Por favor, permita o acesso à sua localização no navegador.");
+            if(err.code === 1) alert("Por favor, permita o acesso à sua localização.");
             else alert("Erro ao obter localização: " + err.message);
         },
         { enableHighAccuracy: true }
       );
     }
 
-    // Service Worker - Offline e Aviso de Atualização
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then(reg => {
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
           installingWorker.onstatechange = () => {
             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Aparece aviso se tem atualização disponível
               document.getElementById('update-toast').style.display = 'flex';
             }
           };

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferti-clealco-v2'; // Alterado para v2 para forçar atualização
+const CACHE_NAME = 'ferti-clealco-v3'; 
 const ASSETS = [
   './',
   './index.html',
