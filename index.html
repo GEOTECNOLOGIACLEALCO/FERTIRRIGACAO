@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Fertirrigação SOLINFTEC</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Font Modern -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
+    #map { width: 100%; height: 100%; z-index: 1; }
+
+    /* Glassmorphism UI elements */
+    .glass {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    /* Floating Menu Controls */
+    .top-panel {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 16px;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #38bdf8, #4ade80);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-toggle {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .search-body {
+      padding: 16px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .search-body.collapsed {
+      display: none;
+    }
+
+    label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; letter-spacing: 0.5px; }
+
+    select, input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    select option { background: #1e293b; color: #fff; }
+
+    /* Action Floating Buttons */
+    .fab-group {
+      position: absolute;
+      bottom: 24px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .fab {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      color: white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
+    .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
+
+    /* Loading Spinner Overlay */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.5s ease;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(56, 189, 248, 0.1);
+      border-top: 4px solid #38bdf8;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Custom Update Toast */
+    #update-toast {
+      position: absolute;
+      bottom: 84px;
+      left: 16px;
+      right: 16px;
+      z-index: 2000;
+      padding: 14px;
+      border-radius: 14px;
+      background: #2563eb;
+      color: #fff;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Start / End Markers */
+    .dot-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.6); }
+    .start-dot { background-color: #22c55e; }
+    .end-dot { background-color: #ef4444; }
+  </style>
+</head>
+<body>
+
+  <!-- Spinner Overlay -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div style="font-size: 14px; font-weight: 600; color: #94a3b8;">Carregando Mapa Fertirrigação...</div>
+  </div>
+
+  <!-- Painel Flutuante -->
+  <div class="top-panel">
+    <div class="header-bar glass">
+      <div class="title">SOLINFTEC | Clealco</div>
+      <button class="btn-toggle" onclick="toggleMenu()">
+        <span id="toggle-icon">👁️</span> Menu
+      </button>
+    </div>
+
+    <div class="search-body glass" id="search-box">
+      <div>
+        <label>Pesquisar Campo Layer</label>
+        <select id="layerSelect" onchange="filterMap()">
+          <option value="">-- Selecione para Enquadrar --</option>
+        </select>
+      </div>
+      <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
+        <span>🟢 Início da Linha</span>
+        <span>🔴 Fim da Linha</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botões de Ação -->
+  <div class="fab-group">
+    <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
+    <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
+  </div>
+
+  <!-- Notificação de Atualização -->
+  <div id="update-toast" class="glass">
+    <span>Nova atualização disponível!</span>
+    <button style="background:#fff; color:#2563eb; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="window.location.reload()">Atualizar</button>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Inicialização do Mapa
+    const map = L.map('map', { zoomControl: false }).setView([-21.2, -50.3], 12);
+
+    // Mapeamento de Camadas Base (Satélite HD Esri + OSM)
+    const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Esri'
+    }).addTo(map);
+
+    let geojsonLayer = null;
+    let rawData = null;
+    let markersLayer = L.layerGroup().addTo(map);
+    let userLocationMarker = null;
+
+    // Alternar visibilidade do menu
+    function toggleMenu() {
+      const box = document.getElementById('search-box');
+      box.classList.toggle('collapsed');
+    }
+
+    // Carregamento de Dados GeoJSON
+    fetch('./data.geojson')
+      .then(res => res.json())
+      .then(data => {
+        rawData = data;
+        populateDropdown(data);
+        renderData(data);
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+      })
+      .catch(err => {
+        console.error("Erro ao carregar os dados:", err);
+        alert("Erro ao carregar arquivo de dados!");
+      });
+
+    function populateDropdown(data) {
+      const select = document.getElementById('layerSelect');
+      const layersSet = new Set();
+
+      data.features.forEach(f => {
+        if (f.properties && f.properties.layer !== undefined) {
+          layersSet.add(f.properties.layer);
+        }
+      });
+
+      // Ordenação Numérica Inteligente
+      const sortedLayers = Array.from(layersSet).sort((a, b) => {
+        return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      sortedLayers.forEach(lyr => {
+        const opt = document.createElement('option');
+        opt.value = lyr;
+        opt.textContent = `Layer: ${lyr}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderData(dataFilter) {
+      if (geojsonLayer) map.removeLayer(geojsonLayer);
+      markersLayer.clearLayers();
+
+      geojsonLayer = L.geoJSON(dataFilter, {
+        style: {
+          color: '#38bdf8',
+          weight: 4,
+          opacity: 0.9
+        },
+        onEachFeature: (feature, layer) => {
+          let popupContent = '<div style="color:#0f172a; font-size:13px;">';
+          for (let key in feature.properties) {
+            if (key !== 'start_point' && key !== 'end_point') {
+              popupContent += `<b>${key}:</b> ${feature.properties[key]}<br/>`;
+            }
+          }
+          popupContent += '</div>';
+          layer.bindPopup(popupContent);
+
+          // Criar Ponto Inicial (Verde) e Final (Vermelho)
+          if (feature.properties.start_point) {
+            const startIcon = L.divIcon({ className: 'dot-marker start-dot', iconSize: [12, 12] });
+            L.marker(feature.properties.start_point, { icon: startIcon }).addTo(markersLayer);
+          }
+          if (feature.properties.end_point) {
+            const endIcon = L.divIcon({ className: 'dot-marker end-dot', iconSize: [12, 12] });
+            L.marker(feature.properties.end_point, { icon: endIcon }).addTo(markersLayer);
+          }
+        }
+      }).addTo(map);
+    }
+
+    // Filtro e Enquadramento automático da Fazenda/Linha
+    function filterMap() {
+      const val = document.getElementById('layerSelect').value;
+      if (!val) {
+        renderData(rawData);
+        resetView();
+        return;
+      }
+
+      const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
+      const filteredGeoJSON = { type: 'FeatureCollection', features: filteredFeatures };
+
+      renderData(filteredGeoJSON);
+
+      // Enquadra na tela exatamente e apenas o conjunto filtrado
+      if (geojsonLayer.getBounds().isValid()) {
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [50, 50], maxZoom: 18, animate: true });
+      }
+    }
+
+    function resetView() {
+      document.getElementById('layerSelect').value = '';
+      renderData(rawData);
+      if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
+        map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30] });
+      }
+    }
+
+    // Localização do Dispositivo (GPS)
+    function locateUser() {
+      if (!navigator.geolocation) {
+        alert("Geolocalização não suportada no seu navegador.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          if (userLocationMarker) map.removeLayer(userLocationMarker);
+
+          userLocationMarker = L.circleMarker([lat, lng], {
+            radius: 9,
+            fillColor: '#3b82f6',
+            color: '#ffffff',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+          }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
+
+          map.setView([lat, lng], 16, { animate: true });
+        },
+        (err) => alert("Erro ao obter localização: " + err.message),
+        { enableHighAccuracy: true }
+      );
+    }
+
+    // Registro do Service Worker & Notificação de Atualização
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        reg.onupdatefound = () => {
+          const installingWorker = reg.installing;
+          installingWorker.onstatechange = () => {
+            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              document.getElementById('update-toast').style.display = 'flex';
+            }
+          };
+        };
+      });
+    }
+  </script>
+</body>
+</html>
