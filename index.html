@@ -59,17 +59,10 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
-
-    .line-label { background: transparent; border: none; box-shadow: none; }
-    .line-label-text {
-      color: #000; font-weight: 800; font-size: 11px; white-space: nowrap;
-      text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff;
-    }
 
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
     .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -101,7 +94,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/08/2026 10:55</div>
+          <div class="updated-at">Atualizado em: 11/08/2026 12:18</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -118,7 +111,6 @@
           <label>Tematização dos Talhões</label>
           <select id="themeSelect" onchange="applyTheme()">
             <option value="default">Padrão (Cinza)</option>
-            <option value="STATUS APLICAÇÃO">Status de Aplicação</option>
             <option value="STATUS PROJETO">Status do Projeto</option>
             <option value="UNIDADE">Unidade</option>
           </select>
@@ -172,9 +164,6 @@
 
     <div class="section-title">Status do Projeto - QUEIROZ (ha)</div>
     <div class="cards-grid" id="grid-proj-que"></div>
-
-    <div class="section-title">Status de Aplicação Geral (ha)</div>
-    <div class="cards-grid" id="grid-status"></div>
   </div>
 
   <div class="bottom-nav glass">
@@ -194,21 +183,16 @@
       maxZoom: 19, attribution: 'Esri', crossOrigin: true
     }).addTo(map);
 
-    // CONTROLE ESTRITO DE Z-INDEX PARA MANTER OS RÓTULOS (LABELS) SEMPRE ACIMA
     map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 380;
     map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 390;
     map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 400;
-    map.createPane('paneLabels'); map.getPane('paneLabels').style.zIndex = 410; // Maior Z-Index
 
-    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(), labelsLayer = L.layerGroup();
+    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup();
     let talhoesLayer = null, perimetroLayer = null, rawTalhoesData = null;
 
     const ZOOM_MARKERS = 14;
-    const ZOOM_LABELS = 16;
 
-    // PALETA DE CORES ATUALIZADA
     const PALETTE = {
-      "STATUS APLICAÇÃO": { "APLICA": "#22c55e", "NÃO APLICA": "#ef4444", "OPORTUNIDADE": "#ec4899" },
       "STATUS PROJETO": { "A VALIDAR": "#eab308", "PROJETO FEITO": "#166534", "SEM PROJETO OU OPORTUNIDADE": "#ef4444", "TOTAL CLEMENTINA": "#f97316", "TOTAL QUEIROZ": "#3b82f6" },
       "UNIDADE": { "CLEMENTINA": "#f97316", "QUEIROZ": "#3b82f6" }
     };
@@ -216,7 +200,6 @@
     map.on('zoomend', function() {
       const z = map.getZoom();
       z >= ZOOM_MARKERS ? (!map.hasLayer(markersLayer) && map.addLayer(markersLayer)) : (map.hasLayer(markersLayer) && map.removeLayer(markersLayer));
-      z >= ZOOM_LABELS ? (!map.hasLayer(labelsLayer) && map.addLayer(labelsLayer)) : (map.hasLayer(labelsLayer) && map.removeLayer(labelsLayer));
     });
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
@@ -314,7 +297,6 @@
                           color = PALETTE[attrTheme][val];
                           fillOp = 0.7;
                       } else {
-                          // Suavização para itens ausentes ou não mapeados
                           color = '#cbd5e1'; 
                           fillOp = 0.1;      
                           weightOp = 0.3;    
@@ -364,7 +346,6 @@
       createCards(data.unidades, 'grid-unidades', PALETTE["UNIDADE"]);
       createCards(data.projeto_clementina, 'grid-proj-cle', PALETTE["STATUS PROJETO"]);
       createCards(data.projeto_queiroz, 'grid-proj-que', PALETTE["STATUS PROJETO"]);
-      createCards(data.status, 'grid-status', PALETTE["STATUS APLICAÇÃO"]);
     }
 
     function updateLayersVisibility() {
@@ -384,7 +365,6 @@
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
-      labelsLayer.clearLayers();
       
       geojsonLayer = L.geoJSON(dataFilter, {
         pane: 'paneLinhas', 
@@ -396,22 +376,6 @@
           
           if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
           if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
-
-          if (layer.getBounds) {
-            const center = layer.getBounds().getCenter();
-            const angle = feature.properties.label_angle || 0;
-            const text = feature.properties.tamanho_texto || '';
-
-            const labelIcon = L.divIcon({
-              className: 'line-label',
-              html: `<div class="line-label-text" style="transform: rotate(${angle}deg);">${text}</div>`,
-              iconSize: [80, 20],
-              iconAnchor: [40, 10]
-            });
-
-            // UTILIZAÇÃO DO paneLabels (Z-Index 410) PARA FICAR POR CIMA DA LINHA
-            L.marker(center, { icon: labelIcon, pane: 'paneLabels', interactive: false }).addTo(labelsLayer);
-          }
         }
       }).addTo(map);
       
@@ -505,8 +469,7 @@ Deseja iniciar?`)) {
               }
             } catch(e) {}
             downloaded++;
-          }
-          ));
+          }));
           const p = Math.round((downloaded / totalTiles) * 100);
           const currentMB = ((downloaded * 25) / 1024).toFixed(2);
           progFill.style.width = p + '%';
