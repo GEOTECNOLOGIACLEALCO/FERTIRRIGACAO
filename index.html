@@ -56,7 +56,7 @@
 
     .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
     .fab { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); } /* Cor roxa para diferenciar a bússola */
+    .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); } 
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
@@ -102,7 +102,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/08/2026 14:40</div>
+          <div class="updated-at">Atualizado em: 11/08/2026 14:48</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -194,25 +194,24 @@
     const map = L.map('map', { 
         zoomControl: false,
         rotate: true,
-        touchRotate: true,        // Rotação com dois dedos (mobile)
-        shiftKeyRotate: true      // Rotação usando Shift + Arrastar mouse (desktop)
+        touchRotate: true,        
+        shiftKeyRotate: true      
     }).setView([-21.2, -50.3], 6);
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19, attribution: 'Esri', crossOrigin: true
+      maxZoom: 19, attribution: 'Esri', crossOrigin: true, zIndex: 1
     }).addTo(map);
 
-    // ORDENAÇÃO DE CAMADAS COM PANE DE RÓTULOS NO TOPO
-    map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 380;
-    map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 390;
-    map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 400;
-    map.createPane('paneLabels'); map.getPane('paneLabels').style.zIndex = 410;
+    // ORDENAÇÃO DE CAMADAS PARA CORRIGIR SOBREPOSIÇÃO DO MAPA BASE (Z-Index Elevado)
+    map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 450;
+    map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 460;
+    map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 470;
+    map.createPane('paneLabels'); map.getPane('paneLabels').style.zIndex = 480;
 
     let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(), labelsLayer = L.layerGroup();
     let talhoesLayer = null, perimetroLayer = null, rawTalhoesData = null;
 
     const ZOOM_MARKERS = 14;
-    const ZOOM_LABELS = 16;
 
     const PALETTE = {
       "STATUS PROJETO": { "A VALIDAR": "#eab308", "PROJETO FEITO": "#166534", "SEM PROJETO OU OPORTUNIDADE": "#ef4444", "TOTAL CLEMENTINA": "#f97316", "TOTAL QUEIROZ": "#3b82f6" },
@@ -222,7 +221,6 @@
     map.on('zoomend', function() {
       const z = map.getZoom();
       z >= ZOOM_MARKERS ? (!map.hasLayer(markersLayer) && map.addLayer(markersLayer)) : (map.hasLayer(markersLayer) && map.removeLayer(markersLayer));
-      z >= ZOOM_LABELS ? (!map.hasLayer(labelsLayer) && map.addLayer(labelsLayer)) : (map.hasLayer(labelsLayer) && map.removeLayer(labelsLayer));
     });
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
@@ -395,15 +393,14 @@
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
-      labelsLayer.clearLayers();
       
       geojsonLayer = L.geoJSON(dataFilter, {
         pane: 'paneLinhas', 
         style: { color: '#000000', weight: 4, opacity: 1.0 },
         onEachFeature: (feature, layer) => {
-          // Geração do Pop-up omitindo os dados técnicos de renderização do texto
+          // Popup de linha limpo
           let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;">';
-          const hiddenProps = ['start_point', 'end_point', 'label_angle', 'tamanho_texto'];
+          const hiddenProps = ['start_point', 'end_point'];
           for (let k in feature.properties) {
               if (!hiddenProps.includes(k)) {
                   pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
@@ -413,21 +410,6 @@
           
           if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
           if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
-
-          if (layer.getBounds) {
-            const center = layer.getBounds().getCenter();
-            const angle = feature.properties.label_angle || 0;
-            const text = feature.properties.tamanho_texto || '';
-
-            const labelIcon = L.divIcon({
-              className: 'line-label',
-              html: `<div class="line-label-text" style="transform: rotate(${angle}deg);">${text}</div>`,
-              iconSize: [80, 20],
-              iconAnchor: [40, 10]
-            });
-
-            L.marker(center, { icon: labelIcon, pane: 'paneLabels', interactive: false }).addTo(labelsLayer);
-          }
         }
       }).addTo(map);
       
