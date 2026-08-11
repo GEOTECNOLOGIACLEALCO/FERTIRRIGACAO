@@ -12,19 +12,11 @@
   "status": [
     {
       "label": "APLICA",
-      "area_ha": 10102.47
-    },
-    {
-      "label": "NÃO APLICA",
-      "area_ha": 239.88
+      "area_ha": 204.06
     },
     {
       "label": "OPORTUNIDADE",
-      "area_ha": 8820.78
-    },
-    {
-      "label": "oPORTUNIDADE",
-      "area_ha": 74.62
+      "area_ha": 19033.69
     }
   ],
   "projeto_clementina": [
@@ -35,6 +27,10 @@
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
       "area_ha": 2907.46
+    },
+    {
+      "label": "TOTAL CLEMENTINA",
+      "area_ha": 5620.55
     }
   ],
   "projeto_queiroz": [
@@ -49,6 +45,10 @@
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
       "area_ha": 6933.97
+    },
+    {
+      "label": "TOTAL QUEIROZ",
+      "area_ha": 13617.19
     }
   ],
   "area_total_ha": 19237.75
