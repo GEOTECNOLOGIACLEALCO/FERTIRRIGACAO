@@ -5,10 +5,6 @@
       "area_ha": 5620.55
     },
     {
-      "label": "NÃO INFORMADO",
-      "area_ha": 0.0
-    },
-    {
       "label": "QUEIROZ",
       "area_ha": 13617.19
     }
@@ -23,10 +19,6 @@
       "area_ha": 239.88
     },
     {
-      "label": "NÃO INFORMADO",
-      "area_ha": 0.0
-    },
-    {
       "label": "OPORTUNIDADE",
       "area_ha": 8820.78
     },
@@ -35,26 +27,28 @@
       "area_ha": 74.62
     }
   ],
-  "frentes": [
+  "projeto_clementina": [
     {
-      "label": "FRENTE 1",
-      "area_ha": 7872.29
+      "label": "A VALIDAR",
+      "area_ha": 2713.09
     },
     {
-      "label": "FRENTE 2",
-      "area_ha": 5044.32
+      "label": "SEM PROJETO OU OPORTUNIDADE",
+      "area_ha": 2907.46
+    }
+  ],
+  "projeto_queiroz": [
+    {
+      "label": "A VALIDAR",
+      "area_ha": 4457.11
     },
     {
-      "label": "FRENTE 3",
-      "area_ha": 2598.89
+      "label": "PROJETO FEITO",
+      "area_ha": 2226.12
     },
     {
-      "label": "FRENTE 4",
-      "area_ha": 3722.24
-    },
-    {
-      "label": "NÃO INFORMADO",
-      "area_ha": 0.0
+      "label": "SEM PROJETO OU OPORTUNIDADE",
+      "area_ha": 6933.97
     }
   ],
   "area_total_ha": 19237.75
