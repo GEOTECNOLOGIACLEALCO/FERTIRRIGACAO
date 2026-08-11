@@ -1,10 +1,11 @@
-const CACHE_NAME = 'ferti-clealco-v19'; 
+const CACHE_NAME = 'ferti-clealco-v21'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
   './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './indicadores.json', './manifest.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
 ];
 
