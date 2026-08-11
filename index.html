@@ -52,11 +52,13 @@
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
     .progress-fill { width: 0%; height: 100%; background: #22c55e; transition: width 0.2s; }
     .progress-text { font-size: 11px; font-weight: 600; color: #fff; }
+    
+    .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 13px; font-weight: 600; text-transform: none; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando mapa e fazendas...</div></div>
+  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando mapa e dados operacionais...</div></div>
 
   <div class="top-panel">
     <div class="header-bar glass">
@@ -66,15 +68,29 @@
 
     <div class="search-body glass collapsed" id="search-box">
       <div>
-        <label>Pesquisar Fazenda</label>
+        <label>Pesquisar Fazenda (Linhas)</label>
         <select id="layerSelect" onchange="filterMap()">
           <option value="">-- Todas as Fazendas --</option>
         </select>
       </div>
+      
+      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
+      
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label class="checkbox-container">
+            <input type="checkbox" id="toggleTalhoes" onchange="updateLayersVisibility()" checked> Exibir Talhões (Fundo Cinza)
+          </label>
+          <label class="checkbox-container">
+            <input type="checkbox" id="togglePerimetro" onchange="updateLayersVisibility()" checked> Exibir Perímetro da Fazenda
+          </label>
+      </div>
+
+      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
+      
       <div style="font-size: 12px; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 500;">
         <span>(Visível com Zoom)</span><span>🟢 Início | 🔴 Fim</span>
       </div>
-      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
+      
       <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Baixar Mapa para Uso Offline</button>
       <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Aplicativo (Requer Internet)</button>
     </div>
@@ -100,7 +116,21 @@
       maxZoom: 19, attribution: 'Esri', crossOrigin: true
     }).addTo(map);
 
-    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(); 
+    map.createPane('paneTalhoes');
+    map.getPane('paneTalhoes').style.zIndex = 380; 
+    
+    map.createPane('panePerimetro');
+    map.getPane('panePerimetro').style.zIndex = 390; 
+
+    map.createPane('paneLinhas');
+    map.getPane('paneLinhas').style.zIndex = 400; 
+
+    let geojsonLayer = null;
+    let rawData = null; 
+    let markersLayer = L.layerGroup(); 
+    let talhoesLayer = null;
+    let perimetroLayer = null;
+
     const ZOOM_THRESHOLD = 14; 
 
     map.on('zoomend', function() {
@@ -113,16 +143,58 @@
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
 
-    fetch('./data.geojson').then(res => res.json()).then(data => {
-        rawData = data;
-        populateDropdown(data);
-        renderData(data);
-        if (geojsonLayer && geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
-        setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 500); }, 500); 
+    Promise.all([
+      fetch('./data.geojson').then(res => res.json()),
+      fetch('./talhoes.geojson').then(res => res.json()),
+      fetch('./perimetro.geojson').then(res => res.json())
+    ]).then(([linhasData, talhoesData, perimetroData]) => {
+        
+        talhoesLayer = L.geoJSON(talhoesData, {
+            pane: 'paneTalhoes',
+            style: { fillColor: '#d3d3d3', color: '#94a3b8', weight: 1, fillOpacity: 0.5 },
+            onEachFeature: (feature, layer) => {
+                let pop = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;"><b>Informações do Talhão:</b><br/>';
+                for (let k in feature.properties) pop += `<b>${k.charAt(0).toUpperCase() + k.slice(1)}:</b> ${feature.properties[k]}<br/>`;
+                layer.bindPopup(pop + '</div>');
+            }
+        }).addTo(map);
+
+        perimetroLayer = L.geoJSON(perimetroData, {
+            pane: 'panePerimetro',
+            style: { color: '#f59e0b', weight: 3, fill: false, opacity: 1.0 }, 
+            interactive: false 
+        }).addTo(map);
+
+        rawData = linhasData;
+        populateDropdown(rawData);
+        renderData(rawData);
+
+        if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
+            map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+        }
+        
+        setTimeout(() => { 
+            document.getElementById('loader').style.opacity = '0'; 
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
+        }, 500); 
+
     }).catch(err => { 
         document.querySelector('.loader-text').innerText = "Erro ao carregar os dados. Verifique sua conexão com a internet."; 
         document.querySelector('.spinner').style.display = 'none'; 
+        console.error(err);
     });
+
+    function updateLayersVisibility() {
+        const chkTalhoes = document.getElementById('toggleTalhoes').checked;
+        const chkPerimetro = document.getElementById('togglePerimetro').checked;
+
+        if (talhoesLayer) {
+            chkTalhoes ? map.addLayer(talhoesLayer) : map.removeLayer(talhoesLayer);
+        }
+        if (perimetroLayer) {
+            chkPerimetro ? map.addLayer(perimetroLayer) : map.removeLayer(perimetroLayer);
+        }
+    }
 
     function populateDropdown(data) {
       const select = document.getElementById('layerSelect');
@@ -136,16 +208,20 @@
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
+      
       geojsonLayer = L.geoJSON(dataFilter, {
+        pane: 'paneLinhas', 
         style: { color: '#000000', weight: 4, opacity: 1.0 },
         onEachFeature: (feature, layer) => {
           let pop = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
           for (let k in feature.properties) if (k !== 'start_point' && k !== 'end_point') pop += `<b>${k.charAt(0).toUpperCase() + k.slice(1)}:</b> ${feature.properties[k]}<br/>`;
           layer.bindPopup(pop + '</div>');
-          if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1}).addTo(markersLayer);
-          if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1}).addTo(markersLayer);
+          
+          if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
+          if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
         }
       }).addTo(map);
+      
       map.fire('zoomend');
     }
 
@@ -174,9 +250,6 @@
       );
     }
 
-    // ==========================================
-    // DOWNLOAD OTIMIZADO POR COORDENADA + CÁLCULO DE MB
-    // ==========================================
     async function downloadOfflineMap() {
       if (!rawData || !rawData.features) return alert("Por favor, aguarde o carregamento completo dos dados antes de continuar.");
       
@@ -185,15 +258,14 @@
             ? rawData.features.filter(f => String(f.properties.layer) === String(val)) 
             : rawData.features;
 
-      const minZ = 12; // Zoom externo
-      const maxZ = 16; // Zoom detalhado
+      const minZ = 12; 
+      const maxZ = 16; 
       const tilesSet = new Set();
 
       document.getElementById('progress-container').style.display = 'block';
       const progText = document.getElementById('progress-text');
       progText.innerText = "Identificando as áreas necessárias para o download... Por favor, aguarde.";
       
-      // Pausa leve para não bloquear a renderização da interface
       await new Promise(r => setTimeout(r, 50)); 
 
       featuresToDownload.forEach(feature => {
@@ -215,7 +287,6 @@
 
       const urls = Array.from(tilesSet).map(t => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${t}`);
       
-      // Média estimada de 25KB por tile
       const totalTiles = urls.length;
       const estimatedMB = ((totalTiles * 25) / 1024).toFixed(2);
 
@@ -236,7 +307,6 @@ Deseja prosseguir com o download?`)) {
         const cache = await caches.open('ferti-tiles-v1');
         let downloaded = 0;
         
-        // Download em lotes para otimizar desempenho
         const chunk = 20; 
         for (let i = 0; i < urls.length; i += chunk) {
           const lote = urls.slice(i, i + chunk);
