@@ -8,105 +8,171 @@
   <meta name="theme-color" content="#0f172a">
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
+    
+    .view-section { width: 100%; height: calc(100% - 60px); position: absolute; top: 0; left: 0; }
+    #map-view { display: block; }
+    #dash-view { display: none; overflow-y: auto; padding: 20px; background: #0f172a; z-index: 500; }
+
     #map { width: 100%; height: 100%; z-index: 1; }
 
     .glass {
-      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
     .top-panel { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
     .header-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 16px; }
     .title { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(135deg, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .updated-at { font-size: 10px; color: #38bdf8; font-weight: 600; margin-top: 2px; }
     .btn-toggle { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
     .search-body { padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; transform-origin: top; }
     .search-body.collapsed { opacity: 0; transform: scaleY(0); pointer-events: none; position: absolute; visibility: hidden; }
 
     label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #94a3b8; }
-    select { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; font-size: 15px; outline: none; font-weight: 500; }
+    select { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: #fff; font-size: 14px; outline: none; font-weight: 500; }
     select option { background: #0f172a; color: #fff; }
 
-    .action-btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
-    .action-btn:active { transform: scale(0.98); }
+    .action-btn { width: 100%; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-download { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
     .btn-update { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
 
-    .fab-group { position: absolute; bottom: 24px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
+    .bottom-nav {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+      z-index: 2000; display: flex; justify-content: space-around; align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700; cursor: pointer; flex: 1; height: 100%; justify-content: center;
+    }
+    .nav-item.active { color: #38bdf8; }
+    .nav-icon { font-size: 18px; }
+
+    .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
     .fab { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
+
+    .line-label { background: transparent; border: none; box-shadow: none; }
+    .line-label-text {
+      color: #000; font-weight: 800; font-size: 11px; white-space: nowrap;
+      text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff;
+    }
 
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
     .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loader-text { font-size: 16px; font-weight: 700; color: #f8fafc; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-    #progress-container { position: absolute; bottom: 24px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 20px rgba(0,0,0,0.5);}
+    #progress-container { position: absolute; bottom: 80px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
     .progress-fill { width: 0%; height: 100%; background: #22c55e; transition: width 0.2s; }
     .progress-text { font-size: 11px; font-weight: 600; color: #fff; }
-    
-    .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 13px; font-weight: 600; text-transform: none; cursor: pointer; }
+
+    .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    .dash-header { margin-bottom: 20px; font-size: 18px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .total-area-badge { font-size: 13px; color: #38bdf8; font-weight: 700; }
+    .section-title { font-size: 14px; font-weight: 700; color: #38bdf8; margin: 15px 0 10px 0; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .card-val { font-size: 20px; font-weight: 800; color: #fff; }
+    .card-lbl { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
   </style>
 </head>
 <body>
 
-  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando mapa e dados operacionais...</div></div>
+  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando dados agronômicos...</div></div>
 
-  <div class="top-panel">
-    <div class="header-bar glass">
-      <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-      <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
+  <div id="map-view" class="view-section">
+    <div class="top-panel">
+      <div class="header-bar glass">
+        <div>
+          <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
+          <div class="updated-at">Atualizado em: 11/08/2026 09:27</div>
+        </div>
+        <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
+      </div>
+
+      <div class="search-body glass collapsed" id="search-box">
+        <div>
+          <label>Pesquisar Fazenda (Linhas)</label>
+          <select id="layerSelect" onchange="filterMap()">
+            <option value="">-- Todas as Fazendas --</option>
+          </select>
+        </div>
+        
+        <div>
+          <label>Tematização dos Talhões</label>
+          <select id="themeSelect" onchange="applyTheme()">
+            <option value="default">Padrão (Cinza)</option>
+            <option value="STATUS APLICAÇÃO">Status de Aplicação</option>
+            <option value="UNIDADE">Unidade</option>
+            <option value="FRENTE">Frente</option>
+          </select>
+        </div>
+
+        <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 2px 0;">
+        
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label class="checkbox-container">
+              <input type="checkbox" id="toggleTalhoes" onchange="updateLayersVisibility()" checked> Exibir Talhões
+            </label>
+            <label class="checkbox-container">
+              <input type="checkbox" id="togglePerimetro" onchange="updateLayersVisibility()" checked> Exibir Perímetro
+            </label>
+        </div>
+
+        <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 2px 0;">
+        
+        <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Baixar Mapa Offline</button>
+        <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Aplicativo</button>
+      </div>
     </div>
 
-    <div class="search-body glass collapsed" id="search-box">
-      <div>
-        <label>Pesquisar Fazenda (Linhas)</label>
-        <select id="layerSelect" onchange="filterMap()">
-          <option value="">-- Todas as Fazendas --</option>
-        </select>
-      </div>
-      
-      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
-      
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-          <label class="checkbox-container">
-            <input type="checkbox" id="toggleTalhoes" onchange="updateLayersVisibility()" checked> Exibir Talhões (Fundo Cinza)
-          </label>
-          <label class="checkbox-container">
-            <input type="checkbox" id="togglePerimetro" onchange="updateLayersVisibility()" checked> Exibir Perímetro da Fazenda
-          </label>
-      </div>
-
-      <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;">
-      
-      <div style="font-size: 12px; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 500;">
-        <span>(Visível com Zoom)</span><span>🟢 Início | 🔴 Fim</span>
-      </div>
-      
-      <button class="action-btn btn-download" onclick="downloadOfflineMap()">⬇️ Baixar Mapa para Uso Offline</button>
-      <button class="action-btn btn-update" onclick="clearAndRefresh()">🔄 Atualizar Aplicativo (Requer Internet)</button>
+    <div class="fab-group">
+      <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
+      <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
+
+    <div id="progress-container">
+      <div class="progress-text" id="progress-text">Calculando área...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+
+    <div id="map"></div>
   </div>
 
-  <div id="progress-container">
-    <div class="progress-text" id="progress-text">Calculando o tamanho do download...</div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div id="dash-view" class="view-section">
+    <div class="dash-header">
+      <span>Área por Indicador</span>
+      <span class="total-area-badge" id="total-area-badge">Total: 0 ha</span>
+    </div>
+    
+    <div class="section-title">Status de Aplicação (ha)</div>
+    <div class="cards-grid" id="grid-status"></div>
+
+    <div class="section-title">Unidades (ha)</div>
+    <div class="cards-grid" id="grid-unidades"></div>
+
+    <div class="section-title">Frentes de Trabalho (ha)</div>
+    <div class="cards-grid" id="grid-frentes"></div>
   </div>
 
-  <div class="fab-group">
-    <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
-    <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
+  <div class="bottom-nav glass">
+    <button class="nav-item active" id="btn-nav-map" onclick="switchView('map')">
+      <span class="nav-icon">🗺️</span> Mapa
+    </button>
+    <button class="nav-item" id="btn-nav-dash" onclick="switchView('dash')">
+      <span class="nav-icon">📊</span> Indicadores
+    </button>
   </div>
-
-  <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
@@ -116,58 +182,70 @@
       maxZoom: 19, attribution: 'Esri', crossOrigin: true
     }).addTo(map);
 
-    map.createPane('paneTalhoes');
-    map.getPane('paneTalhoes').style.zIndex = 380; 
-    
-    map.createPane('panePerimetro');
-    map.getPane('panePerimetro').style.zIndex = 390; 
+    map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 380;
+    map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 390;
+    map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 400;
 
-    map.createPane('paneLinhas');
-    map.getPane('paneLinhas').style.zIndex = 400; 
+    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(), labelsLayer = L.layerGroup();
+    let talhoesLayer = null, perimetroLayer = null, rawTalhoesData = null;
 
-    let geojsonLayer = null;
-    let rawData = null; 
-    let markersLayer = L.layerGroup(); 
-    let talhoesLayer = null;
-    let perimetroLayer = null;
+    const ZOOM_MARKERS = 14;
+    const ZOOM_LABELS = 16;
 
-    const ZOOM_THRESHOLD = 14; 
+    const PALETTE = {
+      "STATUS APLICAÇÃO": { "APLICADO": "#22c55e", "EM ANDAMENTO": "#f59e0b", "PENDENTE": "#ef4444", "PLANEJADO": "#3b82f6" },
+      "UNIDADE": { "CLEALCO": "#06b6d4", "UNIDADE I": "#8b5cf6", "UNIDADE II": "#ec4899" },
+      "FRENTE": { "FRENTE 1": "#10b981", "FRENTE 2": "#f97316", "FRENTE 3": "#84cc16", "FRENTE 4": "#a855f7" }
+    };
 
     map.on('zoomend', function() {
-      if (map.getZoom() >= ZOOM_THRESHOLD) {
-        if (!map.hasLayer(markersLayer)) map.addLayer(markersLayer);
-      } else {
-        if (map.hasLayer(markersLayer)) map.removeLayer(markersLayer);
-      }
+      const z = map.getZoom();
+      z >= ZOOM_MARKERS ? (!map.hasLayer(markersLayer) && map.addLayer(markersLayer)) : (map.hasLayer(markersLayer) && map.removeLayer(markersLayer));
+      z >= ZOOM_LABELS ? (!map.hasLayer(labelsLayer) && map.addLayer(labelsLayer)) : (map.hasLayer(labelsLayer) && map.removeLayer(labelsLayer));
     });
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
 
+    function switchView(view) {
+      if(view === 'map') {
+        document.getElementById('map-view').style.display = 'block';
+        document.getElementById('dash-view').style.display = 'none';
+        document.getElementById('btn-nav-map').classList.add('active');
+        document.getElementById('btn-nav-dash').classList.remove('active');
+        map.invalidateSize();
+      } else {
+        document.getElementById('map-view').style.display = 'none';
+        document.getElementById('dash-view').style.display = 'block';
+        document.getElementById('btn-nav-dash').classList.add('active');
+        document.getElementById('btn-nav-map').classList.remove('active');
+      }
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    }
+
     Promise.all([
-      fetch('./data.geojson').then(res => res.json()),
-      fetch('./talhoes.geojson').then(res => res.json()),
-      fetch('./perimetro.geojson').then(res => res.json())
-    ]).then(([linhasData, talhoesData, perimetroData]) => {
+      fetch('./data.geojson').then(r => r.json()),
+      fetch('./talhoes.geojson').then(r => r.json()),
+      fetch('./perimetro.geojson').then(r => r.json()),
+      fetch('./indicadores.json').then(r => r.json())
+    ]).then(([linhasData, talhoesData, perimetroData, indicData]) => {
         
-        talhoesLayer = L.geoJSON(talhoesData, {
-            pane: 'paneTalhoes',
-            style: { fillColor: '#d3d3d3', color: '#94a3b8', weight: 1, fillOpacity: 0.5 },
-            onEachFeature: (feature, layer) => {
-                let pop = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;"><b>Informações do Talhão:</b><br/>';
-                for (let k in feature.properties) pop += `<b>${k.charAt(0).toUpperCase() + k.slice(1)}:</b> ${feature.properties[k]}<br/>`;
-                layer.bindPopup(pop + '</div>');
-            }
-        }).addTo(map);
+        rawTalhoesData = talhoesData;
+        renderTalhoes('default');
 
         perimetroLayer = L.geoJSON(perimetroData, {
             pane: 'panePerimetro',
-            style: { color: '#f59e0b', weight: 3, fill: false, opacity: 1.0 }, 
-            interactive: false 
+            style: { color: '#f59e0b', weight: 3, fill: false, opacity: 1.0 },
+            interactive: false
         }).addTo(map);
 
         rawData = linhasData;
         populateDropdown(rawData);
         renderData(rawData);
+
+        buildDashboard(indicData);
 
         if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
             map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
@@ -176,24 +254,68 @@
         setTimeout(() => { 
             document.getElementById('loader').style.opacity = '0'; 
             setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
-        }, 500); 
+        }, 500);
 
     }).catch(err => { 
-        document.querySelector('.loader-text').innerText = "Erro ao carregar os dados. Verifique sua conexão com a internet."; 
-        document.querySelector('.spinner').style.display = 'none'; 
+        document.querySelector('.loader-text').innerText = "Erro ao carregar os dados agronômicos."; 
         console.error(err);
     });
 
-    function updateLayersVisibility() {
-        const chkTalhoes = document.getElementById('toggleTalhoes').checked;
-        const chkPerimetro = document.getElementById('togglePerimetro').checked;
+    function renderTalhoes(attrTheme) {
+      if (talhoesLayer) map.removeLayer(talhoesLayer);
 
-        if (talhoesLayer) {
-            chkTalhoes ? map.addLayer(talhoesLayer) : map.removeLayer(talhoesLayer);
-        }
-        if (perimetroLayer) {
-            chkPerimetro ? map.addLayer(perimetroLayer) : map.removeLayer(perimetroLayer);
-        }
+      talhoesLayer = L.geoJSON(rawTalhoesData, {
+          pane: 'paneTalhoes',
+          style: (feature) => {
+              let color = '#d3d3d3';
+              if (attrTheme !== 'default' && feature.properties[attrTheme]) {
+                  const val = String(feature.properties[attrTheme]).toUpperCase();
+                  if (PALETTE[attrTheme] && PALETTE[attrTheme][val]) {
+                      color = PALETTE[attrTheme][val];
+                  } else {
+                      color = '#a855f7';
+                  }
+              }
+              return { fillColor: color, color: '#64748b', weight: 1, fillOpacity: 0.6 };
+          },
+          onEachFeature: (feature, layer) => {
+              let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;"><b>Atributos do Talhão:</b><br/>';
+              for (let k in feature.properties) pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
+              layer.bindPopup(pop + '</div>');
+          }
+      }).addTo(map);
+    }
+
+    function applyTheme() {
+      const val = document.getElementById('themeSelect').value;
+      renderTalhoes(val);
+    }
+
+    function buildDashboard(data) {
+      document.getElementById('total-area-badge').innerText = `Total: ${formatNumber(data.area_total_ha)} ha`;
+
+      const createCards = (arr, elementId, colorPalette) => {
+        const grid = document.getElementById(elementId);
+        grid.innerHTML = '';
+        arr.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const valUpper = item.label.toUpperCase();
+          const themeColor = colorPalette[valUpper] || '#38bdf8';
+          card.style.borderLeft = `4px solid ${themeColor}`;
+          card.innerHTML = `<div class="card-val">${formatNumber(item.area_ha)} ha</div><div class="card-lbl">${item.label}</div>`;
+          grid.appendChild(card);
+        });
+      };
+
+      createCards(data.status, 'grid-status', PALETTE["STATUS APLICAÇÃO"]);
+      createCards(data.unidades, 'grid-unidades', PALETTE["UNIDADE"]);
+      createCards(data.frentes, 'grid-frentes', PALETTE["FRENTE"]);
+    }
+
+    function updateLayersVisibility() {
+        document.getElementById('toggleTalhoes').checked ? map.addLayer(talhoesLayer) : map.removeLayer(talhoesLayer);
+        document.getElementById('togglePerimetro').checked ? map.addLayer(perimetroLayer) : map.removeLayer(perimetroLayer);
     }
 
     function populateDropdown(data) {
@@ -208,17 +330,33 @@
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
+      labelsLayer.clearLayers();
       
       geojsonLayer = L.geoJSON(dataFilter, {
         pane: 'paneLinhas', 
         style: { color: '#000000', weight: 4, opacity: 1.0 },
         onEachFeature: (feature, layer) => {
-          let pop = '<div style="color:#0f172a; font-size:13px; max-height:200px; overflow-y:auto;">';
-          for (let k in feature.properties) if (k !== 'start_point' && k !== 'end_point') pop += `<b>${k.charAt(0).toUpperCase() + k.slice(1)}:</b> ${feature.properties[k]}<br/>`;
+          let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;">';
+          for (let k in feature.properties) if (k !== 'start_point' && k !== 'end_point') pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
           layer.bindPopup(pop + '</div>');
           
           if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
           if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
+
+          if (layer.getBounds) {
+            const center = layer.getBounds().getCenter();
+            const angle = feature.properties.label_angle || 0;
+            const text = feature.properties.tamanho_texto || '';
+
+            const labelIcon = L.divIcon({
+              className: 'line-label',
+              html: `<div class="line-label-text" style="transform: rotate(${angle}deg);">${text}</div>`,
+              iconSize: [80, 20],
+              iconAnchor: [40, 10]
+            });
+
+            L.marker(center, { icon: labelIcon, pane: 'paneLinhas', interactive: false }).addTo(labelsLayer);
+          }
         }
       }).addTo(map);
       
@@ -238,33 +376,30 @@
     }
 
     function locateUser() {
-      if (!navigator.geolocation) return alert("Seu dispositivo ou navegador não suporta a função de localização (GPS).");
+      if (!navigator.geolocation) return alert("Sua localização GPS não está disponível.");
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
           L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
           map.setView([lat, lng], 17, { animate: true });
         },
-        (err) => alert(err.code === 1 ? "Por favor, permita o acesso à sua localização no navegador." : "Não foi possível obter a localização: " + err.message),
+        (err) => alert("Erro de GPS: " + err.message),
         { enableHighAccuracy: true }
       );
     }
 
     async function downloadOfflineMap() {
-      if (!rawData || !rawData.features) return alert("Por favor, aguarde o carregamento completo dos dados antes de continuar.");
+      if (!rawData || !rawData.features) return alert("Aguarde o carregamento inicial dos dados.");
       
       const val = document.getElementById('layerSelect').value;
       const featuresToDownload = val 
             ? rawData.features.filter(f => String(f.properties.layer) === String(val)) 
             : rawData.features;
 
-      const minZ = 12; 
-      const maxZ = 16; 
-      const tilesSet = new Set();
-
+      const minZ = 12, maxZ = 16, tilesSet = new Set();
       document.getElementById('progress-container').style.display = 'block';
       const progText = document.getElementById('progress-text');
-      progText.innerText = "Identificando as áreas necessárias para o download... Por favor, aguarde.";
+      progText.innerText = "Mapeando regiões para salvamento offline...";
       
       await new Promise(r => setTimeout(r, 50)); 
 
@@ -286,16 +421,14 @@
       });
 
       const urls = Array.from(tilesSet).map(t => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${t}`);
-      
       const totalTiles = urls.length;
       const estimatedMB = ((totalTiles * 25) / 1024).toFixed(2);
 
-      if(!confirm(`Cálculo concluído.
-Serão baixados ${totalTiles} blocos de imagem que cobrem a área selecionada.
+      if(!confirm(`Confirmação de Download Offline:
+Total de Blocos: ${totalTiles}
+Tamanho Estimado: ${estimatedMB} MB.
 
-Tamanho estimado do download: ${estimatedMB} MB.
-
-Deseja prosseguir com o download?`)) {
+Deseja iniciar?`)) {
           document.getElementById('progress-container').style.display = 'none';
           return;
       }
@@ -305,9 +438,7 @@ Deseja prosseguir com o download?`)) {
 
       try {
         const cache = await caches.open('ferti-tiles-v1');
-        let downloaded = 0;
-        
-        const chunk = 20; 
+        let downloaded = 0, chunk = 20; 
         for (let i = 0; i < urls.length; i += chunk) {
           const lote = urls.slice(i, i + chunk);
           await Promise.all(lote.map(async (url) => {
@@ -323,17 +454,17 @@ Deseja prosseguir com o download?`)) {
           const p = Math.round((downloaded / totalTiles) * 100);
           const currentMB = ((downloaded * 25) / 1024).toFixed(2);
           progFill.style.width = p + '%';
-          progText.innerText = `Baixando: ${currentMB} MB de ${estimatedMB} MB (${p}%)`;
+          progText.innerText = `Progresso: ${currentMB} MB de ${estimatedMB} MB (${p}%)`;
         }
-        alert("Download concluído com sucesso. O mapa da área selecionada agora está disponível para uso offline.");
+        alert("Mapa salvo offline com sucesso!");
       } catch (err) {
-        alert("Ocorreu um erro durante o download: " + err.message);
+        alert("Ocorreu uma falha durante o salvamento: " + err.message);
       }
       setTimeout(() => { document.getElementById('progress-container').style.display = 'none'; }, 2000);
     }
 
     async function clearAndRefresh() {
-      if(!confirm("Tem certeza? Esta ação apagará o mapa offline salvo no dispositivo e fará o download da versão mais recente, utilizando sua conexão com a internet.")) return;
+      if(!confirm("Deseja apagar os dados offline e atualizar o aplicativo?")) return;
       try {
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
@@ -341,9 +472,9 @@ Deseja prosseguir com o download?`)) {
           const regs = await navigator.serviceWorker.getRegistrations();
           for (let r of regs) await r.unregister();
         }
-        alert("Dados atualizados com sucesso. O aplicativo será recarregado.");
+        alert("Aplicativo atualizado com sucesso.");
         window.location.reload(true);
-      } catch(e) { alert("Ocorreu um erro ao atualizar os dados: " + e.message); }
+      } catch(e) { alert("Erro ao atualizar: " + e.message); }
     }
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');

@@ -1,11 +1,11 @@
-const CACHE_NAME = 'ferti-clealco-v8'; 
+const CACHE_NAME = 'ferti-clealco-v15'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
-  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './manifest.json',
+  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './indicadores.json', './manifest.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', (e) => {
