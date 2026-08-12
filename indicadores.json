@@ -12,11 +12,15 @@
   "projeto_clementina": [
     {
       "label": "A VALIDAR",
+      "area_ha": 92.34
+    },
+    {
+      "label": "PROJETO FEITO",
       "area_ha": 2713.09
     },
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 2907.46
+      "area_ha": 2815.12
     },
     {
       "label": "TOTAL CLEMENTINA",
@@ -26,15 +30,15 @@
   "projeto_queiroz": [
     {
       "label": "A VALIDAR",
-      "area_ha": 4457.11
+      "area_ha": 1443.99
     },
     {
       "label": "PROJETO FEITO",
-      "area_ha": 2226.12
+      "area_ha": 6315.88
     },
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 6933.97
+      "area_ha": 5857.32
     },
     {
       "label": "TOTAL QUEIROZ",
