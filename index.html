@@ -104,7 +104,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 12/08/2026 12:16</div>
+          <div class="updated-at">Atualizado em: 12/08/2026 12:31</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -148,7 +148,6 @@
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
-      <!-- CONTROLE DE ROTAÇÃO MANUAL E SEGURO -->
       <div class="rotation-group">
           <button class="fab fab-rotate" onclick="rotateMap(-15)" title="Girar Esquerda">↺</button>
           <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
@@ -195,15 +194,16 @@
   <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
   
   <script>
-    // DESATIVADO touchRotate PARA EVITAR O BUG DE DESLOCAMENTO DO MAPA NO CELULAR
-    // PADDING AUMENTADO NO CANVAS PARA NÃO CORTAR AS BORDAS DURANTE A ROTAÇÃO
+    // CORREÇÃO DEFINITIVA DE ROTAÇÃO:
+    // Mudado para o renderizador SVG para suportar Rotação Georreferenciada exata
+    // Adicionado padding: 1.0 para desenhar além das margens da tela e não "cortar" as pontas ao girar
     const map = L.map('map', { 
         zoomControl: false,
         rotate: true,
-        touchRotate: false,        
+        touchRotate: true,        
         shiftKeyRotate: true,
-        preferCanvas: true,
-        renderer: L.canvas({ padding: 1.0 })
+        preferCanvas: false, 
+        renderer: L.svg({ padding: 1.0 })
     }).setView([-21.2, -50.3], 6);
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -253,7 +253,6 @@
       return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
     
-    // FUNÇÕES SEGURAS DE ROTAÇÃO MANUAL GEORREFERENCIADA
     function rotateMap(delta) {
         if (typeof map.setBearing === 'function') {
             map.setBearing(map.getBearing() + delta);
@@ -426,7 +425,6 @@
           if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
           if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
 
-          // Renderização segura dos rótulos
           if (layer.getBounds) {
             const center = layer.getBounds().getCenter();
             const angle = feature.properties.label_angle || 0;
