@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferti-clealco-v27'; 
+const CACHE_NAME = 'ferti-clealco-v29'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
@@ -23,7 +23,6 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Cacheia Tiles da ESRI e as fontes nativas do MapLibre
   if (url.hostname.includes('arcgisonline.com') || url.hostname.includes('maplibre.org')) {
     e.respondWith(
       caches.match(e.request).then((res) => {

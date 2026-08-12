@@ -7,7 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   
-  <!-- MapLibre CSS -->
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
@@ -64,7 +63,6 @@
 
     .rotation-group { display: flex; gap: 8px; }
 
-    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
@@ -90,7 +88,6 @@
     .card-val { font-size: 20px; font-weight: 800; color: #fff; }
     .card-lbl { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
 
-    /* MapLibre popup style correction */
     .maplibregl-popup-content { background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; }
     .maplibregl-popup-close-button { color: #fff; font-size: 16px; top: 5px; right: 5px; }
     .maplibregl-popup-tip { border-top-color: #0f172a; }
@@ -98,14 +95,14 @@
 </head>
 <body>
 
-  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando Motor Gráfico e Dados...</div></div>
+  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando o mapa...</div></div>
 
   <div id="map-view" class="view-section">
     <div class="top-panel">
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 12/08/2026 13:39</div>
+          <div class="updated-at">Atualizado em: 12/08/2026 13:44</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -136,6 +133,9 @@
             <label class="checkbox-container">
               <input type="checkbox" id="togglePerimetro" onchange="updateLayersVisibility()" checked> Exibir Perímetro
             </label>
+            <label class="checkbox-container">
+              <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
+            </label>
         </div>
 
         <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 2px 0;">
@@ -148,7 +148,6 @@
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
-      <!-- BOTÕES DE ROTAÇÃO MANUAL -->
       <div class="rotation-group">
           <button class="fab fab-rotate" onclick="rotateMap(-15)" title="Girar Esquerda">↺</button>
           <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
@@ -191,11 +190,9 @@
     </button>
   </div>
 
-  <!-- MapLibre JS (Substituindo o Leaflet para Rotação 3D Perfeita) -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // Inicialização MapLibre (Motor WebGL)
     const map = new maplibregl.Map({
         container: 'map',
         style: {
@@ -219,8 +216,8 @@
         center: [-50.3, -21.2],
         zoom: 6,
         pitchWithRotate: false, 
-        dragRotate: true,       // Gira no PC (Botão direito do mouse)
-        touchZoomRotate: true   // Gira no Celular (Dois dedos)
+        dragRotate: true,       
+        touchZoomRotate: true   
     });
 
     let rawData = null;
@@ -251,7 +248,6 @@
       return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
     
-    // Controles de Rotação Manual
     function rotateMap(delta) {
         map.easeTo({ bearing: map.getBearing() + delta, duration: 300 });
     }
@@ -260,7 +256,6 @@
         map.resetNorthPitch();
     }
 
-    // Calcula os Limites da Tela (Bounding Box)
     function getBounds(features) {
         const bounds = new maplibregl.LngLatBounds();
         features.forEach(f => {
@@ -291,7 +286,6 @@
         populateDropdown(rawData);
         buildDashboard(indicData);
 
-        // Processa os pontos de início e fim das linhas para uso nativo do MapLibre
         const markersFeatures = [];
         linhasData.features.forEach(f => {
             if(f.properties.start_point) {
@@ -311,13 +305,11 @@
         });
 
         map.on('load', () => {
-            // Adiciona as Fontes
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
             map.addSource('linhas', { type: 'geojson', data: linhasData });
             map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
 
-            // Camada Talhões
             map.addLayer({
                 id: 'talhoes-fill',
                 type: 'fill',
@@ -325,7 +317,6 @@
                 paint: { 'fill-color': '#d3d3d3', 'fill-opacity': 0.6 }
             });
 
-            // Camada Perímetro
             map.addLayer({
                 id: 'perimetro-line',
                 type: 'line',
@@ -333,7 +324,6 @@
                 paint: { 'line-color': '#000000', 'line-width': 3 }
             });
 
-            // Camada Linhas
             map.addLayer({
                 id: 'linhas-line',
                 type: 'line',
@@ -341,7 +331,28 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
-            // Marcadores de Início (Verde) e Fim (Vermelho)
+            // Rótulo da Dimensão da Linha, centralizado na geometria
+            map.addLayer({
+                id: 'linhas-labels',
+                type: 'symbol',
+                source: 'linhas',
+                minzoom: 15,
+                layout: {
+                    'symbol-placement': 'line',
+                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
+                    'text-font': ['Open Sans Regular'], 
+                    'text-size': 13,
+                    'text-offset': [0, -1],
+                    'text-anchor': 'bottom',
+                    'text-allow-overlap': false
+                },
+                paint: {
+                    'text-color': '#000000',
+                    'text-halo-color': '#ffffff',
+                    'text-halo-width': 2
+                }
+            });
+
             map.addLayer({
                 id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
@@ -353,29 +364,8 @@
                 minzoom: 14
             });
 
-            // Rótulos de Metragem (Acompanha a curva da linha e gira com o mapa)
-            map.addLayer({
-                id: 'linhas-labels',
-                type: 'symbol',
-                source: 'linhas',
-                minzoom: 16,
-                layout: {
-                    'symbol-placement': 'line',
-                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
-                    'text-font': ['Open Sans Regular'], 
-                    'text-size': 12,
-                    'text-offset': [0, -1]
-                },
-                paint: {
-                    'text-color': '#000000',
-                    'text-halo-color': '#ffffff',
-                    'text-halo-width': 2
-                }
-            });
+            applyTheme(); 
 
-            applyTheme(); // Aplica a tematização padrão
-
-            // Popup para Talhões e Linhas
             const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: '300px' });
 
             function bindPopup(layerId, hiddenProps = []) {
@@ -383,7 +373,10 @@
                     const props = e.features[0].properties;
                     let html = '<div style="font-size:12px; max-height:200px; overflow-y:auto;">';
                     for (let k in props) {
-                        if (!hiddenProps.includes(k)) html += `<b style="color:#38bdf8">${k}:</b> ${props[k]}<br/>`;
+                        // Verifica se o campo deve ser ocultado, ignorando letras maiúsculas e minúsculas
+                        if (!hiddenProps.some(hp => hp.toUpperCase() === k.toUpperCase())) {
+                            html += `<b style="color:#38bdf8">${k}:</b> ${props[k]}<br/>`;
+                        }
                     }
                     html += '</div>';
                     popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
@@ -392,10 +385,10 @@
                 map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
             }
 
-            bindPopup('talhoes-fill');
+            // Oculta colunas específicas dos Talhões e as extremidades das Linhas
+            bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
 
-            // Ajusta o enquadramento inicial
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
@@ -481,17 +474,39 @@
     function updateLayersVisibility() {
         const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
         const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
+        const showLinhas = document.getElementById('toggleLinhas').checked ? 'visible' : 'none';
         
         if (map.getLayer('talhoes-fill')) map.setLayoutProperty('talhoes-fill', 'visibility', showTalhoes);
         if (map.getLayer('perimetro-line')) map.setLayoutProperty('perimetro-line', 'visibility', showPerimetro);
+        
+        // Controle da Camada de Linhas e seus acessórios
+        if (map.getLayer('linhas-line')) map.setLayoutProperty('linhas-line', 'visibility', showLinhas);
+        if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showLinhas);
+        if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
+        if (map.getLayer('markers-end')) map.setLayoutProperty('markers-end', 'visibility', showLinhas);
     }
 
     function populateDropdown(data) {
       const select = document.getElementById('layerSelect');
-      const layersSet = new Set();
-      data.features.forEach(f => { if (f.properties && f.properties.layer) layersSet.add(f.properties.layer); });
-      Array.from(layersSet).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})).forEach(lyr => {
-        const opt = document.createElement('option'); opt.value = lyr; opt.textContent = `Fazenda: ${lyr}`; select.appendChild(opt);
+      const layerMap = new Map();
+      
+      data.features.forEach(f => { 
+          if (f.properties && f.properties.layer) {
+              let lbl = String(f.properties.layer);
+              if (f.properties.fazenda) {
+                  lbl += " - " + String(f.properties.fazenda).toUpperCase();
+              }
+              if (!layerMap.has(f.properties.layer)) {
+                  layerMap.set(f.properties.layer, lbl);
+              }
+          } 
+      });
+      
+      Array.from(layerMap.keys()).sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true})).forEach(lyr => {
+        const opt = document.createElement('option'); 
+        opt.value = lyr; 
+        opt.textContent = layerMap.get(lyr); 
+        select.appendChild(opt);
       });
     }
 
@@ -550,7 +565,6 @@
       );
     }
 
-    // Conversão matemática limpa de Coordenadas para Quadriculados da Esri (Tiles)
     function latLngToTile(lat, lng, z) {
         const x = Math.floor((lng + 180) / 360 * Math.pow(2, z));
         const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
