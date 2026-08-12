@@ -54,13 +54,15 @@
     .nav-item.active { color: #38bdf8; }
     .nav-icon { font-size: 18px; }
 
-    .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; }
-    .fab { width: 50px; height: 50px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); } 
+    .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+    .fab { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 20px;} 
+    .fab-rotate { background: linear-gradient(135deg, #4b5563, #334155); } 
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* LEGENDA FLUTUANTE */
+    .rotation-group { display: flex; gap: 8px; }
+
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
@@ -102,7 +104,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/08/2026 14:48</div>
+          <div class="updated-at">Atualizado em: 12/08/2026 12:16</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -146,8 +148,12 @@
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
-      <!-- BOTÃO DE BÚSSOLA PARA RETORNAR O MAPA AO NORTE -->
-      <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
+      <!-- CONTROLE DE ROTAÇÃO MANUAL E SEGURO -->
+      <div class="rotation-group">
+          <button class="fab fab-rotate" onclick="rotateMap(-15)" title="Girar Esquerda">↺</button>
+          <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
+          <button class="fab fab-rotate" onclick="rotateMap(15)" title="Girar Direita">↻</button>
+      </div>
       <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
@@ -186,23 +192,24 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Plugin Leaflet Rotate para habilitar Rotação via Touch e Mouse -->
   <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
   
   <script>
-    // Inicialização do Mapa com propriedades de rotação ativadas
+    // DESATIVADO touchRotate PARA EVITAR O BUG DE DESLOCAMENTO DO MAPA NO CELULAR
+    // PADDING AUMENTADO NO CANVAS PARA NÃO CORTAR AS BORDAS DURANTE A ROTAÇÃO
     const map = L.map('map', { 
         zoomControl: false,
         rotate: true,
-        touchRotate: true,        
-        shiftKeyRotate: true      
+        touchRotate: false,        
+        shiftKeyRotate: true,
+        preferCanvas: true,
+        renderer: L.canvas({ padding: 1.0 })
     }).setView([-21.2, -50.3], 6);
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19, attribution: 'Esri', crossOrigin: true, zIndex: 1
     }).addTo(map);
 
-    // ORDENAÇÃO DE CAMADAS PARA CORRIGIR SOBREPOSIÇÃO DO MAPA BASE (Z-Index Elevado)
     map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 450;
     map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 460;
     map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 470;
@@ -212,6 +219,7 @@
     let talhoesLayer = null, perimetroLayer = null, rawTalhoesData = null;
 
     const ZOOM_MARKERS = 14;
+    const ZOOM_LABELS = 16;
 
     const PALETTE = {
       "STATUS PROJETO": { "A VALIDAR": "#eab308", "PROJETO FEITO": "#166534", "SEM PROJETO OU OPORTUNIDADE": "#ef4444", "TOTAL CLEMENTINA": "#f97316", "TOTAL QUEIROZ": "#3b82f6" },
@@ -221,6 +229,7 @@
     map.on('zoomend', function() {
       const z = map.getZoom();
       z >= ZOOM_MARKERS ? (!map.hasLayer(markersLayer) && map.addLayer(markersLayer)) : (map.hasLayer(markersLayer) && map.removeLayer(markersLayer));
+      z >= ZOOM_LABELS ? (!map.hasLayer(labelsLayer) && map.addLayer(labelsLayer)) : (map.hasLayer(labelsLayer) && map.removeLayer(labelsLayer));
     });
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
@@ -244,7 +253,13 @@
       return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
     
-    // BÚSSOLA: Retorna a rotação do mapa para 0 graus
+    // FUNÇÕES SEGURAS DE ROTAÇÃO MANUAL GEORREFERENCIADA
+    function rotateMap(delta) {
+        if (typeof map.setBearing === 'function') {
+            map.setBearing(map.getBearing() + delta);
+        }
+    }
+
     function resetRotation() {
         if (typeof map.setBearing === 'function') {
             map.setBearing(0);
@@ -393,14 +408,14 @@
     function renderData(dataFilter) {
       if (geojsonLayer) map.removeLayer(geojsonLayer);
       markersLayer.clearLayers();
+      labelsLayer.clearLayers();
       
       geojsonLayer = L.geoJSON(dataFilter, {
         pane: 'paneLinhas', 
         style: { color: '#000000', weight: 4, opacity: 1.0 },
         onEachFeature: (feature, layer) => {
-          // Popup de linha limpo
           let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;">';
-          const hiddenProps = ['start_point', 'end_point'];
+          const hiddenProps = ['start_point', 'end_point', 'label_angle', 'tamanho_texto'];
           for (let k in feature.properties) {
               if (!hiddenProps.includes(k)) {
                   pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
@@ -410,6 +425,22 @@
           
           if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
           if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
+
+          // Renderização segura dos rótulos
+          if (layer.getBounds) {
+            const center = layer.getBounds().getCenter();
+            const angle = feature.properties.label_angle || 0;
+            const text = feature.properties.tamanho_texto || '';
+
+            const labelIcon = L.divIcon({
+              className: 'line-label',
+              html: `<div class="line-label-text" style="transform: rotate(${angle}deg);">${text}</div>`,
+              iconSize: [80, 20],
+              iconAnchor: [40, 10]
+            });
+
+            L.marker(center, { icon: labelIcon, pane: 'paneLabels', interactive: false }).addTo(labelsLayer);
+          }
         }
       }).addTo(map);
       
