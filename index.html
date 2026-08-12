@@ -7,7 +7,8 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- MapLibre CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
@@ -55,7 +56,7 @@
     .nav-icon { font-size: 18px; }
 
     .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
-    .fab { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .fab { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 20px;} 
     .fab-rotate { background: linear-gradient(135deg, #4b5563, #334155); } 
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
@@ -63,16 +64,11 @@
 
     .rotation-group { display: flex; gap: 8px; }
 
+    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
-
-    .line-label { background: transparent; border: none; box-shadow: none; }
-    .line-label-text {
-      color: #000; font-weight: 800; font-size: 11px; white-space: nowrap;
-      text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff;
-    }
 
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
     .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
@@ -93,18 +89,23 @@
     .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 6px; }
     .card-val { font-size: 20px; font-weight: 800; color: #fff; }
     .card-lbl { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
+
+    /* MapLibre popup style correction */
+    .maplibregl-popup-content { background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; }
+    .maplibregl-popup-close-button { color: #fff; font-size: 16px; top: 5px; right: 5px; }
+    .maplibregl-popup-tip { border-top-color: #0f172a; }
   </style>
 </head>
 <body>
 
-  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando dados agronômicos...</div></div>
+  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando Motor Gráfico e Dados...</div></div>
 
   <div id="map-view" class="view-section">
     <div class="top-panel">
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 12/08/2026 12:31</div>
+          <div class="updated-at">Atualizado em: 12/08/2026 12:48</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -144,10 +145,10 @@
       </div>
     </div>
 
-    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
+      <!-- BOTÕES DE ROTAÇÃO MANUAL -->
       <div class="rotation-group">
           <button class="fab fab-rotate" onclick="rotateMap(-15)" title="Girar Esquerda">↺</button>
           <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
@@ -190,47 +191,44 @@
     </button>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
+  <!-- MapLibre JS (Substituindo o Leaflet para Rotação 3D Perfeita) -->
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // CORREÇÃO DEFINITIVA DE ROTAÇÃO:
-    // Mudado para o renderizador SVG para suportar Rotação Georreferenciada exata
-    // Adicionado padding: 1.0 para desenhar além das margens da tela e não "cortar" as pontas ao girar
-    const map = L.map('map', { 
-        zoomControl: false,
-        rotate: true,
-        touchRotate: true,        
-        shiftKeyRotate: true,
-        preferCanvas: false, 
-        renderer: L.svg({ padding: 1.0 })
-    }).setView([-21.2, -50.3], 6);
+    // Inicialização MapLibre (Motor WebGL)
+    const map = new maplibregl.Map({
+        container: 'map',
+        style: {
+            version: 8,
+            glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+            sources: {
+                'esri-satellite': {
+                    type: 'raster',
+                    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+                    tileSize: 256
+                }
+            },
+            layers: [{
+                id: 'satellite',
+                type: 'raster',
+                source: 'esri-satellite',
+                minzoom: 0,
+                maxzoom: 22
+            }]
+        },
+        center: [-50.3, -21.2],
+        zoom: 6,
+        pitchWithRotate: false, 
+        dragRotate: true,       // Gira no PC (Botão direito do mouse)
+        touchZoomRotate: true   // Gira no Celular (Dois dedos)
+    });
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19, attribution: 'Esri', crossOrigin: true, zIndex: 1
-    }).addTo(map);
-
-    map.createPane('paneTalhoes'); map.getPane('paneTalhoes').style.zIndex = 450;
-    map.createPane('panePerimetro'); map.getPane('panePerimetro').style.zIndex = 460;
-    map.createPane('paneLinhas'); map.getPane('paneLinhas').style.zIndex = 470;
-    map.createPane('paneLabels'); map.getPane('paneLabels').style.zIndex = 480;
-
-    let geojsonLayer = null, rawData = null, markersLayer = L.layerGroup(), labelsLayer = L.layerGroup();
-    let talhoesLayer = null, perimetroLayer = null, rawTalhoesData = null;
-
-    const ZOOM_MARKERS = 14;
-    const ZOOM_LABELS = 16;
+    let rawData = null;
 
     const PALETTE = {
       "STATUS PROJETO": { "A VALIDAR": "#eab308", "PROJETO FEITO": "#166534", "SEM PROJETO OU OPORTUNIDADE": "#ef4444", "TOTAL CLEMENTINA": "#f97316", "TOTAL QUEIROZ": "#3b82f6" },
       "UNIDADE": { "CLEMENTINA": "#f97316", "QUEIROZ": "#3b82f6" }
     };
-
-    map.on('zoomend', function() {
-      const z = map.getZoom();
-      z >= ZOOM_MARKERS ? (!map.hasLayer(markersLayer) && map.addLayer(markersLayer)) : (map.hasLayer(markersLayer) && map.removeLayer(markersLayer));
-      z >= ZOOM_LABELS ? (!map.hasLayer(labelsLayer) && map.addLayer(labelsLayer)) : (map.hasLayer(labelsLayer) && map.removeLayer(labelsLayer));
-    });
 
     function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
 
@@ -240,7 +238,7 @@
         document.getElementById('dash-view').style.display = 'none';
         document.getElementById('btn-nav-map').classList.add('active');
         document.getElementById('btn-nav-dash').classList.remove('active');
-        map.invalidateSize();
+        map.resize();
       } else {
         document.getElementById('map-view').style.display = 'none';
         document.getElementById('dash-view').style.display = 'block';
@@ -253,16 +251,33 @@
       return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
     
+    // Controles de Rotação Manual
     function rotateMap(delta) {
-        if (typeof map.setBearing === 'function') {
-            map.setBearing(map.getBearing() + delta);
-        }
+        map.easeTo({ bearing: map.getBearing() + delta, duration: 300 });
     }
 
     function resetRotation() {
-        if (typeof map.setBearing === 'function') {
-            map.setBearing(0);
-        }
+        map.resetNorthPitch();
+    }
+
+    // Calcula os Limites da Tela (Bounding Box)
+    function getBounds(features) {
+        const bounds = new maplibregl.LngLatBounds();
+        features.forEach(f => {
+            if (!f.geometry || !f.geometry.coordinates) return;
+            if (f.geometry.type === 'LineString' || f.geometry.type === 'Polygon') {
+                f.geometry.coordinates.forEach(c => {
+                    if (typeof c[0] === 'number') bounds.extend(c);
+                    else c.forEach(p => bounds.extend(p));
+                });
+            } else if (f.geometry.type === 'MultiLineString' || f.geometry.type === 'MultiPolygon') {
+                f.geometry.coordinates.forEach(poly => poly.forEach(c => {
+                    if (typeof c[0] === 'number') bounds.extend(c);
+                    else c.forEach(p => bounds.extend(p));
+                }));
+            }
+        });
+        return bounds;
     }
 
     Promise.all([
@@ -272,29 +287,123 @@
       fetch('./indicadores.json').then(r => r.json())
     ]).then(([linhasData, talhoesData, perimetroData, indicData]) => {
         
-        rawTalhoesData = talhoesData;
-        renderTalhoes('default');
-
-        perimetroLayer = L.geoJSON(perimetroData, {
-            pane: 'panePerimetro',
-            style: { color: '#000000', weight: 3, fill: false, opacity: 1.0 },
-            interactive: false
-        }).addTo(map);
-
         rawData = linhasData;
         populateDropdown(rawData);
-        renderData(rawData);
-
         buildDashboard(indicData);
 
-        if (geojsonLayer && geojsonLayer.getBounds().isValid()) {
-            map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
-        }
-        
-        setTimeout(() => { 
-            document.getElementById('loader').style.opacity = '0'; 
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
-        }, 500);
+        // Processa os pontos de início e fim das linhas para uso nativo do MapLibre
+        const markersFeatures = [];
+        linhasData.features.forEach(f => {
+            if(f.properties.start_point) {
+                markersFeatures.push({
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
+                    properties: { type: 'start', layer: f.properties.layer }
+                });
+            }
+            if(f.properties.end_point) {
+                markersFeatures.push({
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [f.properties.end_point[1], f.properties.end_point[0]] },
+                    properties: { type: 'end', layer: f.properties.layer }
+                });
+            }
+        });
+
+        map.on('load', () => {
+            // Adiciona as Fontes
+            map.addSource('talhoes', { type: 'geojson', data: talhoesData });
+            map.addSource('perimetro', { type: 'geojson', data: perimetroData });
+            map.addSource('linhas', { type: 'geojson', data: linhasData });
+            map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
+
+            // Camada Talhões
+            map.addLayer({
+                id: 'talhoes-fill',
+                type: 'fill',
+                source: 'talhoes',
+                paint: { 'fill-color': '#d3d3d3', 'fill-opacity': 0.6 }
+            });
+
+            // Camada Perímetro
+            map.addLayer({
+                id: 'perimetro-line',
+                type: 'line',
+                source: 'perimetro',
+                paint: { 'line-color': '#000000', 'line-width': 3 }
+            });
+
+            // Camada Linhas
+            map.addLayer({
+                id: 'linhas-line',
+                type: 'line',
+                source: 'linhas',
+                paint: { 'line-color': '#000000', 'line-width': 4 }
+            });
+
+            // Marcadores de Início (Verde) e Fim (Vermelho)
+            map.addLayer({
+                id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
+                paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
+                minzoom: 14
+            });
+            map.addLayer({
+                id: 'markers-end', type: 'circle', source: 'markers', filter: ['==', 'type', 'end'],
+                paint: { 'circle-radius': 5, 'circle-color': '#ef4444', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
+                minzoom: 14
+            });
+
+            // Rótulos de Metragem (Acompanha a curva da linha e gira com o mapa)
+            map.addLayer({
+                id: 'linhas-labels',
+                type: 'symbol',
+                source: 'linhas',
+                minzoom: 16,
+                layout: {
+                    'symbol-placement': 'line',
+                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
+                    'text-font': ['Open Sans Regular'], 
+                    'text-size': 12,
+                    'text-offset': [0, -1]
+                },
+                paint: {
+                    'text-color': '#000000',
+                    'text-halo-color': '#ffffff',
+                    'text-halo-width': 2
+                }
+            });
+
+            applyTheme(); // Aplica a tematização padrão
+
+            // Popup para Talhões e Linhas
+            const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: '300px' });
+
+            function bindPopup(layerId, hiddenProps = []) {
+                map.on('click', layerId, (e) => {
+                    const props = e.features[0].properties;
+                    let html = '<div style="font-size:12px; max-height:200px; overflow-y:auto;">';
+                    for (let k in props) {
+                        if (!hiddenProps.includes(k)) html += `<b style="color:#38bdf8">${k}:</b> ${props[k]}<br/>`;
+                    }
+                    html += '</div>';
+                    popup.setLngLat(e.lngLat).setHTML(html).addTo(map);
+                });
+                map.on('mouseenter', layerId, () => map.getCanvas().style.cursor = 'pointer');
+                map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
+            }
+
+            bindPopup('talhoes-fill');
+            bindPopup('linhas-line', ['start_point', 'end_point']);
+
+            // Ajusta o enquadramento inicial
+            const initialBounds = getBounds(rawData.features);
+            if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
+
+            setTimeout(() => { 
+                document.getElementById('loader').style.opacity = '0'; 
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
+            }, 500);
+        });
 
     }).catch(err => { 
         document.querySelector('.loader-text').innerText = "Erro ao carregar os dados agronômicos."; 
@@ -320,52 +429,31 @@
       legendBox.innerHTML = html;
     }
 
-    function renderTalhoes(attrTheme) {
-      if (talhoesLayer) map.removeLayer(talhoesLayer);
-
-      talhoesLayer = L.geoJSON(rawTalhoesData, {
-          pane: 'paneTalhoes',
-          style: (feature) => {
-              let color = '#d3d3d3';
-              let fillOp = 0.5;
-              let weightOp = 1;
-              let bColor = '#94a3b8';
-
-              if (attrTheme !== 'default') {
-                  const attrVal = feature.properties[attrTheme];
-                  if (attrVal) {
-                      const val = String(attrVal).toUpperCase();
-                      if (PALETTE[attrTheme] && PALETTE[attrTheme][val]) {
-                          color = PALETTE[attrTheme][val];
-                          fillOp = 0.7;
-                      } else {
-                          color = '#cbd5e1'; 
-                          fillOp = 0.1;      
-                          weightOp = 0.3;    
-                          bColor = '#e2e8f0';
-                      }
-                  } else {
-                      color = '#cbd5e1'; 
-                      fillOp = 0.1;
-                      weightOp = 0.3;
-                      bColor = '#e2e8f0';
-                  }
-              }
-              return { fillColor: color, color: bColor, weight: weightOp, fillOpacity: fillOp };
-          },
-          onEachFeature: (feature, layer) => {
-              let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;"><b>Atributos do Talhão:</b><br/>';
-              for (let k in feature.properties) pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
-              layer.bindPopup(pop + '</div>');
-          }
-      }).addTo(map);
-
-      updateLegend(attrTheme);
-    }
-
     function applyTheme() {
-      const val = document.getElementById('themeSelect').value;
-      renderTalhoes(val);
+      const attrTheme = document.getElementById('themeSelect').value;
+      if (attrTheme === 'default') {
+          map.setPaintProperty('talhoes-fill', 'fill-color', '#d3d3d3');
+          map.setPaintProperty('talhoes-fill', 'fill-opacity', 0.6);
+          updateLegend('default');
+          return;
+      }
+
+      const colors = PALETTE[attrTheme];
+      const matchExprColor = ['match', ['upcase', ['to-string', ['get', attrTheme]]]];
+      const matchExprOpacity = ['match', ['upcase', ['to-string', ['get', attrTheme]]]];
+
+      for (let key in colors) {
+          if (!key.startsWith("TOTAL")) {
+              matchExprColor.push(key, colors[key]);
+              matchExprOpacity.push(key, 0.7);
+          }
+      }
+      matchExprColor.push('#cbd5e1'); // Cor de itens ausentes
+      matchExprOpacity.push(0.1);     // Opacidade fraca para itens ausentes
+
+      map.setPaintProperty('talhoes-fill', 'fill-color', matchExprColor);
+      map.setPaintProperty('talhoes-fill', 'fill-opacity', matchExprOpacity);
+      updateLegend(attrTheme);
     }
 
     function buildDashboard(data) {
@@ -391,8 +479,11 @@
     }
 
     function updateLayersVisibility() {
-        document.getElementById('toggleTalhoes').checked ? map.addLayer(talhoesLayer) : map.removeLayer(talhoesLayer);
-        document.getElementById('togglePerimetro').checked ? map.addLayer(perimetroLayer) : map.removeLayer(perimetroLayer);
+        const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
+        const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
+        
+        if (map.getLayer('talhoes-fill')) map.setLayoutProperty('talhoes-fill', 'visibility', showTalhoes);
+        if (map.getLayer('perimetro-line')) map.setLayoutProperty('perimetro-line', 'visibility', showPerimetro);
     }
 
     function populateDropdown(data) {
@@ -404,57 +495,34 @@
       });
     }
 
-    function renderData(dataFilter) {
-      if (geojsonLayer) map.removeLayer(geojsonLayer);
-      markersLayer.clearLayers();
-      labelsLayer.clearLayers();
-      
-      geojsonLayer = L.geoJSON(dataFilter, {
-        pane: 'paneLinhas', 
-        style: { color: '#000000', weight: 4, opacity: 1.0 },
-        onEachFeature: (feature, layer) => {
-          let pop = '<div style="color:#0f172a; font-size:12px; max-height:200px; overflow-y:auto;">';
-          const hiddenProps = ['start_point', 'end_point', 'label_angle', 'tamanho_texto'];
-          for (let k in feature.properties) {
-              if (!hiddenProps.includes(k)) {
-                  pop += `<b>${k}:</b> ${feature.properties[k]}<br/>`;
-              }
-          }
-          layer.bindPopup(pop + '</div>');
-          
-          if (feature.properties.start_point) L.circleMarker(feature.properties.start_point, {radius: 5, fillColor: '#22c55e', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
-          if (feature.properties.end_point) L.circleMarker(feature.properties.end_point, {radius: 5, fillColor: '#ef4444', color: '#fff', weight: 1.5, opacity: 1, fillOpacity: 1, pane: 'paneLinhas'}).addTo(markersLayer);
-
-          if (layer.getBounds) {
-            const center = layer.getBounds().getCenter();
-            const angle = feature.properties.label_angle || 0;
-            const text = feature.properties.tamanho_texto || '';
-
-            const labelIcon = L.divIcon({
-              className: 'line-label',
-              html: `<div class="line-label-text" style="transform: rotate(${angle}deg);">${text}</div>`,
-              iconSize: [80, 20],
-              iconAnchor: [40, 10]
-            });
-
-            L.marker(center, { icon: labelIcon, pane: 'paneLabels', interactive: false }).addTo(labelsLayer);
-          }
-        }
-      }).addTo(map);
-      
-      map.fire('zoomend');
-    }
-
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
-      if (!val) return resetView();
-      renderData({ type: 'FeatureCollection', features: rawData.features.filter(f => String(f.properties.layer) === String(val)) });
-      if (geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [40, 40], maxZoom: 17, animate: true });
+      if (!val) {
+          map.setFilter('linhas-line', null);
+          map.setFilter('linhas-labels', null);
+          map.setFilter('markers-start', ['==', 'type', 'start']);
+          map.setFilter('markers-end', ['==', 'type', 'end']);
+          resetView();
+          return;
+      }
+      
+      const filterVal = ['==', ['to-string', ['get', 'layer']], val];
+      map.setFilter('linhas-line', filterVal);
+      map.setFilter('linhas-labels', filterVal);
+      map.setFilter('markers-start', ['all', ['==', 'type', 'start'], filterVal]);
+      map.setFilter('markers-end', ['all', ['==', 'type', 'end'], filterVal]);
+
+      const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
+      const bounds = getBounds(filteredFeatures);
+      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 17 });
     }
 
     function resetView() {
-      document.getElementById('layerSelect').value = ''; renderData(rawData);
-      if (geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30], animate: true });
+      document.getElementById('layerSelect').value = '';
+      if(rawData){
+          const bounds = getBounds(rawData.features);
+          if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 30 });
+      }
     }
 
     function locateUser() {
@@ -462,12 +530,31 @@
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          L.circleMarker([lat, lng], { radius: 8, fillColor: '#3b82f6', color: '#ffffff', weight: 3, opacity: 1, fillOpacity: 1 }).addTo(map).bindPopup("<b>Você está aqui</b>").openPopup();
-          map.setView([lat, lng], 17, { animate: true });
+          
+          if (window.userMarker) window.userMarker.remove();
+          
+          const el = document.createElement('div');
+          el.style.width = '16px'; el.style.height = '16px';
+          el.style.backgroundColor = '#3b82f6'; el.style.borderRadius = '50%';
+          el.style.border = '3px solid #ffffff'; el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+          
+          window.userMarker = new maplibregl.Marker({element: el})
+              .setLngLat([lng, lat])
+              .setPopup(new maplibregl.Popup({offset: 15}).setHTML("<b style='color:#0f172a'>Você está aqui</b>"))
+              .addTo(map);
+              
+          map.flyTo({ center: [lng, lat], zoom: 17 });
         },
         (err) => alert("Erro de GPS: " + err.message),
         { enableHighAccuracy: true }
       );
+    }
+
+    // Conversão matemática limpa de Coordenadas para Quadriculados da Esri (Tiles)
+    function latLngToTile(lat, lng, z) {
+        const x = Math.floor((lng + 180) / 360 * Math.pow(2, z));
+        const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
+        return {x, y};
     }
 
     async function downloadOfflineMap() {
@@ -489,9 +576,10 @@
         const coordsList = feature.geometry.type === 'MultiLineString' ? feature.geometry.coordinates : [feature.geometry.coordinates];
         coordsList.forEach(line => {
           line.forEach(coord => {
-            const latLng = L.latLng(coord[1], coord[0]); 
+            const lat = coord[1]; // LngLat to LatLng
+            const lng = coord[0];
             for (let z = minZ; z <= maxZ; z++) {
-              const p = map.project(latLng, z).divideBy(256).floor();
+              const p = latLngToTile(lat, lng, z);
               for(let dx = -1; dx <= 1; dx++) {
                 for(let dy = -1; dy <= 1; dy++) {
                   tilesSet.add(`${z}/${p.y + dy}/${p.x + dx}`);
