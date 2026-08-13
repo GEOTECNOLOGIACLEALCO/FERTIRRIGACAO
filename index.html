@@ -60,11 +60,13 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
+    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
+    /* TELA DE CARREGAMENTO ANIMADA */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.4s ease; }
     .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
     
@@ -102,7 +104,7 @@
 
     .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-    .dash-header { margin-bottom: 20px; font-size: 18px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .dash-header { margin-bottom: 15px; font-size: 16px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
     .total-area-badge { font-size: 13px; color: #38bdf8; font-weight: 700; }
     .section-title { font-size: 14px; font-weight: 700; color: #38bdf8; margin: 15px 0 10px 0; }
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -117,6 +119,7 @@
 </head>
 <body>
 
+  <!-- TELA DE CARREGAMENTO BLINDADA -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
@@ -147,7 +150,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 14:10</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 14:33</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -182,7 +185,6 @@
               <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
             </label>
             <label class="checkbox-container">
-              <!-- CHECKBOX DE RÓTULO COM VISIBILIDADE LIBERADA -->
               <input type="checkbox" id="toggleRotulos" onchange="updateLayersVisibility()" checked> Exibir Rótulos (Metragem)
             </label>
             <label class="checkbox-container">
@@ -214,10 +216,33 @@
     <div id="map"></div>
   </div>
 
+  <!-- ABA INDICADORES COM O NOVO TÍTULO E O HIDRORROL ANIMADO PERMANENTE -->
   <div id="dash-view" class="view-section">
     <div class="dash-header">
-      <span>Área por Indicador</span>
+      <span>INDICADORES | FERTIRRIGAÇÃO</span>
       <span class="total-area-badge" id="total-area-badge">Total: 0 ha</span>
+    </div>
+
+    <!-- HIDRORROL SEMPRE ATIVO E ANIMADO -->
+    <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 10px 0;">
+        <svg viewBox="0 0 140 100" width="130" height="90">
+            <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+            <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
+            <rect x="5" y="70" width="10" height="15" fill="#475569" />
+            <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+            <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
+            <g class="cart-group">
+                <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
+                <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
+                <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
+                <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+                <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
+                <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
+                <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
+                <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
+            </g>
+        </svg>
     </div>
     
     <div class="section-title">Totalização por Unidades (ha)</div>
@@ -444,22 +469,21 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
-            // CORREÇÃO CRÍTICA DO RÓTULO: VISÍVEL A PARTIR DO ZOOM 10 E COM REGRAS PERMISSIVAS
             map.addLayer({
                 id: 'linhas-labels',
                 type: 'symbol',
                 source: 'labels',
-                minzoom: 10,  // Aparece de bem longe agora!
+                minzoom: 10,
                 layout: {
                     'symbol-placement': 'line',
-                    'symbol-spacing': 100, // Funciona mesmo em linhas bem curtinhas
+                    'symbol-spacing': 100,
                     'text-field': ['concat', ['to-string', ['get', 'Metragem_m']], ' m'],
                     'text-size': 13,
                     'text-offset': [0, -0.7],
                     'text-anchor': 'bottom',
                     'text-keep-upright': true,
-                    'text-allow-overlap': true,      // Obriga o mapa a desenhar o texto
-                    'text-ignore-placement': true    // Proíbe esconde-esconde por colisão
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true
                 },
                 paint: {
                     'text-color': '#000000',
