@@ -98,7 +98,7 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO COM BARRA DE PROGRESSO EM MB -->
+  <!-- TELA DE CARREGAMENTO -->
   <div id="loader">
     <div class="spinner"></div>
     <div class="loader-text">Carregando o mapa...</div>
@@ -113,7 +113,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 09:17</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 09:33</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -159,6 +159,7 @@
       </div>
     </div>
 
+    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
@@ -202,30 +203,45 @@
     </button>
   </div>
 
+  <!-- MapLibre JS -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
+    // SISTEMA SEGURO DE DOWNLOAD DE DADOS
     window.totalAppBytes = 0;
     
     async function fetchWithProgress(url) {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
-      
-      const reader = response.body.getReader();
-      const chunks = [];
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        window.totalAppBytes += value.length;
-        
-        const mb = (window.totalAppBytes / (1024 * 1024)).toFixed(2);
-        document.getElementById('init-progress-text').innerText = `${mb} MB baixados...`;
-        
-        let w = parseFloat(document.getElementById('init-progress-fill').style.width) || 0;
-        if(w < 95) document.getElementById('init-progress-fill').style.width = (w + 2) + '%';
+      try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
+          
+          if (!response.body) {
+              return await response.json();
+          }
+
+          const reader = response.body.getReader();
+          const chunks = [];
+          while (true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+            if (value) {
+                chunks.push(value);
+                window.totalAppBytes += value.length;
+                
+                const mb = (window.totalAppBytes / (1024 * 1024)).toFixed(2);
+                document.getElementById('init-progress-text').innerText = `${mb} MB carregados...`;
+                
+                let w = parseFloat(document.getElementById('init-progress-fill').style.width) || 0;
+                if(w < 95) document.getElementById('init-progress-fill').style.width = (w + 2) + '%';
+            }
+          }
+          const blob = new Blob(chunks);
+          return JSON.parse(await blob.text());
+      } catch (e) {
+          console.warn("Fallback de leitura ativado para:", url);
+          const fallbackRes = await fetch(url);
+          return await fallbackRes.json();
       }
-      return JSON.parse(await new Blob(chunks).text());
     }
 
     const map = new maplibregl.Map({
@@ -316,6 +332,7 @@
     ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
         
         document.getElementById('init-progress-fill').style.width = '100%';
+        document.getElementById('init-progress-text').innerText = 'Construindo o mapa...';
         
         rawData = linhasData;
         populateDropdown(rawData);
@@ -340,7 +357,10 @@
             }
         });
 
-        map.on('load', () => {
+        // FUNÇÃO SEGURA PARA INICIALIZAR O MAPA QUANDO ESTIVER PRONTO (Evita congelamento)
+        const initMapLayers = () => {
+            if (map.getSource('talhoes')) return; // Previne duplicidade
+            
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
             map.addSource('linhas', { type: 'geojson', data: linhasData });
@@ -437,11 +457,22 @@
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
+            // Animação de saída da tela de carregamento (Garantida)
             setTimeout(() => { 
-                document.getElementById('loader').style.opacity = '0'; 
-                setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
+                const loaderEl = document.getElementById('loader');
+                if(loaderEl) {
+                    loaderEl.style.opacity = '0'; 
+                    setTimeout(() => loaderEl.style.display = 'none', 500); 
+                }
             }, 500);
-        });
+        };
+
+        // VALIDAÇÃO PARA NÃO TRAVAR O CELULAR SE O MAPA CARREGAR ANTES DO DOWNLOAD
+        if (map.loaded()) {
+            initMapLayers();
+        } else {
+            map.on('load', initMapLayers);
+        }
 
     }).catch(err => { 
         document.querySelector('.loader-text').innerText = "Erro ao carregar os dados agronômicos."; 
