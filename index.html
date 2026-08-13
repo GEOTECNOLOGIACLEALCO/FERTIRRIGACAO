@@ -60,15 +60,21 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
+    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-    #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; transition: opacity 0.5s ease; }
-    .spinner { width: 60px; height: 60px; border: 5px solid rgba(255, 255, 255, 0.1); border-top: 5px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
+    /* ESTILO DA TELA DE CARREGAMENTO INICIAL */
+    #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.5s ease; }
+    .spinner { width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .loader-text { font-size: 16px; font-weight: 700; color: #f8fafc; animation: pulse 1.5s infinite; }
+    .loader-text { font-size: 14px; font-weight: 700; color: #f8fafc; animation: pulse 1.5s infinite; }
+    
+    .init-progress-container { width: 80%; max-width: 250px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .init-progress-fill { width: 0%; height: 100%; background: #38bdf8; transition: width 0.2s; }
+    .init-progress-text { font-size: 11px; font-weight: 600; color: #94a3b8; }
 
     #progress-container { position: absolute; bottom: 80px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
@@ -92,14 +98,22 @@
 </head>
 <body>
 
-  <div id="loader"><div class="spinner"></div><div class="loader-text">Carregando o mapa...</div></div>
+  <!-- TELA DE CARREGAMENTO COM BARRA DE PROGRESSO EM MB -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Carregando o mapa...</div>
+    <div class="init-progress-container">
+        <div id="init-progress-fill" class="init-progress-fill"></div>
+    </div>
+    <div id="init-progress-text" class="init-progress-text">0.00 MB processados</div>
+  </div>
 
   <div id="map-view" class="view-section">
     <div class="top-panel">
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 12/08/2026 16:39</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 08:22</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -133,6 +147,9 @@
             <label class="checkbox-container">
               <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
             </label>
+            <label class="checkbox-container">
+              <input type="checkbox" id="toggleTubulacao" onchange="updateLayersVisibility()" checked> Exibir Tubulação
+            </label>
         </div>
 
         <hr style="border: 0; height: 1px; background: rgba(255,255,255,0.1); margin: 2px 0;">
@@ -142,14 +159,17 @@
       </div>
     </div>
 
+    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
+      <!-- BÚSSOLA DE ROTACIONAR PARA O NORTE -->
       <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
       <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
 
+    <!-- BARRA DO MAPA OFFLINE (TILES) -->
     <div id="progress-container">
       <div class="progress-text" id="progress-text">Calculando área...</div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -183,9 +203,35 @@
     </button>
   </div>
 
+  <!-- MapLibre JS -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
+    // SISTEMA DE DOWNLOAD COM ACOMPANHAMENTO EM MB PARA A TELA INICIAL
+    window.totalAppBytes = 0;
+    
+    async function fetchWithProgress(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
+      
+      const reader = response.body.getReader();
+      const chunks = [];
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        window.totalAppBytes += value.length;
+        
+        const mb = (window.totalAppBytes / (1024 * 1024)).toFixed(2);
+        document.getElementById('init-progress-text').innerText = `${mb} MB baixados...`;
+        
+        // Simulação de preenchimento para fluidez visual
+        let w = parseFloat(document.getElementById('init-progress-fill').style.width) || 0;
+        if(w < 95) document.getElementById('init-progress-fill').style.width = (w + 2) + '%';
+      }
+      return JSON.parse(await new Blob(chunks).text());
+    }
+
     const map = new maplibregl.Map({
         container: 'map',
         style: {
@@ -264,13 +310,17 @@
         return bounds;
     }
 
+    // Buscando dados com acompanhamento real de MBs
     Promise.all([
-      fetch('./data.geojson').then(r => r.json()),
-      fetch('./talhoes.geojson').then(r => r.json()),
-      fetch('./perimetro.geojson').then(r => r.json()),
-      fetch('./indicadores.json').then(r => r.json()),
-      fetch('./labels.json').then(r => r.json())
-    ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData]) => {
+      fetchWithProgress('./data.geojson'),
+      fetchWithProgress('./talhoes.geojson'),
+      fetchWithProgress('./perimetro.geojson'),
+      fetchWithProgress('./indicadores.json'),
+      fetchWithProgress('./labels.json'),
+      fetchWithProgress('./tubulacao.geojson')
+    ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
+        
+        document.getElementById('init-progress-fill').style.width = '100%';
         
         rawData = linhasData;
         populateDropdown(rawData);
@@ -300,8 +350,12 @@
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
             map.addSource('linhas', { type: 'geojson', data: linhasData });
             map.addSource('labels', { type: 'geojson', data: labelsData });
+            map.addSource('tubulacao', { type: 'geojson', data: tubulacaoData });
             map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
 
+            // A ORDEM DA ADIÇÃO DEFINE QUEM FICA POR CIMA (Z-INDEX NATIVO WEBGL)
+            
+            // 1. Talhões
             map.addLayer({
                 id: 'talhoes-fill',
                 type: 'fill',
@@ -309,6 +363,7 @@
                 paint: { 'fill-color': '#d3d3d3', 'fill-opacity': 0.6 }
             });
 
+            // 2. Perímetro
             map.addLayer({
                 id: 'perimetro-line',
                 type: 'line',
@@ -316,6 +371,15 @@
                 paint: { 'line-color': '#000000', 'line-width': 3 }
             });
 
+            // 3. TUBULAÇÃO (Abaixo da linha de fertirrigação, na cor vermelha e mais grossa)
+            map.addLayer({
+                id: 'tubulacao-line',
+                type: 'line',
+                source: 'tubulacao',
+                paint: { 'line-color': '#ef4444', 'line-width': 6 }
+            });
+
+            // 4. Linhas de Fertirrigação
             map.addLayer({
                 id: 'linhas-line',
                 type: 'line',
@@ -323,7 +387,7 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
-            // CAMADA DE RÓTULOS (EXIBE QUANDO CHEGA PERTO - ZOOM >= 15)
+            // 5. Rótulos das Linhas
             map.addLayer({
                 id: 'linhas-labels',
                 type: 'symbol',
@@ -347,7 +411,7 @@
                 }
             });
 
-            // PONTOS DE INÍCIO E FIM DA LINHA
+            // 6. Marcadores
             map.addLayer({
                 id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
@@ -381,10 +445,12 @@
 
             bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
+            bindPopup('tubulacao-line');
 
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
+            // Animação de saída da tela de carregamento
             setTimeout(() => { 
                 document.getElementById('loader').style.opacity = '0'; 
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
@@ -468,6 +534,7 @@
         const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
         const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
         const showLinhas = document.getElementById('toggleLinhas').checked ? 'visible' : 'none';
+        const showTubulacao = document.getElementById('toggleTubulacao').checked ? 'visible' : 'none';
         
         if (map.getLayer('talhoes-fill')) map.setLayoutProperty('talhoes-fill', 'visibility', showTalhoes);
         if (map.getLayer('perimetro-line')) map.setLayoutProperty('perimetro-line', 'visibility', showPerimetro);
@@ -476,6 +543,8 @@
         if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showLinhas);
         if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
         if (map.getLayer('markers-end')) map.setLayoutProperty('markers-end', 'visibility', showLinhas);
+        
+        if (map.getLayer('tubulacao-line')) map.setLayoutProperty('tubulacao-line', 'visibility', showTubulacao);
     }
 
     function populateDropdown(data) {
@@ -502,7 +571,6 @@
       });
     }
 
-    // CORREÇÃO CRÍTICA DO FILTRO DE PONTOS DE INÍCIO E FIM + LINHAS + TALHÕES
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
       if (!val) {
@@ -512,24 +580,30 @@
           map.setFilter('markers-end', ['==', 'type', 'end']);
           map.setFilter('talhoes-fill', null);
           map.setFilter('perimetro-line', null);
+          if (map.getLayer('tubulacao-line')) map.setFilter('tubulacao-line', null);
           resetView();
           return;
       }
       
       const filterVal = ['==', ['to-string', ['get', 'layer']], String(val)];
       
-      // Aplica o filtro de camada nas Linhas, Labels e Marcadores
       map.setFilter('linhas-line', filterVal);
       map.setFilter('linhas-labels', filterVal);
       map.setFilter('markers-start', ['all', ['==', 'type', 'start'], filterVal]);
       map.setFilter('markers-end', ['all', ['==', 'type', 'end'], filterVal]);
 
-      // Filtro da Fazenda nos Talhões e Perímetro
+      // Aplica o filtro espacial herdado na tubulação, talhões e perímetro
       const fazendaCode = val.substring(0, 6);
       const filterFazenda = ['==', ['slice', ['to-string', ['get', 'FAZENDA']], 0, fazendaCode.length], fazendaCode];
+      const filterTubLayer = ['==', ['slice', ['to-string', ['get', 'layer']], 0, fazendaCode.length], fazendaCode];
       
       map.setFilter('talhoes-fill', filterFazenda);
       map.setFilter('perimetro-line', filterFazenda);
+      
+      if (map.getLayer('tubulacao-line')) {
+          // Filtra a tubulação se ela herdou a layer correta no Python
+          map.setFilter('tubulacao-line', filterTubLayer);
+      }
 
       const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
       const bounds = getBounds(filteredFeatures);
