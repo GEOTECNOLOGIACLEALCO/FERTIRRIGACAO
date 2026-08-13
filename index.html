@@ -60,6 +60,7 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
+    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
@@ -69,12 +70,50 @@
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.5s ease; }
     .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px;}
     
-    .hidrorrol-loader { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
+    /* Botão Pular adicionado */
+    #btn-skip-loader {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.3s;
+    }
+    #btn-skip-loader:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .hidrorrol-loader { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; position: relative; width: 140px; height: 100px; }
+    
+    /* Animações CSS */
+    @keyframes moveCart { 
+        0% { transform: translateX(80px); } 
+        100% { transform: translateX(0px); } 
+    }
+    @keyframes retractHose { 
+        0% { stroke-dashoffset: 0; } 
+        100% { stroke-dashoffset: 80; } 
+    }
+    @keyframes sprayFlow { 
+        from { stroke-dashoffset: 15; } 
+        to { stroke-dashoffset: 0; } 
+    }
+    @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
+
+    /* Componentes SVG */
+    .cart-group { animation: moveCart 8s linear infinite; }
+    .hose-line { 
+        stroke-dasharray: 80;
+        animation: retractHose 8s linear infinite; 
+    }
+    
     .spray-stream { animation: sprayFlow 0.5s linear infinite; opacity: 0.9; }
     .spray-stream-2 { animation: sprayFlow 0.4s linear infinite; opacity: 0.7; }
     .spray-stream-3 { animation: sprayFlow 0.6s linear infinite; opacity: 0.8; }
-    @keyframes sprayFlow { from { stroke-dashoffset: 15; } to { stroke-dashoffset: 0; } }
-    @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
     #progress-container { position: absolute; bottom: 80px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
@@ -101,34 +140,43 @@
   <!-- TELA DE CARREGAMENTO PERSONALIZADA (HIDRORROL ANIMADO) -->
   <div id="loader">
     <div class="hidrorrol-loader">
-        <svg viewBox="0 0 120 100" width="100" height="80">
+        <svg viewBox="0 0 140 100" width="140" height="100">
             <!-- Chão -->
-            <line x1="5" y1="85" x2="115" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+            <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
             
-            <!-- Estrutura do Hidrorrol -->
-            <path d="M 15 85 L 35 45 L 45 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
+            <!-- Mangueira Fixa (estica e retrai) -->
+            <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
+
+            <!-- Rolo Fixo (Base) -->
+            <rect x="5" y="70" width="10" height="15" fill="#475569" />
+            <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+            <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
             
-            <!-- Roda Principal -->
-            <circle cx="25" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
-            <circle cx="25" cy="75" r="3" fill="#cbd5e1" />
-            
-            <!-- Roda Dianteira (menor) -->
-            <circle cx="45" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-            
-            <!-- Mangueira conectada -->
-            <path d="M 5 85 Q 15 80 20 75" fill="none" stroke="#1e293b" stroke-width="4" />
-            
-            <!-- Canhão / Tubo de Aspersão -->
-            <line x1="33" y1="48" x2="55" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
-            <line x1="50" y1="33" x2="60" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
-            
-            <!-- Água sendo jorrada (Múltiplos jatos para dar efeito spray dinâmico) -->
-            <path class="spray-stream" d="M 60 23 Q 85 5 110 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
-            <path class="spray-stream-2" d="M 60 23 Q 80 -5 115 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
-            <path class="spray-stream-3" d="M 60 23 Q 95 15 105 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
+            <!-- Grupo Móvel (Carrinho + Canhão + Água) -->
+            <g class="cart-group">
+                <!-- Estrutura do Carrinho -->
+                <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
+                
+                <!-- Rodas -->
+                <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
+                <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
+                <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+                
+                <!-- Canhão / Tubo de Aspersão -->
+                <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
+                <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                
+                <!-- Água / Vinhaça jorrando -->
+                <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
+                <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
+                <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
+            </g>
         </svg>
     </div>
     <div class="loader-text">Carregando o mapa...</div>
+    
+    <!-- Botão de Pular Carregamento -->
+    <button id="btn-skip-loader" onclick="forceSkipLoader()">Pular e Abrir Mapa</button>
   </div>
 
   <div id="map-view" class="view-section">
@@ -136,7 +184,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 09:58</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 10:10</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -226,9 +274,19 @@
     </button>
   </div>
 
+  <!-- MapLibre JS -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
+    // Função para forçar a saída da tela de carregamento manualmente
+    function forceSkipLoader() {
+        const loaderEl = document.getElementById('loader');
+        if(loaderEl) {
+            loaderEl.style.opacity = '0'; 
+            setTimeout(() => loaderEl.style.display = 'none', 500); 
+        }
+    }
+
     const map = new maplibregl.Map({
         container: 'map',
         style: {
@@ -439,14 +497,8 @@
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
-            // Oculta animação de forma suave
-            setTimeout(() => { 
-                const loaderEl = document.getElementById('loader');
-                if(loaderEl) {
-                    loaderEl.style.opacity = '0'; 
-                    setTimeout(() => loaderEl.style.display = 'none', 500); 
-                }
-            }, 500);
+            // Oculta a tela de loader automaticamente
+            forceSkipLoader();
         };
 
         if (map.loaded()) {
