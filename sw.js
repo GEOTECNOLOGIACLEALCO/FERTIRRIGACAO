@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferti-clealco-v36'; 
+const CACHE_NAME = 'ferti-clealco-v37'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
@@ -28,7 +28,6 @@ self.addEventListener('fetch', (e) => {
       caches.match(e.request).then((res) => res || fetch(e.request).catch(() => new Response('')))
     );
   } else {
-    // ESTRATÉGIA NETWORK-FIRST: Tenta a rede primeiro, se falhar ou estiver offline, puxa do cache
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
     );
