@@ -31,6 +31,19 @@
     .updated-at { font-size: 10px; color: #38bdf8; font-weight: 600; margin-top: 2px; }
     .btn-toggle { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
+    /* CARD DE PRECISÃO DO GPS */
+    .gps-status-bar {
+      align-self: flex-start;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .search-body { padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; transform-origin: top; }
     .search-body.collapsed { opacity: 0; transform: scaleY(0); pointer-events: none; position: absolute; visibility: hidden; }
 
@@ -104,7 +117,7 @@
 
     .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-    .dash-header { margin-bottom: 15px; font-size: 16px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .dash-header { margin-bottom: 20px; font-size: 18px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
     .total-area-badge { font-size: 13px; color: #38bdf8; font-weight: 700; }
     .section-title { font-size: 14px; font-weight: 700; color: #38bdf8; margin: 15px 0 10px 0; }
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -119,7 +132,7 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO BLINDADA -->
+  <!-- TELA DE CARREGAMENTO ANIMADA -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
@@ -150,9 +163,15 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 14:33</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 16:33</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
+      </div>
+
+      <!-- CARD DE STATUS DO GPS CONTINUO -->
+      <div class="gps-status-bar glass">
+        <span>🎯</span>
+        <span id="gps-accuracy-text">GPS: Conectando aos satélites...</span>
       </div>
 
       <div class="search-body glass collapsed" id="search-box">
@@ -204,7 +223,7 @@
 
     <div class="fab-group">
       <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
-      <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
+      <button class="fab fab-gps" onclick="locateUser()" title="Ir para minha posição">🎯</button>
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
 
@@ -216,33 +235,33 @@
     <div id="map"></div>
   </div>
 
-  <!-- ABA INDICADORES COM O NOVO TÍTULO E O HIDRORROL ANIMADO PERMANENTE -->
   <div id="dash-view" class="view-section">
     <div class="dash-header">
       <span>INDICADORES | FERTIRRIGAÇÃO</span>
       <span class="total-area-badge" id="total-area-badge">Total: 0 ha</span>
     </div>
 
-    <!-- HIDRORROL SEMPRE ATIVO E ANIMADO -->
-    <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 10px 0;">
-        <svg viewBox="0 0 140 100" width="130" height="90">
-            <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
-            <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
-            <rect x="5" y="70" width="10" height="15" fill="#475569" />
-            <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-            <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
-            <g class="cart-group">
-                <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
-                <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
-                <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
-                <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-                <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
-                <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
-                <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
-                <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
-                <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
-            </g>
-        </svg>
+    <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0;">
+        <div class="hidrorrol-loader" style="margin-bottom: 0;">
+            <svg viewBox="0 0 140 100" width="120" height="85">
+                <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
+                <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
+                <rect x="5" y="70" width="10" height="15" fill="#475569" />
+                <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+                <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
+                <g class="cart-group">
+                    <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
+                    <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
+                    <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
+                    <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
+                    <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
+                    <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
+                    <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
+                    <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
+                    <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
+                </g>
+            </svg>
+        </div>
     </div>
     
     <div class="section-title">Totalização por Unidades (ha)</div>
@@ -268,6 +287,69 @@
   
   <script>
     window.appAbortController = new AbortController();
+    let currentPos = null;
+
+    // RASTREAMENTO CONTINUO DO GPS (FUNCIONA TOTALMENTE OFFLINE VIA SATÉLITE DO CELULAR)
+    function startContinuousGPS() {
+        if (!navigator.geolocation) {
+            const txt = document.getElementById('gps-accuracy-text');
+            if(txt) txt.innerText = "GPS Indisponível no dispositivo";
+            return;
+        }
+
+        navigator.geolocation.watchPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                const acc = Math.round(pos.coords.accuracy);
+                currentPos = [lng, lat];
+
+                // Avalia e colore a qualidade da precisão
+                let qual = "Baixa";
+                let color = "#ef4444"; // Vermelho
+                if (acc <= 10) { qual = "Excelente"; color = "#22c55e"; } // Verde
+                else if (acc <= 25) { qual = "Boa"; color = "#eab308"; } // Amarelo
+
+                const statusEl = document.getElementById('gps-accuracy-text');
+                if (statusEl) {
+                    statusEl.innerHTML = `GPS: <span style="color:${color}; font-weight:800">${acc}m (${qual})</span>`;
+                }
+
+                // Desenha ou move a bolinha do usuário no mapa em tempo real
+                if (window.mapLoaded) {
+                    if (!window.userMarker) {
+                        const el = document.createElement('div');
+                        el.style.width = '16px'; el.style.height = '16px';
+                        el.style.backgroundColor = '#3b82f6'; el.style.borderRadius = '50%';
+                        el.style.border = '3px solid #ffffff'; el.style.boxShadow = '0 0 12px rgba(59, 130, 246, 0.8)';
+                        
+                        window.userMarker = new maplibregl.Marker({element: el})
+                            .setLngLat([lng, lat])
+                            .addTo(map);
+                    } else {
+                        window.userMarker.setLngLat([lng, lat]);
+                    }
+                }
+            },
+            (err) => {
+                const statusEl = document.getElementById('gps-accuracy-text');
+                if (statusEl) statusEl.innerHTML = `<span style="color:#ef4444">GPS: Sem sinal de satélite</span>`;
+            },
+            { 
+                enableHighAccuracy: true, 
+                maximumAge: 2000, 
+                timeout: 15000 
+            }
+        );
+    }
+
+    function locateUser() {
+        if (currentPos) {
+            map.flyTo({ center: currentPos, zoom: 17 });
+        } else {
+            alert("Aguardando os satélites localizarem seu dispositivo...");
+        }
+    }
 
     function forceSkipLoader() {
         window.appAbortController.abort();
@@ -395,6 +477,9 @@
         return bounds;
     }
 
+    // Liga a escuta do GPS assim que a página abre
+    startContinuousGPS();
+
     Promise.all([
       fetchSafeData('./data.geojson'),
       fetchSafeData('./talhoes.geojson'),
@@ -433,6 +518,7 @@
         const initMapLayers = () => {
             if (layersInit) return; 
             layersInit = true;
+            window.mapLoaded = true;
             
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
@@ -488,7 +574,7 @@
                 paint: {
                     'text-color': '#000000',
                     'text-halo-color': '#ffffff',
-                    'text-halo-width': 3.0
+                    'text-halo-width': 2.5
                 }
             });
 
@@ -707,31 +793,6 @@
           const bounds = getBounds(rawData.features);
           if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 30 });
       }
-    }
-
-    function locateUser() {
-      if (!navigator.geolocation) return alert("Sua localização GPS não está disponível.");
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          
-          if (window.userMarker) window.userMarker.remove();
-          
-          const el = document.createElement('div');
-          el.style.width = '16px'; el.style.height = '16px';
-          el.style.backgroundColor = '#3b82f6'; el.style.borderRadius = '50%';
-          el.style.border = '3px solid #ffffff'; el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-          
-          window.userMarker = new maplibregl.Marker({element: el})
-              .setLngLat([lng, lat])
-              .setPopup(new maplibregl.Popup({offset: 15}).setHTML("<b style='color:#0f172a'>Você está aqui</b>"))
-              .addTo(map);
-              
-          map.flyTo({ center: [lng, lat], zoom: 17 });
-        },
-        (err) => alert("Erro de GPS: " + err.message),
-        { enableHighAccuracy: true }
-      );
     }
 
     function latLngToTile(lat, lng, z) {
