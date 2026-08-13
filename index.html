@@ -66,11 +66,10 @@
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* NOVA ANIMAÇÃO DO HIDRORROL */
-    #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.5s ease; }
+    /* TELA DE CARREGAMENTO ANIMADA */
+    #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.4s ease; }
     .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
     
-    /* Botão de Pular com Disjuntor de Rede (Offline Fallback) */
     #btn-skip-loader {
         margin-top: 20px;
         padding: 10px 20px;
@@ -87,19 +86,9 @@
     
     .hidrorrol-loader { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; position: relative; width: 140px; height: 100px; }
     
-    /* Animações CSS do Hidrorrol */
-    @keyframes moveCart { 
-        0% { transform: translateX(80px); } 
-        100% { transform: translateX(0px); } 
-    }
-    @keyframes retractHose { 
-        0% { stroke-dashoffset: 0; } 
-        100% { stroke-dashoffset: 80; } 
-    }
-    @keyframes sprayFlow { 
-        from { stroke-dashoffset: 15; } 
-        to { stroke-dashoffset: 0; } 
-    }
+    @keyframes moveCart { 0% { transform: translateX(80px); } 100% { transform: translateX(0px); } }
+    @keyframes retractHose { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 80; } }
+    @keyframes sprayFlow { from { stroke-dashoffset: 15; } to { stroke-dashoffset: 0; } }
     @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
     .cart-group { animation: moveCart 8s linear infinite; }
@@ -130,19 +119,15 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO PRINCIPAL -->
+  <!-- TELA DE CARREGAMENTO BLINDADA -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
-            <!-- Chão -->
             <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
-            <!-- Mangueira Fixa -->
             <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
-            <!-- Rolo Fixo (Base) -->
             <rect x="5" y="70" width="10" height="15" fill="#475569" />
             <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
             <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
-            <!-- Grupo Móvel -->
             <g class="cart-group">
                 <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
                 <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
@@ -165,7 +150,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 10:38</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 11:04</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -215,13 +200,11 @@
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
-      <!-- BÚSSOLA DE ROTACIONAR PARA O NORTE -->
       <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
       <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
 
-    <!-- BARRA DO MAPA OFFLINE (APARECE APENAS AO CLICAR EM BAIXAR) -->
     <div id="progress-container">
       <div class="progress-text" id="progress-text">Calculando área...</div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -258,55 +241,60 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // CONTROLE DE INTERRUPÇÃO PARA LER DO CACHE LOCAL INSTANTANEAMENTE
+    // DISJUNTOR DE EMERGÊNCIA (Corta o download na marra)
     window.appAbortController = new AbortController();
 
-    async function fetchWithProgress(url) {
-      try {
-          const response = await fetch(url, { signal: window.appAbortController.signal });
-          if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
-          
-          if (!response.body) {
-              return await response.json();
-          }
-
-          const reader = response.body.getReader();
-          const chunks = [];
-          while (true) {
-            const {done, value} = await reader.read();
-            if (done) break;
-            if (value) {
-                chunks.push(value);
-            }
-          }
-          const blob = new Blob(chunks);
-          return JSON.parse(await blob.text());
-      } catch (e) {
-          console.warn("Conexão interrompida ou falha. Lendo do cache offline local para:", url);
-          // O AbortController joga o código para cá imediatamente quando clica em Pular
-          const cachedRes = await caches.match(url);
-          if (cachedRes) {
-              return await cachedRes.json();
-          }
-          const fallbackRes = await fetch(url);
-          return await fallbackRes.json();
-      }
-    }
-
     function forceSkipLoader() {
-        if (window.appAbortController) {
-            window.appAbortController.abort(); // Cancela o download da rede e força o Catch puxar o mapa do disco
-        }
-        const loaderText = document.querySelector('.loader-text');
-        if (loaderText) loaderText.innerText = "Lendo armazenamento local...";
+        window.appAbortController.abort();
+        const txt = document.querySelector('.loader-text');
+        if(txt) txt.innerText = "Iniciando modo offline...";
+        
+        // Esconde forçado e absoluto
+        setTimeout(() => {
+            const loaderEl = document.getElementById('loader');
+            if(loaderEl) {
+                loaderEl.style.opacity = '0'; 
+                setTimeout(() => loaderEl.style.display = 'none', 400); 
+            }
+        }, 500);
     }
 
-    function hideLoader() {
-        const loaderEl = document.getElementById('loader');
-        if(loaderEl) {
-            loaderEl.style.opacity = '0'; 
-            setTimeout(() => loaderEl.style.display = 'none', 500); 
-        }
+    // FUNÇÃO DE BUSCA BLINDADA COM TIMEOUT (5s max)
+    async function fetchSafeData(url) {
+        return new Promise(async (resolve) => {
+            let finished = false;
+            const controller = new AbortController();
+            
+            // Timeout contra H+ Lixo
+            const timer = setTimeout(() => {
+                if (!finished) controller.abort();
+            }, 5000);
+
+            // Escuta o botão Pular
+            window.appAbortController.signal.addEventListener('abort', () => {
+                if (!finished) controller.abort();
+            });
+
+            try {
+                const res = await fetch(url, { signal: controller.signal });
+                clearTimeout(timer);
+                finished = true;
+                resolve(await res.json());
+            } catch (e) {
+                // Caiu aqui = Internet pifou, timeout estourou ou o chefe mandou pular
+                try {
+                    const cached = await caches.match(url);
+                    if (cached) {
+                        finished = true;
+                        resolve(await cached.json());
+                    } else {
+                        resolve({ type: "FeatureCollection", features: [] });
+                    }
+                } catch (errCache) {
+                    resolve({ type: "FeatureCollection", features: [] });
+                }
+            }
+        });
     }
 
     const map = new maplibregl.Map({
@@ -388,12 +376,12 @@
     }
 
     Promise.all([
-      fetchWithProgress('./data.geojson'),
-      fetchWithProgress('./talhoes.geojson'),
-      fetchWithProgress('./perimetro.geojson'),
-      fetchWithProgress('./indicadores.json'),
-      fetchWithProgress('./labels.json'),
-      fetchWithProgress('./tubulacao.geojson')
+      fetchSafeData('./data.geojson'),
+      fetchSafeData('./talhoes.geojson'),
+      fetchSafeData('./perimetro.geojson'),
+      fetchSafeData('./indicadores.json'),
+      fetchSafeData('./labels.json'),
+      fetchSafeData('./tubulacao.geojson')
     ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
         
         rawData = linhasData;
@@ -401,26 +389,30 @@
         buildDashboard(indicData);
 
         const markersFeatures = [];
-        linhasData.features.forEach(f => {
-            const lyr = String(f.properties.layer || '');
-            if(f.properties.start_point) {
-                markersFeatures.push({
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
-                    properties: { type: 'start', layer: lyr }
-                });
-            }
-            if(f.properties.end_point) {
-                markersFeatures.push({
-                    type: 'Feature',
-                    geometry: { type: 'Point', coordinates: [f.properties.end_point[1], f.properties.end_point[0]] },
-                    properties: { type: 'end', layer: lyr }
-                });
-            }
-        });
+        if(linhasData.features) {
+            linhasData.features.forEach(f => {
+                const lyr = String(f.properties.layer || '');
+                if(f.properties.start_point) {
+                    markersFeatures.push({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
+                        properties: { type: 'start', layer: lyr }
+                    });
+                }
+                if(f.properties.end_point) {
+                    markersFeatures.push({
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: [f.properties.end_point[1], f.properties.end_point[0]] },
+                        properties: { type: 'end', layer: lyr }
+                    });
+                }
+            });
+        }
 
+        let layersInit = false;
         const initMapLayers = () => {
-            if (map.getSource('talhoes')) return; 
+            if (layersInit) return; 
+            layersInit = true;
             
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
@@ -515,21 +507,30 @@
             bindPopup('linhas-line', ['start_point', 'end_point']);
             bindPopup('tubulacao-line');
 
-            const initialBounds = getBounds(rawData.features);
-            if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
+            if (rawData && rawData.features) {
+                const initialBounds = getBounds(rawData.features);
+                if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
+            }
 
-            hideLoader(); // Saída segura e garantida
+            // Libera a tela suavemente
+            const loaderEl = document.getElementById('loader');
+            if(loaderEl) {
+                loaderEl.style.opacity = '0'; 
+                setTimeout(() => loaderEl.style.display = 'none', 500); 
+            }
         };
 
-        if (map.loaded()) {
+        if (map.loaded() || map.isStyleLoaded()) {
             initMapLayers();
         } else {
-            map.on('load', initMapLayers);
+            map.once('load', initMapLayers);
+            // Salva-vidas caso a internet falhe no estilo de satélite
+            setTimeout(initMapLayers, 3500); 
         }
 
     }).catch(err => { 
         const txt = document.querySelector('.loader-text');
-        if(txt) txt.innerText = "Erro ao carregar dados do app offline."; 
+        if (txt) txt.innerText = "Erro ao carregar dados do app offline."; 
         console.error(err);
     });
 
@@ -580,6 +581,7 @@
     }
 
     function buildDashboard(data) {
+      if (!data) return;
       document.getElementById('total-area-badge').innerText = `Total: ${formatNumber(data.area_total_ha)} ha`;
 
       const createCards = (arr, elementId, colorPalette) => {
@@ -619,6 +621,7 @@
     }
 
     function populateDropdown(data) {
+      if (!data || !data.features) return;
       const select = document.getElementById('layerSelect');
       const layerMap = new Map();
       
@@ -681,7 +684,7 @@
 
     function resetView() {
       document.getElementById('layerSelect').value = '';
-      if(rawData){
+      if(rawData && rawData.features){
           const bounds = getBounds(rawData.features);
           if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 30 });
       }
