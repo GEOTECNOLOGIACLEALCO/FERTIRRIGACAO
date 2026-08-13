@@ -150,7 +150,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 11:04</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 11:19</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -185,6 +185,10 @@
               <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
             </label>
             <label class="checkbox-container">
+              <!-- NOVO BOTÃO DE RÓTULOS (METRAGEM) -->
+              <input type="checkbox" id="toggleRotulos" onchange="updateLayersVisibility()" checked> Exibir Rótulos (Metragem)
+            </label>
+            <label class="checkbox-container">
               <input type="checkbox" id="toggleTubulacao" onchange="updateLayersVisibility()" checked> Exibir Tubulação
             </label>
         </div>
@@ -196,7 +200,6 @@
       </div>
     </div>
 
-    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
@@ -241,7 +244,6 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // DISJUNTOR DE EMERGÊNCIA (Corta o download na marra)
     window.appAbortController = new AbortController();
 
     function forceSkipLoader() {
@@ -249,7 +251,6 @@
         const txt = document.querySelector('.loader-text');
         if(txt) txt.innerText = "Iniciando modo offline...";
         
-        // Esconde forçado e absoluto
         setTimeout(() => {
             const loaderEl = document.getElementById('loader');
             if(loaderEl) {
@@ -259,18 +260,15 @@
         }, 500);
     }
 
-    // FUNÇÃO DE BUSCA BLINDADA COM TIMEOUT (5s max)
     async function fetchSafeData(url) {
         return new Promise(async (resolve) => {
             let finished = false;
             const controller = new AbortController();
             
-            // Timeout contra H+ Lixo
             const timer = setTimeout(() => {
                 if (!finished) controller.abort();
             }, 5000);
 
-            // Escuta o botão Pular
             window.appAbortController.signal.addEventListener('abort', () => {
                 if (!finished) controller.abort();
             });
@@ -281,7 +279,6 @@
                 finished = true;
                 resolve(await res.json());
             } catch (e) {
-                // Caiu aqui = Internet pifou, timeout estourou ou o chefe mandou pular
                 try {
                     const cached = await caches.match(url);
                     if (cached) {
@@ -505,14 +502,13 @@
 
             bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
-            bindPopup('tubulacao-line');
+            // REMOVIDO POPUP DA TUBULAÇÃO
 
             if (rawData && rawData.features) {
                 const initialBounds = getBounds(rawData.features);
                 if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
             }
 
-            // Libera a tela suavemente
             const loaderEl = document.getElementById('loader');
             if(loaderEl) {
                 loaderEl.style.opacity = '0'; 
@@ -524,7 +520,6 @@
             initMapLayers();
         } else {
             map.once('load', initMapLayers);
-            // Salva-vidas caso a internet falhe no estilo de satélite
             setTimeout(initMapLayers, 3500); 
         }
 
@@ -603,19 +598,22 @@
       createCards(data.projeto_queiroz, 'grid-proj-que', PALETTE["STATUS PROJETO"]);
     }
 
+    // VISIBILIDADE DAS CAMADAS ATUALIZADA
     function updateLayersVisibility() {
         const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
         const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
         const showLinhas = document.getElementById('toggleLinhas').checked ? 'visible' : 'none';
+        const showRotulos = document.getElementById('toggleRotulos').checked ? 'visible' : 'none';
         const showTubulacao = document.getElementById('toggleTubulacao').checked ? 'visible' : 'none';
         
         if (map.getLayer('talhoes-fill')) map.setLayoutProperty('talhoes-fill', 'visibility', showTalhoes);
         if (map.getLayer('perimetro-line')) map.setLayoutProperty('perimetro-line', 'visibility', showPerimetro);
         
         if (map.getLayer('linhas-line')) map.setLayoutProperty('linhas-line', 'visibility', showLinhas);
-        if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showLinhas);
         if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
         if (map.getLayer('markers-end')) map.setLayoutProperty('markers-end', 'visibility', showLinhas);
+        
+        if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showRotulos);
         
         if (map.getLayer('tubulacao-line')) map.setLayoutProperty('tubulacao-line', 'visibility', showTubulacao);
     }
