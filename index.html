@@ -7,7 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   
-  <!-- MapLibre CSS -->
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
@@ -58,13 +57,9 @@
     .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
     .fab { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 20px;} 
-    .fab-rotate { background: linear-gradient(135deg, #4b5563, #334155); } 
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    .rotation-group { display: flex; gap: 8px; }
-
-    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
@@ -90,7 +85,6 @@
     .card-val { font-size: 20px; font-weight: 800; color: #fff; }
     .card-lbl { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
 
-    /* MapLibre popup style correction */
     .maplibregl-popup-content { background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; }
     .maplibregl-popup-close-button { color: #fff; font-size: 16px; top: 5px; right: 5px; }
     .maplibregl-popup-tip { border-top-color: #0f172a; }
@@ -105,7 +99,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 12/08/2026 14:07</div>
+          <div class="updated-at">Atualizado em: 12/08/2026 16:39</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -148,16 +142,10 @@
       </div>
     </div>
 
-    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
-      <!-- BOTÕES DE ROTAÇÃO MANUAL E BÚSSOLA -->
-      <div class="rotation-group">
-          <button class="fab fab-rotate" onclick="rotateMap(-15)" title="Girar Esquerda">↺</button>
-          <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
-          <button class="fab fab-rotate" onclick="rotateMap(15)" title="Girar Direita">↻</button>
-      </div>
+      <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
       <button class="fab fab-gps" onclick="locateUser()" title="Minha Localização">🎯</button>
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
@@ -195,11 +183,9 @@
     </button>
   </div>
 
-  <!-- MapLibre JS (Motor WebGL) -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // Inicialização MapLibre (Motor WebGL)
     const map = new maplibregl.Map({
         container: 'map',
         style: {
@@ -223,8 +209,8 @@
         center: [-50.3, -21.2],
         zoom: 6,
         pitchWithRotate: false, 
-        dragRotate: true,       // Gira no PC (Botão direito do mouse)
-        touchZoomRotate: true   // Gira no Celular (Dois dedos)
+        dragRotate: true,       
+        touchZoomRotate: true   
     });
 
     let rawData = null;
@@ -254,11 +240,6 @@
     function formatNumber(num) {
       return num.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     }
-    
-    // Controles de Rotação Manual
-    function rotateMap(delta) {
-        map.easeTo({ bearing: map.getBearing() + delta, duration: 300 });
-    }
 
     function resetRotation() {
         map.resetNorthPitch();
@@ -287,8 +268,9 @@
       fetch('./data.geojson').then(r => r.json()),
       fetch('./talhoes.geojson').then(r => r.json()),
       fetch('./perimetro.geojson').then(r => r.json()),
-      fetch('./indicadores.json').then(r => r.json())
-    ]).then(([linhasData, talhoesData, perimetroData, indicData]) => {
+      fetch('./indicadores.json').then(r => r.json()),
+      fetch('./labels.json').then(r => r.json())
+    ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData]) => {
         
         rawData = linhasData;
         populateDropdown(rawData);
@@ -296,30 +278,30 @@
 
         const markersFeatures = [];
         linhasData.features.forEach(f => {
+            const lyr = String(f.properties.layer || '');
             if(f.properties.start_point) {
                 markersFeatures.push({
                     type: 'Feature',
                     geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
-                    properties: { type: 'start', layer: f.properties.layer }
+                    properties: { type: 'start', layer: lyr }
                 });
             }
             if(f.properties.end_point) {
                 markersFeatures.push({
                     type: 'Feature',
                     geometry: { type: 'Point', coordinates: [f.properties.end_point[1], f.properties.end_point[0]] },
-                    properties: { type: 'end', layer: f.properties.layer }
+                    properties: { type: 'end', layer: lyr }
                 });
             }
         });
 
         map.on('load', () => {
-            // Adiciona as Fontes
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
             map.addSource('linhas', { type: 'geojson', data: linhasData });
+            map.addSource('labels', { type: 'geojson', data: labelsData });
             map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
 
-            // Camada Talhões
             map.addLayer({
                 id: 'talhoes-fill',
                 type: 'fill',
@@ -327,7 +309,6 @@
                 paint: { 'fill-color': '#d3d3d3', 'fill-opacity': 0.6 }
             });
 
-            // Camada Perímetro
             map.addLayer({
                 id: 'perimetro-line',
                 type: 'line',
@@ -335,7 +316,6 @@
                 paint: { 'line-color': '#000000', 'line-width': 3 }
             });
 
-            // Camada Linhas
             map.addLayer({
                 id: 'linhas-line',
                 type: 'line',
@@ -343,7 +323,31 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
-            // Marcadores de Início (Verde) e Fim (Vermelho)
+            // CAMADA DE RÓTULOS (EXIBE QUANDO CHEGA PERTO - ZOOM >= 15)
+            map.addLayer({
+                id: 'linhas-labels',
+                type: 'symbol',
+                source: 'labels',
+                minzoom: 15,
+                layout: {
+                    'symbol-placement': 'line',
+                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
+                    'text-font': ['Open Sans Regular'], 
+                    'text-size': 13,
+                    'text-offset': [0, -0.5],
+                    'text-anchor': 'bottom',
+                    'text-keep-upright': true,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true
+                },
+                paint: {
+                    'text-color': '#000000',
+                    'text-halo-color': '#ffffff',
+                    'text-halo-width': 2.5
+                }
+            });
+
+            // PONTOS DE INÍCIO E FIM DA LINHA
             map.addLayer({
                 id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
@@ -355,33 +359,8 @@
                 minzoom: 14
             });
 
-            // Rótulos de Metragem: ALINHADOS e DIRECIONADOS com a Linha
-            map.addLayer({
-                id: 'linhas-labels',
-                type: 'symbol',
-                source: 'linhas',
-                minzoom: 15,
-                layout: {
-                    'symbol-placement': 'line',
-                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
-                    'text-font': ['Open Sans Regular'], 
-                    'text-size': 13,
-                    'text-offset': [0, -0.5], 
-                    'text-anchor': 'bottom',
-                    'text-keep-upright': true,
-                    'text-allow-overlap': true,
-                    'text-ignore-placement': true
-                },
-                paint: {
-                    'text-color': '#000000',
-                    'text-halo-color': '#ffffff',
-                    'text-halo-width': 2
-                }
-            });
+            applyTheme(); 
 
-            applyTheme(); // Aplica a tematização padrão
-
-            // Popup para Talhões e Linhas
             const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: true, maxWidth: '300px' });
 
             function bindPopup(layerId, hiddenProps = []) {
@@ -400,11 +379,9 @@
                 map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
             }
 
-            // Oculta colunas específicas dos Talhões e as extremidades das Linhas no Popup
             bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
 
-            // Ajusta o enquadramento inicial
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
@@ -457,8 +434,8 @@
               matchExprOpacity.push(key, 0.7);
           }
       }
-      matchExprColor.push('#cbd5e1'); // Cor de itens ausentes
-      matchExprOpacity.push(0.1);     // Opacidade fraca para itens ausentes
+      matchExprColor.push('#cbd5e1'); 
+      matchExprOpacity.push(0.1);     
 
       map.setPaintProperty('talhoes-fill', 'fill-color', matchExprColor);
       map.setPaintProperty('talhoes-fill', 'fill-opacity', matchExprOpacity);
@@ -495,7 +472,6 @@
         if (map.getLayer('talhoes-fill')) map.setLayoutProperty('talhoes-fill', 'visibility', showTalhoes);
         if (map.getLayer('perimetro-line')) map.setLayoutProperty('perimetro-line', 'visibility', showPerimetro);
         
-        // Controle da Camada de Linhas e seus acessórios
         if (map.getLayer('linhas-line')) map.setLayoutProperty('linhas-line', 'visibility', showLinhas);
         if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showLinhas);
         if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
@@ -526,6 +502,7 @@
       });
     }
 
+    // CORREÇÃO CRÍTICA DO FILTRO DE PONTOS DE INÍCIO E FIM + LINHAS + TALHÕES
     function filterMap() {
       const val = document.getElementById('layerSelect').value;
       if (!val) {
@@ -533,15 +510,26 @@
           map.setFilter('linhas-labels', null);
           map.setFilter('markers-start', ['==', 'type', 'start']);
           map.setFilter('markers-end', ['==', 'type', 'end']);
+          map.setFilter('talhoes-fill', null);
+          map.setFilter('perimetro-line', null);
           resetView();
           return;
       }
       
-      const filterVal = ['==', ['to-string', ['get', 'layer']], val];
+      const filterVal = ['==', ['to-string', ['get', 'layer']], String(val)];
+      
+      // Aplica o filtro de camada nas Linhas, Labels e Marcadores
       map.setFilter('linhas-line', filterVal);
       map.setFilter('linhas-labels', filterVal);
       map.setFilter('markers-start', ['all', ['==', 'type', 'start'], filterVal]);
       map.setFilter('markers-end', ['all', ['==', 'type', 'end'], filterVal]);
+
+      // Filtro da Fazenda nos Talhões e Perímetro
+      const fazendaCode = val.substring(0, 6);
+      const filterFazenda = ['==', ['slice', ['to-string', ['get', 'FAZENDA']], 0, fazendaCode.length], fazendaCode];
+      
+      map.setFilter('talhoes-fill', filterFazenda);
+      map.setFilter('perimetro-line', filterFazenda);
 
       const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
       const bounds = getBounds(filteredFeatures);
@@ -606,7 +594,7 @@
         const coordsList = feature.geometry.type === 'MultiLineString' ? feature.geometry.coordinates : [feature.geometry.coordinates];
         coordsList.forEach(line => {
           line.forEach(coord => {
-            const lat = coord[1]; // LngLat to LatLng
+            const lat = coord[1]; 
             const lng = coord[0];
             for (let z = minZ; z <= maxZ; z++) {
               const p = latLngToTile(lat, lng, z);

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'ferti-clealco-v30'; 
+const CACHE_NAME = 'ferti-clealco-v32'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
-  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './indicadores.json', './manifest.json',
+  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './indicadores.json', './labels.json', './manifest.json',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
