@@ -150,7 +150,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 11:19</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 11:30</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -185,7 +185,7 @@
               <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
             </label>
             <label class="checkbox-container">
-              <!-- NOVO BOTÃO DE RÓTULOS (METRAGEM) -->
+              <!-- BOTÃO DE RÓTULO RESTAURADO -->
               <input type="checkbox" id="toggleRotulos" onchange="updateLayersVisibility()" checked> Exibir Rótulos (Metragem)
             </label>
             <label class="checkbox-container">
@@ -200,6 +200,7 @@
       </div>
     </div>
 
+    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
@@ -453,10 +454,12 @@
                 minzoom: 15,
                 layout: {
                     'symbol-placement': 'line',
-                    'text-field': ['concat', ['to-string', ['get', 'Dimensao Linha(m)']], ' m'],
+                    'symbol-spacing': 500,
+                    // CAMPO RENOMEADO SEM PARENTESES E ESPAÇOS: 'Metragem_m'
+                    'text-field': ['concat', ['to-string', ['get', 'Metragem_m']], ' m'],
                     'text-font': ['Open Sans Regular'], 
                     'text-size': 13,
-                    'text-offset': [0, -0.5],
+                    'text-offset': [0, -0.7],
                     'text-anchor': 'bottom',
                     'text-keep-upright': true,
                     'text-allow-overlap': true,
@@ -502,7 +505,7 @@
 
             bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
-            // REMOVIDO POPUP DA TUBULAÇÃO
+            // Tubulação continua SEM popup.
 
             if (rawData && rawData.features) {
                 const initialBounds = getBounds(rawData.features);
@@ -598,7 +601,7 @@
       createCards(data.projeto_queiroz, 'grid-proj-que', PALETTE["STATUS PROJETO"]);
     }
 
-    // VISIBILIDADE DAS CAMADAS ATUALIZADA
+    // VISIBILIDADE DAS CAMADAS INCLUINDO O NOVO CHECKBOX DE RÓTULOS
     function updateLayersVisibility() {
         const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
         const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
@@ -613,6 +616,7 @@
         if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
         if (map.getLayer('markers-end')) map.setLayoutProperty('markers-end', 'visibility', showLinhas);
         
+        // Rótulos
         if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showRotulos);
         
         if (map.getLayer('tubulacao-line')) map.setLayoutProperty('tubulacao-line', 'visibility', showTubulacao);

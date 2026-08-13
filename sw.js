@@ -1,11 +1,12 @@
-const CACHE_NAME = 'ferti-clealco-v40'; 
+const CACHE_NAME = 'ferti-clealco-v41'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
   './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './tubulacao.geojson', './indicadores.json', './labels.json', './manifest.json',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js',
-  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap',
+  'https://demotiles.maplibre.org/font/Open%20Sans%20Regular/0-255.pbf'
 ];
 
 self.addEventListener('install', (e) => {
