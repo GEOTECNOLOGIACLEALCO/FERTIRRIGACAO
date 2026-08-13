@@ -113,7 +113,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 08:22</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 09:17</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -159,7 +159,6 @@
       </div>
     </div>
 
-    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
@@ -203,11 +202,9 @@
     </button>
   </div>
 
-  <!-- MapLibre JS -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // SISTEMA DE DOWNLOAD COM ACOMPANHAMENTO EM MB PARA A TELA INICIAL
     window.totalAppBytes = 0;
     
     async function fetchWithProgress(url) {
@@ -225,7 +222,6 @@
         const mb = (window.totalAppBytes / (1024 * 1024)).toFixed(2);
         document.getElementById('init-progress-text').innerText = `${mb} MB baixados...`;
         
-        // Simulação de preenchimento para fluidez visual
         let w = parseFloat(document.getElementById('init-progress-fill').style.width) || 0;
         if(w < 95) document.getElementById('init-progress-fill').style.width = (w + 2) + '%';
       }
@@ -310,7 +306,6 @@
         return bounds;
     }
 
-    // Buscando dados com acompanhamento real de MBs
     Promise.all([
       fetchWithProgress('./data.geojson'),
       fetchWithProgress('./talhoes.geojson'),
@@ -352,10 +347,7 @@
             map.addSource('labels', { type: 'geojson', data: labelsData });
             map.addSource('tubulacao', { type: 'geojson', data: tubulacaoData });
             map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
-
-            // A ORDEM DA ADIÇÃO DEFINE QUEM FICA POR CIMA (Z-INDEX NATIVO WEBGL)
             
-            // 1. Talhões
             map.addLayer({
                 id: 'talhoes-fill',
                 type: 'fill',
@@ -363,7 +355,6 @@
                 paint: { 'fill-color': '#d3d3d3', 'fill-opacity': 0.6 }
             });
 
-            // 2. Perímetro
             map.addLayer({
                 id: 'perimetro-line',
                 type: 'line',
@@ -371,7 +362,6 @@
                 paint: { 'line-color': '#000000', 'line-width': 3 }
             });
 
-            // 3. TUBULAÇÃO (Abaixo da linha de fertirrigação, na cor vermelha e mais grossa)
             map.addLayer({
                 id: 'tubulacao-line',
                 type: 'line',
@@ -379,7 +369,6 @@
                 paint: { 'line-color': '#ef4444', 'line-width': 6 }
             });
 
-            // 4. Linhas de Fertirrigação
             map.addLayer({
                 id: 'linhas-line',
                 type: 'line',
@@ -387,7 +376,6 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
-            // 5. Rótulos das Linhas
             map.addLayer({
                 id: 'linhas-labels',
                 type: 'symbol',
@@ -411,7 +399,6 @@
                 }
             });
 
-            // 6. Marcadores
             map.addLayer({
                 id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
@@ -450,7 +437,6 @@
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
-            // Animação de saída da tela de carregamento
             setTimeout(() => { 
                 document.getElementById('loader').style.opacity = '0'; 
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 500); 
@@ -592,7 +578,6 @@
       map.setFilter('markers-start', ['all', ['==', 'type', 'start'], filterVal]);
       map.setFilter('markers-end', ['all', ['==', 'type', 'end'], filterVal]);
 
-      // Aplica o filtro espacial herdado na tubulação, talhões e perímetro
       const fazendaCode = val.substring(0, 6);
       const filterFazenda = ['==', ['slice', ['to-string', ['get', 'FAZENDA']], 0, fazendaCode.length], fazendaCode];
       const filterTubLayer = ['==', ['slice', ['to-string', ['get', 'layer']], 0, fazendaCode.length], fazendaCode];
@@ -601,7 +586,6 @@
       map.setFilter('perimetro-line', filterFazenda);
       
       if (map.getLayer('tubulacao-line')) {
-          // Filtra a tubulação se ela herdou a layer correta no Python
           map.setFilter('tubulacao-line', filterTubLayer);
       }
 
