@@ -68,9 +68,9 @@
 
     /* NOVA ANIMAÇÃO DO HIDRORROL */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.5s ease; }
-    .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px;}
+    .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
     
-    /* Botão Pular adicionado */
+    /* Botão de Pular com Disjuntor de Rede (Offline Fallback) */
     #btn-skip-loader {
         margin-top: 20px;
         padding: 10px 20px;
@@ -83,13 +83,11 @@
         font-size: 12px;
         transition: background 0.3s;
     }
-    #btn-skip-loader:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
+    #btn-skip-loader:hover { background: rgba(255, 255, 255, 0.2); }
     
     .hidrorrol-loader { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; position: relative; width: 140px; height: 100px; }
     
-    /* Animações CSS */
+    /* Animações CSS do Hidrorrol */
     @keyframes moveCart { 
         0% { transform: translateX(80px); } 
         100% { transform: translateX(0px); } 
@@ -104,13 +102,8 @@
     }
     @keyframes pulse { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
-    /* Componentes SVG */
     .cart-group { animation: moveCart 8s linear infinite; }
-    .hose-line { 
-        stroke-dasharray: 80;
-        animation: retractHose 8s linear infinite; 
-    }
-    
+    .hose-line { stroke-dasharray: 80; animation: retractHose 8s linear infinite; }
     .spray-stream { animation: sprayFlow 0.5s linear infinite; opacity: 0.9; }
     .spray-stream-2 { animation: sprayFlow 0.4s linear infinite; opacity: 0.7; }
     .spray-stream-3 { animation: sprayFlow 0.6s linear infinite; opacity: 0.8; }
@@ -137,36 +130,26 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO PERSONALIZADA (HIDRORROL ANIMADO) -->
+  <!-- TELA DE CARREGAMENTO PRINCIPAL -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
             <!-- Chão -->
             <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
-            
-            <!-- Mangueira Fixa (estica e retrai) -->
+            <!-- Mangueira Fixa -->
             <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
-
             <!-- Rolo Fixo (Base) -->
             <rect x="5" y="70" width="10" height="15" fill="#475569" />
             <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
             <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
-            
-            <!-- Grupo Móvel (Carrinho + Canhão + Água) -->
+            <!-- Grupo Móvel -->
             <g class="cart-group">
-                <!-- Estrutura do Carrinho -->
                 <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
-                
-                <!-- Rodas -->
                 <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
                 <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
                 <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-                
-                <!-- Canhão / Tubo de Aspersão -->
                 <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
                 <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
-                
-                <!-- Água / Vinhaça jorrando -->
                 <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
                 <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
                 <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
@@ -174,9 +157,7 @@
         </svg>
     </div>
     <div class="loader-text">Carregando o mapa...</div>
-    
-    <!-- Botão de Pular Carregamento -->
-    <button id="btn-skip-loader" onclick="forceSkipLoader()">Pular e Abrir Mapa</button>
+    <button id="btn-skip-loader" onclick="forceSkipLoader()">Pular e Abrir Mapa (Offline)</button>
   </div>
 
   <div id="map-view" class="view-section">
@@ -184,7 +165,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 10:10</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 10:38</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -274,12 +255,53 @@
     </button>
   </div>
 
-  <!-- MapLibre JS -->
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // Função para forçar a saída da tela de carregamento manualmente
+    // CONTROLE DE INTERRUPÇÃO PARA LER DO CACHE LOCAL INSTANTANEAMENTE
+    window.appAbortController = new AbortController();
+
+    async function fetchWithProgress(url) {
+      try {
+          const response = await fetch(url, { signal: window.appAbortController.signal });
+          if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
+          
+          if (!response.body) {
+              return await response.json();
+          }
+
+          const reader = response.body.getReader();
+          const chunks = [];
+          while (true) {
+            const {done, value} = await reader.read();
+            if (done) break;
+            if (value) {
+                chunks.push(value);
+            }
+          }
+          const blob = new Blob(chunks);
+          return JSON.parse(await blob.text());
+      } catch (e) {
+          console.warn("Conexão interrompida ou falha. Lendo do cache offline local para:", url);
+          // O AbortController joga o código para cá imediatamente quando clica em Pular
+          const cachedRes = await caches.match(url);
+          if (cachedRes) {
+              return await cachedRes.json();
+          }
+          const fallbackRes = await fetch(url);
+          return await fallbackRes.json();
+      }
+    }
+
     function forceSkipLoader() {
+        if (window.appAbortController) {
+            window.appAbortController.abort(); // Cancela o download da rede e força o Catch puxar o mapa do disco
+        }
+        const loaderText = document.querySelector('.loader-text');
+        if (loaderText) loaderText.innerText = "Lendo armazenamento local...";
+    }
+
+    function hideLoader() {
         const loaderEl = document.getElementById('loader');
         if(loaderEl) {
             loaderEl.style.opacity = '0'; 
@@ -365,14 +387,13 @@
         return bounds;
     }
 
-    // Leitura limpa e veloz das fontes
     Promise.all([
-      fetch('./data.geojson').then(r => r.json()),
-      fetch('./talhoes.geojson').then(r => r.json()),
-      fetch('./perimetro.geojson').then(r => r.json()),
-      fetch('./indicadores.json').then(r => r.json()),
-      fetch('./labels.json').then(r => r.json()),
-      fetch('./tubulacao.geojson').then(r => r.json())
+      fetchWithProgress('./data.geojson'),
+      fetchWithProgress('./talhoes.geojson'),
+      fetchWithProgress('./perimetro.geojson'),
+      fetchWithProgress('./indicadores.json'),
+      fetchWithProgress('./labels.json'),
+      fetchWithProgress('./tubulacao.geojson')
     ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
         
         rawData = linhasData;
@@ -497,8 +518,7 @@
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
-            // Oculta a tela de loader automaticamente
-            forceSkipLoader();
+            hideLoader(); // Saída segura e garantida
         };
 
         if (map.loaded()) {
@@ -508,7 +528,8 @@
         }
 
     }).catch(err => { 
-        document.querySelector('.loader-text').innerText = "Erro ao carregar os dados agronômicos."; 
+        const txt = document.querySelector('.loader-text');
+        if(txt) txt.innerText = "Erro ao carregar dados do app offline."; 
         console.error(err);
     });
 
