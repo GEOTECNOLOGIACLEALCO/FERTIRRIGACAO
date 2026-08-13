@@ -60,13 +60,11 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* TELA DE CARREGAMENTO ANIMADA */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.4s ease; }
     .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
     
@@ -119,7 +117,6 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO BLINDADA -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
@@ -150,7 +147,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 11:30</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 11:39</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -185,7 +182,7 @@
               <input type="checkbox" id="toggleLinhas" onchange="updateLayersVisibility()" checked> Exibir Linhas
             </label>
             <label class="checkbox-container">
-              <!-- BOTÃO DE RÓTULO RESTAURADO -->
+              <!-- CHECKBOX DE RÓTULO COM VISIBILIDADE LIBERADA -->
               <input type="checkbox" id="toggleRotulos" onchange="updateLayersVisibility()" checked> Exibir Rótulos (Metragem)
             </label>
             <label class="checkbox-container">
@@ -447,28 +444,27 @@
                 paint: { 'line-color': '#000000', 'line-width': 4 }
             });
 
+            // CORREÇÃO CRÍTICA DO RÓTULO: VISÍVEL A PARTIR DO ZOOM 10 E COM REGRAS PERMISSIVAS
             map.addLayer({
                 id: 'linhas-labels',
                 type: 'symbol',
                 source: 'labels',
-                minzoom: 15,
+                minzoom: 10,  // Aparece de bem longe agora!
                 layout: {
                     'symbol-placement': 'line',
-                    'symbol-spacing': 500,
-                    // CAMPO RENOMEADO SEM PARENTESES E ESPAÇOS: 'Metragem_m'
+                    'symbol-spacing': 100, // Funciona mesmo em linhas bem curtinhas
                     'text-field': ['concat', ['to-string', ['get', 'Metragem_m']], ' m'],
-                    'text-font': ['Open Sans Regular'], 
                     'text-size': 13,
                     'text-offset': [0, -0.7],
                     'text-anchor': 'bottom',
                     'text-keep-upright': true,
-                    'text-allow-overlap': true,
-                    'text-ignore-placement': true
+                    'text-allow-overlap': true,      // Obriga o mapa a desenhar o texto
+                    'text-ignore-placement': true    // Proíbe esconde-esconde por colisão
                 },
                 paint: {
                     'text-color': '#000000',
                     'text-halo-color': '#ffffff',
-                    'text-halo-width': 2.5
+                    'text-halo-width': 3.0
                 }
             });
 
@@ -505,7 +501,6 @@
 
             bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
-            // Tubulação continua SEM popup.
 
             if (rawData && rawData.features) {
                 const initialBounds = getBounds(rawData.features);
@@ -601,7 +596,6 @@
       createCards(data.projeto_queiroz, 'grid-proj-que', PALETTE["STATUS PROJETO"]);
     }
 
-    // VISIBILIDADE DAS CAMADAS INCLUINDO O NOVO CHECKBOX DE RÓTULOS
     function updateLayersVisibility() {
         const showTalhoes = document.getElementById('toggleTalhoes').checked ? 'visible' : 'none';
         const showPerimetro = document.getElementById('togglePerimetro').checked ? 'visible' : 'none';
@@ -616,7 +610,6 @@
         if (map.getLayer('markers-start')) map.setLayoutProperty('markers-start', 'visibility', showLinhas);
         if (map.getLayer('markers-end')) map.setLayoutProperty('markers-end', 'visibility', showLinhas);
         
-        // Rótulos
         if (map.getLayer('linhas-labels')) map.setLayoutProperty('linhas-labels', 'visibility', showRotulos);
         
         if (map.getLayer('tubulacao-line')) map.setLayoutProperty('tubulacao-line', 'visibility', showTubulacao);
