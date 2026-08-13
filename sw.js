@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ferti-clealco-v35'; 
+const CACHE_NAME = 'ferti-clealco-v36'; 
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
@@ -25,11 +25,12 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.hostname.includes('arcgisonline.com') || url.hostname.includes('maplibre.org')) {
     e.respondWith(
-      caches.match(e.request).then((res) => {
-        return res || fetch(e.request).catch(() => new Response(''));
-      })
+      caches.match(e.request).then((res) => res || fetch(e.request).catch(() => new Response('')))
     );
   } else {
-    e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+    // ESTRATÉGIA NETWORK-FIRST: Tenta a rede primeiro, se falhar ou estiver offline, puxa do cache
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
   }
 });

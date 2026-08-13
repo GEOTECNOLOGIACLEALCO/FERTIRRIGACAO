@@ -60,21 +60,16 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* LEGENDA FLUTUANTE */
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* ESTILO DA TELA DE CARREGAMENTO INICIAL */
+    /* ESTILO DA TELA DE CARREGAMENTO INICIAL LIMPADA */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.5s ease; }
     .spinner { width: 50px; height: 50px; border: 4px solid rgba(255, 255, 255, 0.1); border-top: 4px solid #38bdf8; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loader-text { font-size: 14px; font-weight: 700; color: #f8fafc; animation: pulse 1.5s infinite; }
-    
-    .init-progress-container { width: 80%; max-width: 250px; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
-    .init-progress-fill { width: 0%; height: 100%; background: #38bdf8; transition: width 0.2s; }
-    .init-progress-text { font-size: 11px; font-weight: 600; color: #94a3b8; }
 
     #progress-container { position: absolute; bottom: 80px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
@@ -98,14 +93,10 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO -->
+  <!-- TELA DE CARREGAMENTO LIMPADA (EVITA O TRAVAMENTO) -->
   <div id="loader">
     <div class="spinner"></div>
     <div class="loader-text">Carregando o mapa...</div>
-    <div class="init-progress-container">
-        <div id="init-progress-fill" class="init-progress-fill"></div>
-    </div>
-    <div id="init-progress-text" class="init-progress-text">0.00 MB processados</div>
   </div>
 
   <div id="map-view" class="view-section">
@@ -113,7 +104,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 13/08/2026 09:33</div>
+          <div class="updated-at">Atualizado em: 13/08/2026 09:46</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -169,7 +160,7 @@
       <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
     </div>
 
-    <!-- BARRA DO MAPA OFFLINE (TILES) -->
+    <!-- BARRA DO MAPA OFFLINE (APARECE APENAS AO CLICAR EM BAIXAR) -->
     <div id="progress-container">
       <div class="progress-text" id="progress-text">Calculando área...</div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
@@ -207,43 +198,6 @@
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
-    // SISTEMA SEGURO DE DOWNLOAD DE DADOS
-    window.totalAppBytes = 0;
-    
-    async function fetchWithProgress(url) {
-      try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP erro: ${response.status}`);
-          
-          if (!response.body) {
-              return await response.json();
-          }
-
-          const reader = response.body.getReader();
-          const chunks = [];
-          while (true) {
-            const {done, value} = await reader.read();
-            if (done) break;
-            if (value) {
-                chunks.push(value);
-                window.totalAppBytes += value.length;
-                
-                const mb = (window.totalAppBytes / (1024 * 1024)).toFixed(2);
-                document.getElementById('init-progress-text').innerText = `${mb} MB carregados...`;
-                
-                let w = parseFloat(document.getElementById('init-progress-fill').style.width) || 0;
-                if(w < 95) document.getElementById('init-progress-fill').style.width = (w + 2) + '%';
-            }
-          }
-          const blob = new Blob(chunks);
-          return JSON.parse(await blob.text());
-      } catch (e) {
-          console.warn("Fallback de leitura ativado para:", url);
-          const fallbackRes = await fetch(url);
-          return await fallbackRes.json();
-      }
-    }
-
     const map = new maplibregl.Map({
         container: 'map',
         style: {
@@ -322,17 +276,15 @@
         return bounds;
     }
 
+    // CARREGAMENTO PADRÃO DE REDE - Elimina travamentos na inicialização
     Promise.all([
-      fetchWithProgress('./data.geojson'),
-      fetchWithProgress('./talhoes.geojson'),
-      fetchWithProgress('./perimetro.geojson'),
-      fetchWithProgress('./indicadores.json'),
-      fetchWithProgress('./labels.json'),
-      fetchWithProgress('./tubulacao.geojson')
+      fetch('./data.geojson').then(r => r.json()),
+      fetch('./talhoes.geojson').then(r => r.json()),
+      fetch('./perimetro.geojson').then(r => r.json()),
+      fetch('./indicadores.json').then(r => r.json()),
+      fetch('./labels.json').then(r => r.json()),
+      fetch('./tubulacao.geojson').then(r => r.json())
     ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
-        
-        document.getElementById('init-progress-fill').style.width = '100%';
-        document.getElementById('init-progress-text').innerText = 'Construindo o mapa...';
         
         rawData = linhasData;
         populateDropdown(rawData);
@@ -357,9 +309,8 @@
             }
         });
 
-        // FUNÇÃO SEGURA PARA INICIALIZAR O MAPA QUANDO ESTIVER PRONTO (Evita congelamento)
         const initMapLayers = () => {
-            if (map.getSource('talhoes')) return; // Previne duplicidade
+            if (map.getSource('talhoes')) return; 
             
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
@@ -457,7 +408,7 @@
             const initialBounds = getBounds(rawData.features);
             if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
 
-            // Animação de saída da tela de carregamento (Garantida)
+            // Animação segura de remoção do Loader
             setTimeout(() => { 
                 const loaderEl = document.getElementById('loader');
                 if(loaderEl) {
@@ -467,7 +418,6 @@
             }, 500);
         };
 
-        // VALIDAÇÃO PARA NÃO TRAVAR O CELULAR SE O MAPA CARREGAR ANTES DO DOWNLOAD
         if (map.loaded()) {
             initMapLayers();
         } else {
@@ -664,6 +614,7 @@
         return {x, y};
     }
 
+    // DOWNLOAD OFFLINE COM PROGRESSO MANTIDO
     async function downloadOfflineMap() {
       if (!rawData || !rawData.features) return alert("Aguarde o carregamento inicial dos dados.");
       
@@ -731,7 +682,7 @@ Deseja iniciar?`)) {
           const p = Math.round((downloaded / totalTiles) * 100);
           const currentMB = ((downloaded * 25) / 1024).toFixed(2);
           progFill.style.width = p + '%';
-          progText.innerText = `Progresso: ${currentMB} MB de ${estimatedMB} MB (${p}%)`;
+          progText.innerText = `Baixando: ${currentMB} MB de ${estimatedMB} MB (${p}%)`;
         }
         alert("Mapa salvo offline com sucesso!");
       } catch (err) {
