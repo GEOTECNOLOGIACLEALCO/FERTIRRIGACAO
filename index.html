@@ -60,16 +60,13 @@
     .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
     .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
 
-    /* LEGENDA FLUTUANTE */
+    .gps-status-bar { align-self: flex-start; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px; }
+
     #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-    /* CARD DE STATUS DO GPS CONTINUO */
-    .gps-status-bar { align-self: flex-start; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px; }
-
-    /* TELA DE CARREGAMENTO ANIMADA */
     #loader { position: fixed; inset: 0; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; transition: opacity 0.4s ease; }
     .loader-text { font-size: 15px; font-weight: 700; color: #38bdf8; animation: pulse 1.5s infinite; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
     
@@ -122,7 +119,6 @@
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO BLINDADA -->
   <div id="loader">
     <div class="hidrorrol-loader">
         <svg viewBox="0 0 140 100" width="140" height="100">
@@ -153,7 +149,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 14/08/2026 11:50</div>
+          <div class="updated-at">Atualizado em: 14/08/2026 13:11</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -207,7 +203,6 @@
       </div>
     </div>
 
-    <!-- LEGENDA FLUTUANTE -->
     <div id="map-legend" class="glass"></div>
 
     <div class="fab-group">
@@ -230,7 +225,6 @@
       <span class="total-area-badge" id="total-area-badge">Total: 0 ha</span>
     </div>
 
-    <!-- HIDRORROL NA ABA DE INDICADORES -->
     <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0;">
         <div class="hidrorrol-loader" style="margin-bottom: 0;">
             <svg viewBox="0 0 140 100" width="120" height="85">
@@ -387,7 +381,6 @@
     }
 
     const map = new maplibregl.Map({
-        // MAX ZOOM DO ÁTOMO (ATIVADO)
         maxZoom: 24, 
         container: 'map',
         style: {
@@ -398,7 +391,7 @@
                     type: 'raster',
                     tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                     tileSize: 256,
-                    maxzoom: 17 // TRAVA A FOTO NO ZOOM 17 PARA ESTICAR DEPOIS DISSO
+                    maxzoom: 17 
                 }
             },
             layers: [{
@@ -406,7 +399,7 @@
                 type: 'raster',
                 source: 'esri-satellite',
                 minzoom: 0,
-                maxzoom: 24 // Camada visível até o infinito
+                maxzoom: 24 
             }]
         },
         center: [-50.3, -21.2],
@@ -490,14 +483,15 @@
                     markersFeatures.push({
                         type: 'Feature',
                         geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
-                        properties: { type: 'start', layer: lyr }
+                        // PROPRIEDADE BLINDADA COMO POINT_TYPE
+                        properties: { point_type: 'start', layer: lyr }
                     });
                 }
                 if(f.properties.end_point) {
                     markersFeatures.push({
                         type: 'Feature',
                         geometry: { type: 'Point', coordinates: [f.properties.end_point[1], f.properties.end_point[0]] },
-                        properties: { type: 'end', layer: lyr }
+                        properties: { point_type: 'end', layer: lyr }
                     });
                 }
             });
@@ -567,13 +561,14 @@
                 }
             });
 
+            // FILTROS BLINDADOS COM A NOVA PROPRIEDADE POINT_TYPE
             map.addLayer({
-                id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', 'type', 'start'],
+                id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', ['get', 'point_type'], 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
                 minzoom: 14
             });
             map.addLayer({
-                id: 'markers-end', type: 'circle', source: 'markers', filter: ['==', 'type', 'end'],
+                id: 'markers-end', type: 'circle', source: 'markers', filter: ['==', ['get', 'point_type'], 'end'],
                 paint: { 'circle-radius': 5, 'circle-color': '#ef4444', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
                 minzoom: 14
             });
@@ -743,8 +738,8 @@
       if (!val) {
           map.setFilter('linhas-line', null);
           map.setFilter('linhas-labels', null);
-          map.setFilter('markers-start', ['==', 'type', 'start']);
-          map.setFilter('markers-end', ['==', 'type', 'end']);
+          map.setFilter('markers-start', ['==', ['get', 'point_type'], 'start']);
+          map.setFilter('markers-end', ['==', ['get', 'point_type'], 'end']);
           map.setFilter('talhoes-fill', null);
           map.setFilter('perimetro-line', null);
           if (map.getLayer('tubulacao-line')) map.setFilter('tubulacao-line', null);
@@ -756,8 +751,8 @@
       
       map.setFilter('linhas-line', filterVal);
       map.setFilter('linhas-labels', filterVal);
-      map.setFilter('markers-start', ['all', ['==', 'type', 'start'], filterVal]);
-      map.setFilter('markers-end', ['all', ['==', 'type', 'end'], filterVal]);
+      map.setFilter('markers-start', ['all', ['==', ['get', 'point_type'], 'start'], filterVal]);
+      map.setFilter('markers-end', ['all', ['==', ['get', 'point_type'], 'end'], filterVal]);
 
       const fazendaCode = val.substring(0, 6);
       const filterFazenda = ['==', ['slice', ['to-string', ['get', 'FAZENDA']], 0, fazendaCode.length], fazendaCode];
@@ -783,7 +778,31 @@
       }
     }
 
-    // MAPA OFFLINE (LIMITA O DOWNLOAD ATE ZOOM 17 MAX PARA POUpar DADOS)
+    function locateUser() {
+      if (!navigator.geolocation) return alert("Sua localização GPS não está disponível.");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          
+          if (window.userMarker) window.userMarker.remove();
+          
+          const el = document.createElement('div');
+          el.style.width = '16px'; el.style.height = '16px';
+          el.style.backgroundColor = '#3b82f6'; el.style.borderRadius = '50%';
+          el.style.border = '3px solid #ffffff'; el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+          
+          window.userMarker = new maplibregl.Marker({element: el})
+              .setLngLat([lng, lat])
+              .setPopup(new maplibregl.Popup({offset: 15}).setHTML("<b style='color:#0f172a'>Você está aqui</b>"))
+              .addTo(map);
+              
+          map.flyTo({ center: [lng, lat], zoom: 17 });
+        },
+        (err) => alert("Erro de GPS: " + err.message),
+        { enableHighAccuracy: true }
+      );
+    }
+
     function latLngToTile(lat, lng, z) {
         const x = Math.floor((lng + 180) / 360 * Math.pow(2, z));
         const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
@@ -798,7 +817,7 @@
             ? rawData.features.filter(f => String(f.properties.layer) === String(val)) 
             : rawData.features;
 
-      const minZ = 12, maxZ = 17, tilesSet = new Set();
+      const minZ = 12, maxZ = 16, tilesSet = new Set();
       document.getElementById('progress-container').style.display = 'block';
       const progText = document.getElementById('progress-text');
       progText.innerText = "Mapeando regiões para salvamento offline...";
