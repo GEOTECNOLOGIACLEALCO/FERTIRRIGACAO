@@ -1,4 +1,337 @@
-<!DOCTYPE html>
+import os
+import json
+from datetime import datetime
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import LineString, MultiLineString, Polygon, MultiPolygon
+import shapely
+import warnings
+
+warnings.filterwarnings("ignore")
+
+# ==========================================
+# 1. DEFINIÇÃO DOS CAMINHOS DE ENTRADA E SAÍDA
+# ==========================================
+SHP_LINHAS = r"M:\04-Fertirrigação\2_Projetos de Aplicação\2026\2-SOLINFTEC\LINHAS_CLEALCO_SOLINFTEC.shp"
+SHP_TALHOES = r"W:\11-SHAPES TEMATICOS\01-SOLINFTEC\2026\Shape Clealco - Safra 2026 - Atualização em 06-08-2026.shp"
+SHP_TUBULACAO = r"M:\04-Fertirrigação\2_Projetos de Aplicação\2026\7-VETORES\TUBULACAO.shp"
+EXCEL_BASE = r"M:\04-Fertirrigação\2_Projetos de Aplicação\2026\BASE AGRONOMICO.xlsx"
+OUTPUT_DIR = r"M:\04-Fertirrigação\2_Projetos de Aplicação\2026\6-GITHUB APP"
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+DATA_ATUALIZACAO = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+print("⏳ Iniciando o processamento do Motor WebGL MapLibre. Por favor, aguarde...")
+
+# ==========================================
+# 2. PROCESSAMENTO DAS LINHAS E GERAÇÃO DE LABELS.JSON
+# ==========================================
+gdf_linhas = gpd.read_file(SHP_LINHAS)
+gdf_linhas = gdf_linhas.fillna('')
+gdf_linhas.columns = [col.lower() for col in gdf_linhas.columns]
+
+if gdf_linhas.crs is None:
+    gdf_linhas = gdf_linhas.set_crs(epsg=4326)
+
+gdf_linhas_metric = gdf_linhas.to_crs(epsg=32722)
+
+# Cálculo da Dimensão da Linha em metros reais UTM
+gdf_linhas_metric['Metragem_m'] = gdf_linhas_metric.geometry.length.round(1)
+
+gdf_linhas_metric['geometry'] = gdf_linhas_metric.geometry.simplify(1.0, preserve_topology=True)
+gdf_linhas = gdf_linhas_metric.to_crs(epsg=4326)
+
+if 'layer' in gdf_linhas.columns:
+    gdf_linhas['layer_num'] = gdf_linhas['layer'].astype(str).str.extract(r'(\d+)').astype(float)
+    gdf_linhas = gdf_linhas.sort_values(by='layer_num', na_position='last').drop(columns=['layer_num'])
+
+features_linhas = []
+for idx, row in gdf_linhas.iterrows():
+    geom = row.geometry
+    if geom is None or geom == '': continue
+    
+    lines = [geom] if isinstance(geom, LineString) else list(geom.geoms) if isinstance(geom, MultiLineString) else []
+        
+    for line in lines:
+        coords = list(line.coords)
+        if len(coords) < 2: continue
+            
+        start_pt, end_pt = coords[0], coords[-1]
+        
+        props = row.drop('geometry').to_dict()
+        props = {k: (v if not hasattr(v, 'item') else v.item()) for k, v in props.items()}
+        props['start_point'] = [start_pt[1], start_pt[0]]  
+        props['end_point'] = [end_pt[1], end_pt[0]] 
+
+        feature = {
+            "type": "Feature",
+            "geometry": json.loads(gpd.GeoSeries([line]).to_json())['features'][0]['geometry'],
+            "properties": props
+        }
+        features_linhas.append(feature)
+
+with open(os.path.join(OUTPUT_DIR, "data.geojson"), "w", encoding="utf-8") as f:
+    json.dump({"type": "FeatureCollection", "features": features_linhas}, f, ensure_ascii=False)
+
+with open(os.path.join(OUTPUT_DIR, "labels.json"), "w", encoding="utf-8") as f:
+    json.dump({"type": "FeatureCollection", "features": features_linhas}, f, ensure_ascii=False)
+
+print("✅ Camada de Linhas e labels.json geradas.")
+
+# ==========================================
+# 3. UNIÃO DE TALHÕES COM BASE AGRONÔMICO (EXCEL)
+# ==========================================
+print("⏳ Lendo base de dados Excel e mesclando com o Shapefile...")
+df_excel = pd.read_excel(EXCEL_BASE)
+df_excel.columns = [col.strip().upper() for col in df_excel.columns]
+
+gdf_talhoes = gpd.read_file(SHP_TALHOES)
+gdf_talhoes.columns = [col.strip().upper() if col.lower() != 'geometry' else 'geometry' for col in gdf_talhoes.columns]
+
+if gdf_talhoes.crs is None:
+    gdf_talhoes = gdf_talhoes.set_crs(epsg=4326)
+
+gdf_talhoes['CHAVE'] = gdf_talhoes['CHAVE'].astype(str).str.strip()
+df_excel['CHAVE'] = df_excel['CHAVE'].astype(str).str.strip()
+
+col_area = None
+for col in ['ÁREA', 'AREA', 'AREA_HA', 'HECTARES']:
+    if col in df_excel.columns:
+        col_area = col
+        break
+    elif col in gdf_talhoes.columns:
+        col_area = col
+        break
+
+cols_excel = ['CHAVE', 'UNIDADE', 'STATUS PROJETO']
+if col_area and col_area in df_excel.columns and col_area not in cols_excel:
+    cols_excel.append(col_area)
+
+gdf_talhoes_merged = gdf_talhoes.merge(
+    df_excel[cols_excel], 
+    on='CHAVE', 
+    how='left'
+)
+
+gdf_talhoes_merged = gdf_talhoes_merged.fillna('NÃO INFORMADO')
+
+if col_area and col_area in gdf_talhoes_merged.columns:
+    gdf_talhoes_merged['AREA_CALC'] = (
+        gdf_talhoes_merged[col_area]
+        .astype(str)
+        .str.replace(',', '.')
+        .str.extract(r'([\d\.]+)')[0]
+        .astype(float)
+        .fillna(0.0)
+    )
+else:
+    gdf_geo_area = gdf_talhoes_merged.to_crs(epsg=32722)
+    gdf_talhoes_merged['AREA_CALC'] = (gdf_geo_area.geometry.area / 10000.0).round(2)
+
+cols_para_string = [c for c in gdf_talhoes_merged.columns if c not in ['geometry', 'AREA_CALC']]
+for col in cols_para_string:
+    gdf_talhoes_merged[col] = gdf_talhoes_merged[col].astype(str)
+
+gdf_talhoes_merged['geometry'] = shapely.make_valid(gdf_talhoes_merged.geometry)
+gdf_talhoes_metric = gdf_talhoes_merged.to_crs(epsg=32722)
+
+# ==========================================
+# 4. GERAÇÃO DO PERÍMETRO ROBUSTA POR FAZENDA
+# ==========================================
+print("⏳ Gerando Perímetro da Fazenda...")
+
+def remover_buracos(geometry):
+    if geometry is None or geometry.is_empty:
+        return geometry
+    geometry = shapely.make_valid(geometry)
+    if isinstance(geometry, Polygon):
+        return Polygon(geometry.exterior)
+    elif isinstance(geometry, MultiPolygon):
+        polys = [Polygon(p.exterior) for p in geometry.geoms if not p.is_empty]
+        return MultiPolygon(polys)
+    return geometry
+
+campo_fazenda = 'FAZENDA' if 'FAZENDA' in gdf_talhoes_metric.columns else gdf_talhoes_metric.columns[0]
+
+perim_rows = []
+for name, group in gdf_talhoes_metric.groupby(campo_fazenda):
+    cleaned_geoms = []
+    for g in group.geometry:
+        if g and not g.is_empty:
+            valid_g = shapely.make_valid(g).buffer(0)
+            if not valid_g.is_empty:
+                buf_g = valid_g.buffer(10)
+                if not buf_g.is_empty:
+                    cleaned_geoms.append(buf_g)
+    
+    if not cleaned_geoms:
+        continue
+        
+    try:
+        merged = shapely.union_all(cleaned_geoms, grid_size=0.1)
+    except Exception:
+        try:
+            merged = shapely.union_all(cleaned_geoms, grid_size=1.0)
+        except Exception:
+            merged = cleaned_geoms[0]
+            for cg in cleaned_geoms[1:]:
+                try:
+                    merged = merged.union(cg)
+                except Exception:
+                    merged = shapely.make_valid(merged).union(shapely.make_valid(cg))
+
+    merged = shapely.make_valid(merged).buffer(-10)
+    merged = remover_buracos(merged)
+    merged = merged.simplify(5.0, preserve_topology=True)
+    
+    perim_rows.append({campo_fazenda: name, 'geometry': merged})
+
+gdf_perim_dissolved = gpd.GeoDataFrame(perim_rows, crs=gdf_talhoes_metric.crs)
+gdf_perimetro_final = gdf_perim_dissolved.to_crs(epsg=4326)
+
+if 'GEOMETRY' in gdf_perimetro_final.columns and gdf_perimetro_final.geometry.name == 'geometry':
+    gdf_perimetro_final = gdf_perimetro_final.drop(columns=['GEOMETRY'])
+
+gdf_perimetro_final.to_file(os.path.join(OUTPUT_DIR, "perimetro.geojson"), driver="GeoJSON")
+
+gdf_talhoes_metric['geometry'] = gdf_talhoes_metric.geometry.simplify(3.0, preserve_topology=True)
+gdf_talhoes_final = gdf_talhoes_metric.to_crs(epsg=4326)
+
+if 'GEOMETRY' in gdf_talhoes_final.columns and gdf_talhoes_final.geometry.name == 'geometry':
+    gdf_talhoes_final = gdf_talhoes_final.drop(columns=['GEOMETRY'])
+
+gdf_talhoes_final.to_file(os.path.join(OUTPUT_DIR, "talhoes.geojson"), driver="GeoJSON")
+
+print("✅ Talhões e Perímetro gerados com sucesso.")
+
+# ==========================================
+# 5. PROCESSAMENTO DA TUBULAÇÃO COM HERANÇA ESPACIAL
+# ==========================================
+print("⏳ Processando Tubulação...")
+if os.path.exists(SHP_TUBULACAO):
+    gdf_tub = gpd.read_file(SHP_TUBULACAO)
+    gdf_tub = gdf_tub.fillna('')
+    gdf_tub.columns = [col.lower() if col.lower() != 'geometry' else 'geometry' for col in gdf_tub.columns]
+    
+    if gdf_tub.crs is None:
+        gdf_tub = gdf_tub.set_crs(epsg=4326)
+    gdf_tub = gdf_tub.to_crs(epsg=4326)
+    
+    if 'layer' not in gdf_tub.columns:
+        gdf_perim_join = gdf_perimetro_final[[campo_fazenda, 'geometry']].copy()
+        gdf_perim_join = gdf_perim_join.rename(columns={campo_fazenda: 'layer'})
+        
+        gdf_tub = gpd.sjoin(gdf_tub, gdf_perim_join, how='left', predicate='intersects')
+        gdf_tub = gdf_tub[~gdf_tub.index.duplicated(keep='first')]  
+        gdf_tub = gdf_tub.drop(columns=['index_right'], errors='ignore')
+
+    gdf_tub.to_file(os.path.join(OUTPUT_DIR, "tubulacao.geojson"), driver="GeoJSON")
+    print("✅ Camada de Tubulação processada com sucesso.")
+else:
+    with open(os.path.join(OUTPUT_DIR, "tubulacao.geojson"), "w", encoding="utf-8") as f:
+        json.dump({"type": "FeatureCollection", "features": []}, f)
+    print("⚠️ Arquivo de Tubulação não encontrado. GeoJSON vazio gerado.")
+
+# ==========================================
+# 6. ESTATÍSTICAS BASEADAS NA SOMA DA ÁREA (HA)
+# ==========================================
+def extrair_estatisticas_area(df, coluna):
+    valid_df = df[df[coluna].str.upper() != 'NÃO INFORMADO']
+    if coluna == 'UNIDADE':
+        valid_df = valid_df[valid_df[coluna].str.upper().isin(['CLEMENTINA', 'QUEIROZ'])]
+        
+    grouped = valid_df.groupby(coluna)['AREA_CALC'].sum().to_dict()
+    return [{"label": str(k), "area_ha": round(float(v), 2)} for k, v in grouped.items()]
+
+def extrair_projeto_por_unidade(df, unidade):
+    sub_df = df[df['UNIDADE'].str.upper() == unidade]
+    valid_df = sub_df[sub_df['STATUS PROJETO'].str.upper() != 'NÃO INFORMADO']
+    grouped = valid_df.groupby('STATUS PROJETO')['AREA_CALC'].sum().to_dict()
+    res = [{"label": str(k), "area_ha": round(float(v), 2)} for k, v in grouped.items()]
+    total_area = round(float(valid_df['AREA_CALC'].sum()), 2)
+    if total_area > 0:
+        res.append({"label": f"TOTAL {unidade}", "area_ha": total_area})
+    return res
+
+df_valido_total = gdf_talhoes_merged[
+    (gdf_talhoes_merged['UNIDADE'].str.upper() != 'NÃO INFORMADO') & 
+    (gdf_talhoes_merged['UNIDADE'].str.upper().isin(['CLEMENTINA', 'QUEIROZ']))
+]
+
+estatisticas_json = {
+    "unidades": extrair_estatisticas_area(gdf_talhoes_merged, 'UNIDADE'),
+    "projeto_clementina": extrair_projeto_por_unidade(gdf_talhoes_merged, 'CLEMENTINA'),
+    "projeto_queiroz": extrair_projeto_por_unidade(gdf_talhoes_merged, 'QUEIROZ'),
+    "area_total_ha": round(float(df_valido_total['AREA_CALC'].sum()), 2)
+}
+
+with open(os.path.join(OUTPUT_DIR, "indicadores.json"), "w", encoding="utf-8") as f:
+    json.dump(estatisticas_json, f, ensure_ascii=False, indent=2)
+
+# ==========================================
+# 7. SERVICE WORKER (v46)
+# ==========================================
+sw_code = """
+const CACHE_NAME = 'ferti-clealco-v46'; 
+const TILE_CACHE = 'ferti-tiles-v1';
+
+const ASSETS = [
+  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './tubulacao.geojson', './indicadores.json', './labels.json', './manifest.json',
+  'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css',
+  'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js',
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'
+];
+
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(
+      keys.map((k) => { if (k !== CACHE_NAME && k !== TILE_CACHE) return caches.delete(k); })
+    )).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+  if (url.hostname.includes('arcgisonline.com') || url.hostname.includes('maplibre.org')) {
+    e.respondWith(
+      caches.match(e.request).then((res) => res || fetch(e.request).catch(() => new Response('')))
+    );
+  } else {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+  }
+});
+"""
+
+with open(os.path.join(OUTPUT_DIR, "sw.js"), "w", encoding="utf-8") as f:
+    f.write(sw_code.strip())
+
+# ==========================================
+# 8. MANIFESTO DO APP
+# ==========================================
+manifest_code = {
+  "name": "FERTIRRIGAÇÃO | CLEALCO",
+  "short_name": "Ferti Clealco",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/854/854878.png", "sizes": "512x512", "type": "image/png"}]
+}
+
+with open(os.path.join(OUTPUT_DIR, "manifest.json"), "w", encoding="utf-8") as f:
+    json.dump(manifest_code, f, indent=2)
+
+# ==========================================
+# 9. INTERFACE HTML COM FILTRO BLINDADO
+# ==========================================
+html_content = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -149,7 +482,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 18/08/2026 16:35</div>
+          <div class="updated-at">Atualizado em: {{DATA_ATUALIZACAO}}</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -846,11 +1179,7 @@
       const totalTiles = urls.length;
       const estimatedMB = ((totalTiles * 25) / 1024).toFixed(2);
 
-      if(!confirm(`Confirmação de Download Offline:
-Total de Blocos: ${totalTiles}
-Tamanho Estimado: ${estimatedMB} MB.
-
-Deseja iniciar?`)) {
+      if(!confirm(`Confirmação de Download Offline:\nTotal de Blocos: ${totalTiles}\nTamanho Estimado: ${estimatedMB} MB.\n\nDeseja iniciar?`)) {
           document.getElementById('progress-container').style.display = 'none';
           return;
       }
@@ -903,3 +1232,11 @@ Deseja iniciar?`)) {
   </script>
 </body>
 </html>
+"""
+
+html_content = html_content.replace("{{DATA_ATUALIZACAO}}", DATA_ATUALIZACAO)
+
+with open(os.path.join(OUTPUT_DIR, "index.html"), "w", encoding="utf-8") as f:
+    f.write(html_content.strip())
+
+print("✅ Todos os arquivos salvos. Filtro blindado aplicado com sucesso!")

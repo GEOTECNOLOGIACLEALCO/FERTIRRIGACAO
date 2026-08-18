@@ -2,40 +2,48 @@
   "unidades": [
     {
       "label": "CLEMENTINA",
-      "area_ha": 5620.55
+      "area_ha": 5603.38
     },
     {
       "label": "QUEIROZ",
-      "area_ha": 13617.19
+      "area_ha": 13157.7
     }
   ],
   "projeto_clementina": [
     {
+      "label": "A VALIDAR",
+      "area_ha": 600.35
+    },
+    {
       "label": "PROJETO FEITO",
-      "area_ha": 2805.43
+      "area_ha": 2204.94
     },
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 2815.12
+      "area_ha": 2798.09
     },
     {
       "label": "TOTAL CLEMENTINA",
-      "area_ha": 5620.55
+      "area_ha": 5603.38
     }
   ],
   "projeto_queiroz": [
     {
+      "label": "A VALIDAR",
+      "area_ha": 3166.34
+    },
+    {
       "label": "PROJETO FEITO",
-      "area_ha": 7759.87
+      "area_ha": 6315.88
     },
     {
       "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 5857.32
+      "area_ha": 3675.48
     },
     {
       "label": "TOTAL QUEIROZ",
-      "area_ha": 13617.19
+      "area_ha": 13157.7
     }
   ],
-  "area_total_ha": 19237.75
+  "area_total_ha": 18761.08
 }
