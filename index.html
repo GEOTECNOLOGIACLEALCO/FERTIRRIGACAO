@@ -149,7 +149,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 01/09/2026 14:44</div>
+          <div class="updated-at">Atualizado em: 08/09/2026 10:24</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -483,7 +483,6 @@
                     markersFeatures.push({
                         type: 'Feature',
                         geometry: { type: 'Point', coordinates: [f.properties.start_point[1], f.properties.start_point[0]] },
-                        // PROPRIEDADE BLINDADA COMO POINT_TYPE
                         properties: { point_type: 'start', layer: lyr }
                     });
                 }
@@ -561,7 +560,6 @@
                 }
             });
 
-            // FILTROS BLINDADOS COM A NOVA PROPRIEDADE POINT_TYPE
             map.addLayer({
                 id: 'markers-start', type: 'circle', source: 'markers', filter: ['==', ['get', 'point_type'], 'start'],
                 paint: { 'circle-radius': 5, 'circle-color': '#22c55e', 'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff' },
@@ -776,31 +774,6 @@
           const bounds = getBounds(rawData.features);
           if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 30 });
       }
-    }
-
-    function locateUser() {
-      if (!navigator.geolocation) return alert("Sua localização GPS não está disponível.");
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          
-          if (window.userMarker) window.userMarker.remove();
-          
-          const el = document.createElement('div');
-          el.style.width = '16px'; el.style.height = '16px';
-          el.style.backgroundColor = '#3b82f6'; el.style.borderRadius = '50%';
-          el.style.border = '3px solid #ffffff'; el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-          
-          window.userMarker = new maplibregl.Marker({element: el})
-              .setLngLat([lng, lat])
-              .setPopup(new maplibregl.Popup({offset: 15}).setHTML("<b style='color:#0f172a'>Você está aqui</b>"))
-              .addTo(map);
-              
-          map.flyTo({ center: [lng, lat], zoom: 17 });
-        },
-        (err) => alert("Erro de GPS: " + err.message),
-        { enableHighAccuracy: true }
-      );
     }
 
     function latLngToTile(lat, lng, z) {
