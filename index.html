@@ -104,13 +104,64 @@
 
     .checkbox-container { display: flex; align-items: center; gap: 8px; color: #e2e8f0; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-    .dash-header { margin-bottom: 20px; font-size: 18px; font-weight: 800; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
-    .total-area-badge { font-size: 13px; color: #38bdf8; font-weight: 700; }
-    .section-title { font-size: 14px; font-weight: 700; color: #38bdf8; margin: 15px 0 10px 0; }
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-    .card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 14px; border-radius: 14px; display: flex; flex-direction: column; gap: 6px; }
-    .card-val { font-size: 20px; font-weight: 800; color: #fff; }
-    .card-lbl { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
+    /* ===== Dashboard (aba Indicadores) ===== */
+    #dash-view { padding: 0; }
+    .dsh { max-width: 880px; margin: 0 auto; padding: 18px 16px 28px; display: flex; flex-direction: column; gap: 14px; }
+    .dsh-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .dsh-kicker { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #38bdf8; }
+    .dsh-title { font-size: 22px; font-weight: 800; color: #fff; }
+    .dsh-upd { font-size: 11px; color: #94a3b8; font-weight: 600; text-align: right; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+    .chip { flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); color: #cbd5e1; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .chip.on { background: #f8fafc; color: #0f172a; border-color: #f8fafc; }
+    .pane { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 18px; padding: 16px; }
+    .pane h2 { font-size: 13px; font-weight: 800; color: #e2e8f0; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline; }
+    .pane h2 small { font-size: 11px; color: #94a3b8; font-weight: 600; }
+    .hero { display: flex; align-items: center; gap: 18px; }
+    .ring { position: relative; width: 112px; height: 112px; flex: 0 0 auto; }
+    .ring svg { transform: rotate(-90deg); }
+    .ring-arc { transition: stroke-dasharray .6s ease; }
+    .ring-txt { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .ring-pct { font-size: 26px; font-weight: 800; color: #fff; line-height: 1; }
+    .ring-sub { font-size: 9px; color: #94a3b8; font-weight: 800; margin-top: 4px; letter-spacing: .3px; }
+    .hero-big { font-size: 28px; font-weight: 800; color: #fff; line-height: 1.1; }
+    .hero-big span { font-size: 14px; color: #94a3b8; font-weight: 700; }
+    .hero-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+    .hero-line { font-size: 12px; color: #cbd5e1; margin-top: 10px; font-weight: 600; line-height: 1.6; }
+    .hero-line b { color: #22c55e; }
+    .hero-line i { font-style: normal; color: #eab308; font-weight: 800; }
+    .stack { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
+    .stack > div { height: 100%; transition: width .5s ease; }
+    .stack.sm { height: 6px; margin: 8px 0 6px; }
+    .legend { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .lg-row { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 10px; align-items: center; font-size: 13px; }
+    .lg-dot { width: 12px; height: 12px; border-radius: 4px; }
+    .lg-name { color: #e2e8f0; font-weight: 600; }
+    .lg-ha { color: #fff; font-weight: 800; text-align: right; }
+    .lg-pct { color: #94a3b8; font-weight: 700; width: 40px; text-align: right; font-size: 12px; }
+    .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+    .kpi { padding: 14px; }
+    .kpi-ico { font-size: 18px; }
+    .kpi-val { font-size: 22px; font-weight: 800; color: #fff; margin-top: 6px; line-height: 1.1; }
+    .kpi-val small { font-size: 12px; color: #94a3b8; font-weight: 700; }
+    .kpi-lbl { font-size: 10px; color: #94a3b8; font-weight: 800; margin-top: 4px; text-transform: uppercase; letter-spacing: .3px; }
+    .search { width: 100%; padding: 11px 14px; border-radius: 12px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: #fff; font-size: 14px; outline: none; }
+    .search:focus { border-color: #38bdf8; }
+    .sort { margin: 10px 0 4px; }
+    .sort .chip { padding: 6px 12px; font-size: 11px; }
+    .faz-list { display: flex; flex-direction: column; }
+    .faz { text-align: left; background: none; border: none; border-top: 1px solid rgba(255,255,255,.07); padding: 12px 2px; color: inherit; cursor: pointer; width: 100%; }
+    .faz:active, .faz:hover { background: rgba(255,255,255,.03); }
+    .faz-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    .faz-nome { font-size: 13px; font-weight: 700; color: #f8fafc; }
+    .faz-area { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; }
+    .faz-meta { font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+    .faz-go { color: #38bdf8; font-weight: 800; white-space: nowrap; }
+    .tag { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; margin-right: 6px; vertical-align: 1px; }
+    .empty { color: #94a3b8; font-size: 13px; padding: 16px 0; text-align: center; }
+    .more { margin-top: 8px; width: 100%; padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: none; color: #38bdf8; font-weight: 800; font-size: 12px; cursor: pointer; }
 
     .maplibregl-popup-content { background: #0f172a; color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 15px; }
     .maplibregl-popup-close-button { color: #fff; font-size: 16px; top: 5px; right: 5px; }
@@ -149,7 +200,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/11/2026 10:25</div>
+          <div class="updated-at">Atualizado em: 11/11/2026 12:46</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -220,42 +271,52 @@
   </div>
 
   <div id="dash-view" class="view-section">
-    <div class="dash-header">
-      <span>INDICADORES | FERTIRRIGAÇÃO</span>
-      <span class="total-area-badge" id="total-area-badge">Total: 0 ha</span>
-    </div>
-
-    <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0 20px 0;">
-        <div class="hidrorrol-loader" style="margin-bottom: 0;">
-            <svg viewBox="0 0 140 100" width="120" height="85">
-                <line x1="5" y1="85" x2="135" y2="85" stroke="#334155" stroke-width="3" stroke-linecap="round" />
-                <line class="hose-line" x1="15" y1="83" x2="95" y2="83" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
-                <rect x="5" y="70" width="10" height="15" fill="#475569" />
-                <circle cx="10" cy="65" r="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-                <circle cx="10" cy="65" r="4" fill="#cbd5e1" />
-                <g class="cart-group">
-                    <path d="M 0 85 L 20 45 L 30 85 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linejoin="round" />
-                    <circle cx="10" cy="75" r="10" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" />
-                    <circle cx="10" cy="75" r="3" fill="#cbd5e1" />
-                    <circle cx="30" cy="80" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="2" />
-                    <line x1="18" y1="48" x2="40" y2="28" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" />
-                    <line x1="35" y1="33" x2="45" y2="23" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" />
-                    <path class="spray-stream" d="M 45 23 Q 70 5 95 50" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 8" />
-                    <path class="spray-stream-2" d="M 45 23 Q 65 -5 100 45" fill="none" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10" />
-                    <path class="spray-stream-3" d="M 45 23 Q 80 15 90 60" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 7" />
-                </g>
-            </svg>
+    <div class="dsh">
+      <div class="dsh-head">
+        <div>
+          <div class="dsh-kicker">INDICADORES</div>
+          <div class="dsh-title">Fertirrigação</div>
         </div>
+        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 12:46</div>
+      </div>
+
+      <!-- Filtro por unidade -->
+      <div class="chips" id="dsh-chips"></div>
+
+      <!-- Destaque: % da área com projeto feito -->
+      <div class="pane hero">
+        <div class="ring">
+          <svg width="112" height="112" viewBox="0 0 112 112">
+            <circle cx="56" cy="56" r="48" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12" />
+            <circle id="ring-arc" class="ring-arc" cx="56" cy="56" r="48" fill="none" stroke="#22c55e" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 302" />
+          </svg>
+          <div class="ring-txt"><div class="ring-pct" id="ring-pct">0%</div><div class="ring-sub">PROJETO FEITO</div></div>
+        </div>
+        <div>
+          <div class="hero-big" id="hero-area">0 <span>ha</span></div>
+          <div class="hero-lbl" id="hero-lbl">área total monitorada</div>
+          <div class="hero-line" id="hero-line"></div>
+        </div>
+      </div>
+
+      <!-- Situação da área por status -->
+      <div class="pane">
+        <h2>Situação da área <small>hectares</small></h2>
+        <div class="stack" id="stack"></div>
+        <div class="legend" id="legend-status"></div>
+      </div>
+
+      <!-- Números-chave -->
+      <div class="kpis" id="kpis"></div>
+
+      <!-- Lista de fazendas -->
+      <div class="pane">
+        <h2>Fazendas <small id="faz-count"></small></h2>
+        <input class="search" id="faz-busca" type="search" placeholder="Buscar fazenda ou código..." oninput="dash.limite = 30; renderFazendas()">
+        <div class="chips sort" id="faz-sort"></div>
+        <div class="faz-list" id="faz-list"></div>
+      </div>
     </div>
-    
-    <div class="section-title">Totalização por Unidades (ha)</div>
-    <div class="cards-grid" id="grid-unidades"></div>
-
-    <div class="section-title">Status do Projeto - CLEMENTINA (ha)</div>
-    <div class="cards-grid" id="grid-proj-cle"></div>
-
-    <div class="section-title">Status do Projeto - QUEIROZ (ha)</div>
-    <div class="cards-grid" id="grid-proj-que"></div>
   </div>
 
   <div class="bottom-nav glass">
@@ -471,6 +532,7 @@
     ]).then(([linhasData, talhoesData, perimetroData, indicData, tubulacaoData]) => {
         
         rawData = linhasData;
+        window.perimetroData = perimetroData;
         populateDropdown(rawData);
         buildDashboard(indicData);
 
@@ -663,27 +725,150 @@
       updateLegend(attrTheme);
     }
 
+    // =====================================================================
+    // DASHBOARD (aba Indicadores) - dados em indicadores.json -> "fazendas"
+    // =====================================================================
+    const STATUS_ORDEM = ['PROJETO FEITO', 'A VALIDAR', 'SEM PROJETO OU OPORTUNIDADE'];
+    const STATUS_NOME = { 'PROJETO FEITO': 'Projeto feito', 'A VALIDAR': 'A validar', 'SEM PROJETO OU OPORTUNIDADE': 'Sem projeto / oportunidade' };
+    const dash = { dados: null, unidade: 'TODAS', ordem: 'area', limite: 30 };
+
+    function fmt(n, casas = 1) {
+      return Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+    }
+    function corStatus(s) { return PALETTE['STATUS PROJETO'][s] || '#64748b'; }
+    function ordenarStatus(lista) {
+      return [...STATUS_ORDEM.filter(s => lista.includes(s)), ...lista.filter(s => !STATUS_ORDEM.includes(s))];
+    }
+    function marcar(id, valor) {
+      document.querySelectorAll(`#${id} .chip`).forEach(b => b.classList.toggle('on', b.dataset.v === valor));
+    }
+    function fazendasFiltradas() {
+      return dash.dados.fazendas.filter(f => dash.unidade === 'TODAS' || f.unidade === dash.unidade);
+    }
+
     function buildDashboard(data) {
-      if (!data) return;
-      document.getElementById('total-area-badge').innerText = `Total: ${formatNumber(data.area_total_ha)} ha`;
+      if (!data || !data.fazendas) {
+        document.getElementById('faz-list').innerHTML = '<div class="empty">Toque em "Atualizar Aplicativo" no menu do mapa para carregar os indicadores.</div>';
+        return;
+      }
+      dash.dados = data;
+      if (data.atualizado_em) document.getElementById('dsh-upd').innerText = 'Atualizado em ' + data.atualizado_em;
 
-      const createCards = (arr, elementId, colorPalette) => {
-        const grid = document.getElementById(elementId);
-        grid.innerHTML = '';
-        arr.forEach(item => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          const valUpper = item.label.toUpperCase();
-          const themeColor = colorPalette[valUpper] || '#38bdf8';
-          card.style.borderLeft = `4px solid ${themeColor}`;
-          card.innerHTML = `<div class="card-val">${formatNumber(item.area_ha)} ha</div><div class="card-lbl">${item.label}</div>`;
-          grid.appendChild(card);
-        });
+      const unidades = (data.lista_unidades || []).map(u => [u, u.charAt(0) + u.slice(1).toLowerCase(), PALETTE['UNIDADE'][u]]);
+      document.getElementById('dsh-chips').innerHTML = [['TODAS', 'Todas as unidades', null], ...unidades]
+        .map(([v, l, c]) => `<button class="chip" data-v="${v}" onclick="dashUnidade('${v}')">${c ? `<span class="dot" style="background:${c}"></span>` : ''}${l}</button>`).join('');
+      document.getElementById('faz-sort').innerHTML = [['area', 'Maior área'], ['pendente', 'Mais pendências'], ['linhas', 'Mais linhas'], ['nome', 'A–Z']]
+        .map(([v, l]) => `<button class="chip" data-v="${v}" onclick="dashOrdem('${v}')">${l}</button>`).join('');
+      renderDashboard();
+    }
+
+    function dashUnidade(u) { dash.unidade = u; dash.limite = 30; renderDashboard(); }
+    function dashOrdem(o) { dash.ordem = o; dash.limite = 30; renderFazendas(); }
+
+    function renderDashboard() {
+      marcar('dsh-chips', dash.unidade);
+      const fz = fazendasFiltradas();
+      const area = fz.reduce((s, f) => s + f.area, 0);
+      const porStatus = {};
+      fz.forEach(f => Object.entries(f.status).forEach(([s, a]) => porStatus[s] = (porStatus[s] || 0) + a));
+      const statuses = ordenarStatus(Object.keys(porStatus));
+      const totalStatus = statuses.reduce((s, k) => s + porStatus[k], 0) || 1;
+      const feito = porStatus['PROJETO FEITO'] || 0;
+      const pct = area ? feito / area * 100 : 0;
+
+      // Anel de progresso
+      const C = 2 * Math.PI * 48;
+      document.getElementById('ring-arc').setAttribute('stroke-dasharray', `${C * pct / 100} ${C}`);
+      document.getElementById('ring-pct').innerText = Math.round(pct) + '%';
+      document.getElementById('hero-area').innerHTML = `${fmt(area, 0)} <span>ha</span>`;
+      document.getElementById('hero-lbl').innerText = dash.unidade === 'TODAS' ? 'área total monitorada' : 'área monitorada · ' + dash.unidade;
+      document.getElementById('hero-line').innerHTML = `<b>${fmt(feito, 0)} ha</b> com projeto feito<br><i>${fmt(area - feito, 0)} ha</i> a validar ou sem projeto`;
+
+      // Barra e legenda por status
+      document.getElementById('stack').innerHTML = statuses
+        .map(s => `<div style="width:${porStatus[s] / totalStatus * 100}%;background:${corStatus(s)}"></div>`).join('');
+      document.getElementById('legend-status').innerHTML = statuses.map(s => `
+        <div class="lg-row"><span class="lg-dot" style="background:${corStatus(s)}"></span>
+          <span class="lg-name">${STATUS_NOME[s] || s}</span>
+          <span class="lg-ha">${fmt(porStatus[s], 1)} ha</span>
+          <span class="lg-pct">${fmt(porStatus[s] / totalStatus * 100, 0)}%</span></div>`).join('')
+        || '<div class="empty">Sem dados para esta unidade.</div>';
+
+      // Números-chave
+      const comLinhas = fz.filter(f => f.linhas_km > 0).length;
+      const km = fz.reduce((s, f) => s + f.linhas_km, 0);
+      const tub = fz.reduce((s, f) => s + f.tub_km, 0);
+      const talhoes = fz.reduce((s, f) => s + f.talhoes, 0);
+      const nFaz = fz.filter(f => f.area > 0).length;
+      document.getElementById('kpis').innerHTML = [
+        ['🏡', `${nFaz}`, 'Fazendas monitoradas'],
+        ['🌱', `${talhoes.toLocaleString('pt-BR')}`, 'Talhões com status'],
+        ['📏', `${fmt(km, 0)} <small>km</small>`, `Linhas em ${comLinhas} fazendas`],
+        ['🚰', `${fmt(tub, 1)} <small>km</small>`, 'Tubulação'],
+      ].map(([ico, val, lbl]) => `<div class="pane kpi"><div class="kpi-ico">${ico}</div><div class="kpi-val">${val}</div><div class="kpi-lbl">${lbl}</div></div>`).join('');
+
+      renderFazendas();
+    }
+
+    function renderFazendas() {
+      if (!dash.dados) return;
+      marcar('faz-sort', dash.ordem);
+      const busca = (document.getElementById('faz-busca').value || '').trim().toUpperCase();
+      const pendente = f => f.area - (f.status['PROJETO FEITO'] || 0);
+      const ordens = {
+        area: (a, b) => b.area - a.area,
+        pendente: (a, b) => pendente(b) - pendente(a),
+        linhas: (a, b) => b.linhas_km - a.linhas_km,
+        nome: (a, b) => a.nome.localeCompare(b.nome, 'pt-BR'),
       };
+      const fz = fazendasFiltradas()
+        .filter(f => !busca || f.nome.includes(busca) || f.cod.includes(busca))
+        .sort(ordens[dash.ordem]);
 
-      createCards(data.unidades, 'grid-unidades', PALETTE["UNIDADE"]);
-      createCards(data.projeto_clementina, 'grid-proj-cle', PALETTE["STATUS PROJETO"]);
-      createCards(data.projeto_queiroz, 'grid-proj-que', PALETTE["STATUS PROJETO"]);
+      document.getElementById('faz-count').innerText = `${fz.length} fazenda${fz.length === 1 ? '' : 's'}`;
+      const lista = document.getElementById('faz-list');
+      if (!fz.length) { lista.innerHTML = '<div class="empty">Nenhuma fazenda encontrada.</div>'; return; }
+
+      lista.innerHTML = fz.slice(0, dash.limite).map(f => {
+        const total = Object.values(f.status).reduce((s, a) => s + a, 0);
+        const barra = ordenarStatus(Object.keys(f.status))
+          .map(s => `<div style="width:${f.status[s] / total * 100}%;background:${corStatus(s)}"></div>`).join('');
+        const corUni = PALETTE['UNIDADE'][f.unidade];
+        const tag = f.unidade
+          ? `<span class="tag" style="background:${corUni}33;color:${corUni}">${f.unidade}</span>`
+          : '<span class="tag" style="background:#47556966;color:#cbd5e1">SEM STATUS</span>';
+        const pf = f.area ? Math.round((f.status['PROJETO FEITO'] || 0) / f.area * 100) + '% feito' : null;
+        const meta = [f.cod, f.linhas_km ? fmt(f.linhas_km, 1) + ' km de linhas' : 'sem linhas', pf].filter(Boolean).join(' · ');
+        return `<button class="faz" onclick="irParaFazenda('${f.cod}')">
+            <div class="faz-top"><span class="faz-nome">${tag}${f.nome}</span><span class="faz-area">${f.area ? fmt(f.area, 1) + ' ha' : '—'}</span></div>
+            <div class="stack sm">${barra}</div>
+            <div class="faz-meta"><span>${meta}</span><span class="faz-go">Ver no mapa ›</span></div>
+          </button>`;
+      }).join('') + (fz.length > dash.limite
+        ? `<button class="more" onclick="dash.limite += 30; renderFazendas()">Mostrar mais ${Math.min(30, fz.length - dash.limite)} de ${fz.length - dash.limite}</button>`
+        : '');
+    }
+
+    // Abre a fazenda no mapa (linhas se existirem; senão, talhões e perímetro)
+    function irParaFazenda(cod) {
+      switchView('map');
+      if (!window.mapLoaded) return;
+      const sel = document.getElementById('layerSelect');
+      const opt = [...sel.options].find(o => o.value === cod) || [...sel.options].find(o => o.value && o.value.startsWith(cod));
+      if (opt) { sel.value = opt.value; filterMap(); return; }
+      sel.value = '';
+      const daFazenda = ['==', ['slice', ['to-string', ['get', 'layer']], 0, cod.length], cod];
+      map.setFilter('linhas-line', daFazenda);
+      map.setFilter('linhas-labels', daFazenda);
+      map.setFilter('markers-start', ['all', ['==', ['get', 'point_type'], 'start'], daFazenda]);
+      map.setFilter('markers-end', ['all', ['==', ['get', 'point_type'], 'end'], daFazenda]);
+      if (map.getLayer('tubulacao-line')) map.setFilter('tubulacao-line', daFazenda);
+      const filtro = ['==', ['to-string', ['get', 'FAZENDA']], cod];
+      map.setFilter('talhoes-fill', filtro);
+      map.setFilter('perimetro-line', filtro);
+      const feats = ((window.perimetroData || {}).features || []).filter(x => String(x.properties.FAZENDA) === cod);
+      const b = getBounds(feats);
+      if (!b.isEmpty()) map.fitBounds(b, { padding: 40, maxZoom: 16 });
     }
 
     function updateLayersVisibility() {
