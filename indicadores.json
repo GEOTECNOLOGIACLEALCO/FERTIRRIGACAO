@@ -42,7 +42,7 @@
     }
   ],
   "area_total_ha": 18809.74,
-  "atualizado_em": "11/11/2026 12:55",
+  "atualizado_em": "11/11/2026 16:14",
   "lista_unidades": [
     "CLEMENTINA",
     "QUEIROZ"
@@ -69,7 +69,7 @@
       "status": {
         "A VALIDAR": 1076.64
       },
-      "linhas_km": 114.13,
+      "linhas_km": 114.26,
       "tub_km": 18.85
     },
     {
@@ -1201,6 +1201,16 @@
       "tub_km": 0.0
     },
     {
+      "cod": "208252",
+      "nome": "FAZENDA SANTA EDWYGES",
+      "unidade": "",
+      "area": 0.0,
+      "talhoes": 0,
+      "status": {},
+      "linhas_km": 0.0,
+      "tub_km": 8.79
+    },
+    {
       "cod": "308125",
       "nome": "FAZENDA MACUCO",
       "unidade": "",
@@ -1229,16 +1239,6 @@
       "status": {},
       "linhas_km": 39.17,
       "tub_km": 0.0
-    },
-    {
-      "cod": "208252",
-      "nome": "FAZENDA SANTA EDWYGES",
-      "unidade": "",
-      "area": 0.0,
-      "talhoes": 0,
-      "status": {},
-      "linhas_km": 0.0,
-      "tub_km": 8.79
     }
   ]
 }
