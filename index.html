@@ -53,11 +53,11 @@
 
     /* Botões redondos no estilo dos apps do Google: brancos, ícone cinza */
     /* Todos os botões com o mesmo tamanho (mude --fab para aumentar/diminuir todos) */
-    :root { --fab: 42px; }
+    :root { --fab: 38px; }
     .fab-group { position: absolute; bottom: 20px; right: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; align-items: center; }
     .fab { width: var(--fab); height: var(--fab); border-radius: 50%; border: none; padding: 0; background: #fff; color: #5f6368; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 3px 10px rgba(0,0,0,.25); }
     .fab:active { background: #f1f3f4; }
-    .fab svg { width: 20px; height: 20px; display: block; }
+    .fab svg { width: 18px; height: 18px; display: block; }
     .fab-gps.ativo { color: #1a73e8; }          /* azul: mapa centralizado na sua posição */
     .fab-gps.sem-fix .gps-centro { display: none; }  /* sem posição ainda: só a mira */
     .fab-lock.on { background: #fef3c7; color: #d97706; box-shadow: 0 0 0 2px #f59e0b, 0 3px 10px rgba(0,0,0,.25); }
@@ -204,7 +204,7 @@
       <div class="header-bar glass">
         <div class="hdr-txt">
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado 11/11/2026 16:50</div>
+          <div class="updated-at">Atualizado 11/11/2026 17:05</div>
         </div>
         <div class="gps-pill" title="Precisão do GPS">
           <span class="gps-dot" id="gps-dot"></span>
@@ -268,7 +268,7 @@
       <button class="fab fab-compass oculto" id="btn-compass" onclick="resetRotation()" title="Alinhar ao norte">
         <svg id="compass-agulha" viewBox="0 0 24 24"><path d="M12 2.5 15.6 12H8.4z" fill="#ea4335"/><path d="M12 21.5 8.4 12h7.2z" fill="#9aa0a6"/></svg>
       </button>
-      <button class="fab fab-lock" id="btn-lock" onclick="toggleZoomLock()" title="Travar o zoom"></button>
+      <button class="fab fab-lock" id="btn-lock" onclick="toggleTravaTela()" title="Travar a tela nesta visão"></button>
       <button class="fab fab-reset" onclick="resetView()" title="Ver todas as fazendas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
       </button>
@@ -303,7 +303,7 @@
             <div class="dsh-title">Fertirrigação</div>
           </div>
         </div>
-        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 16:50</div>
+        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 17:05</div>
       </div>
 
       <!-- Filtro por unidade -->
@@ -405,9 +405,9 @@
     }
 
     function locateUser() {
+        if (!telaLivre()) return;
         if (currentPos) {
-            // Com o zoom travado, só centraliza (mantém o zoom atual)
-            map.flyTo(zoomTravado ? { center: currentPos } : { center: currentPos, zoom: 17 });
+            map.flyTo({ center: currentPos, zoom: 17 });
             document.getElementById('btn-gps').classList.add('ativo');  // fica azul, como no Google Maps
         } else {
             alert("Aguardando os satélites localizarem seu dispositivo...");
@@ -415,11 +415,14 @@
     }
 
     // ---------------------------------------------------------------
-    // TRAVA DE ZOOM: bloqueia pinça, duplo toque e roda do mouse.
-    // O mapa continua arrastável. A escolha fica salva no aparelho.
+    // TRAVA DA TELA: congela o mapa na visão atual (sem arrastar, sem
+    // zoom, sem girar). Tocar nos talhões/linhas continua mostrando as
+    // informações. A visão travada fica salva no aparelho e volta igual
+    // quando o app é aberto de novo.
     // ---------------------------------------------------------------
-    let zoomTravado = false;
-    const GESTOS_ZOOM = ['scrollZoom', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate', 'keyboard'];
+    let telaTravada = false;
+    const GESTOS = ['dragPan', 'dragRotate', 'scrollZoom', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate', 'touchPitch', 'keyboard'];
+    const CHAVE_TRAVA = 'ferti-tela-travada';
 
     const ICONE_CADEADO = (fechado) => `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -427,19 +430,33 @@
           <path d="${fechado ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.6-1.8'}"/>
         </svg>`;
 
-    function aplicarTravaZoom() {
-        GESTOS_ZOOM.forEach(g => { if (map[g]) zoomTravado ? map[g].disable() : map[g].enable(); });
+    function aplicarTrava() {
+        GESTOS.forEach(g => { if (map[g]) telaTravada ? map[g].disable() : map[g].enable(); });
         const btn = document.getElementById('btn-lock');
-        btn.classList.toggle('on', zoomTravado);
-        btn.innerHTML = ICONE_CADEADO(zoomTravado);
-        btn.title = zoomTravado ? 'Zoom travado: toque para liberar' : 'Travar o zoom';
+        btn.classList.toggle('on', telaTravada);
+        btn.innerHTML = ICONE_CADEADO(telaTravada);
+        btn.title = telaTravada ? 'Tela travada: toque para liberar' : 'Travar a tela nesta visão';
     }
 
-    function toggleZoomLock() {
-        zoomTravado = !zoomTravado;
-        aplicarTravaZoom();
-        try { localStorage.setItem('ferti-zoom-travado', zoomTravado ? '1' : '0'); } catch (e) {}
-        mostrarAviso(zoomTravado ? `🔒 Zoom travado (nível ${map.getZoom().toFixed(1).replace('.', ',')})` : '🔓 Zoom liberado');
+    function toggleTravaTela() {
+        telaTravada = !telaTravada;
+        aplicarTrava();
+        try {
+            if (telaTravada) {
+                const c = map.getCenter();
+                localStorage.setItem(CHAVE_TRAVA, JSON.stringify({ centro: [c.lng, c.lat], zoom: map.getZoom(), giro: map.getBearing() }));
+            } else {
+                localStorage.removeItem(CHAVE_TRAVA);
+            }
+        } catch (e) {}
+        mostrarAviso(telaTravada ? '🔒 Tela travada nesta visão' : '🔓 Tela liberada');
+    }
+
+    // Use antes de qualquer movimento automático do mapa (botões e menu)
+    function telaLivre() {
+        if (!telaTravada) return true;
+        mostrarAviso('🔒 Tela travada: toque no cadeado para liberar');
+        return false;
     }
 
     let avisoTimer = null;
@@ -559,6 +576,7 @@
     }
 
     function resetRotation() {
+        if (!telaLivre()) return;
         map.resetNorthPitch();
     }
 
@@ -583,9 +601,15 @@
 
     startContinuousGPS();
 
-    // Restaura a trava de zoom escolhida da última vez neste aparelho
-    try { zoomTravado = localStorage.getItem('ferti-zoom-travado') === '1'; } catch (e) {}
-    aplicarTravaZoom();
+    // Se a tela foi travada da última vez, volta exatamente para aquela visão
+    try {
+        const salva = JSON.parse(localStorage.getItem(CHAVE_TRAVA) || 'null');
+        if (salva && salva.centro) {
+            telaTravada = true;
+            map.jumpTo({ center: salva.centro, zoom: salva.zoom, bearing: salva.giro || 0 });
+        }
+    } catch (e) {}
+    aplicarTrava();
 
     // Botão de localização volta a cinza quando a pessoa arrasta o mapa (como no Google Maps)
     map.on('dragstart', () => document.getElementById('btn-gps').classList.remove('ativo'));
@@ -730,7 +754,7 @@
 
             if (rawData && rawData.features) {
                 const initialBounds = getBounds(rawData.features);
-                if (!initialBounds.isEmpty()) map.fitBounds(initialBounds, { padding: 40 });
+                if (!initialBounds.isEmpty() && !telaTravada) map.fitBounds(initialBounds, { padding: 40 });
             }
 
             const loaderEl = document.getElementById('loader');
@@ -740,11 +764,19 @@
             }
         };
 
+        // Desenha as camadas assim que o mapa estiver pronto. A segunda tentativa
+        // (para quando o evento 'load' demora, ex.: sem internet) só roda com o
+        // estilo pronto; antes ela podia dar erro e deixar o "Carregando" preso.
+        const tentarIniciar = () => {
+            if (layersInit) return;
+            if (map.isStyleLoaded()) initMapLayers();
+            else setTimeout(tentarIniciar, 300);
+        };
         if (map.loaded() || map.isStyleLoaded()) {
             initMapLayers();
         } else {
             map.once('load', initMapLayers);
-            setTimeout(initMapLayers, 3500); 
+            setTimeout(tentarIniciar, 3500);
         }
 
     }).catch(err => { 
@@ -829,7 +861,7 @@
       if (data.atualizado_em) document.getElementById('dsh-upd').innerText = 'Atualizado em ' + data.atualizado_em;
 
       const unidades = (data.lista_unidades || []).map(u => [u, u.charAt(0) + u.slice(1).toLowerCase(), PALETTE['UNIDADE'][u]]);
-      document.getElementById('dsh-chips').innerHTML = [['TODAS', 'Todas as unidades', null], ...unidades]
+      document.getElementById('dsh-chips').innerHTML = [['TODAS', 'Consolidado', null], ...unidades]
         .map(([v, l, c]) => `<button class="chip" data-v="${v}" onclick="dashUnidade('${v}')">${c ? `<span class="dot" style="background:${c}"></span>` : ''}${l}</button>`).join('');
       document.getElementById('faz-sort').innerHTML = [['area', 'Maior área'], ['pendente', 'Mais pendências'], ['linhas', 'Mais linhas'], ['nome', 'A–Z']]
         .map(([v, l]) => `<button class="chip" data-v="${v}" onclick="dashOrdem('${v}')">${l}</button>`).join('');
@@ -942,7 +974,7 @@
       map.setFilter('perimetro-line', filtro);
       const feats = ((window.perimetroData || {}).features || []).filter(x => String(x.properties.FAZENDA) === cod);
       const b = getBounds(feats);
-      if (!b.isEmpty()) map.fitBounds(b, { padding: 40, maxZoom: 16 });
+      if (!b.isEmpty() && telaLivre()) map.fitBounds(b, { padding: 40, maxZoom: 16 });
     }
 
     function updateLayersVisibility() {
@@ -1022,14 +1054,14 @@
 
       const filteredFeatures = rawData.features.filter(f => String(f.properties.layer) === String(val));
       const bounds = getBounds(filteredFeatures);
-      if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 17 });
+      if (!bounds.isEmpty() && telaLivre()) map.fitBounds(bounds, { padding: 40, maxZoom: 17 });
     }
 
     function resetView() {
       document.getElementById('layerSelect').value = '';
       if(rawData && rawData.features){
           const bounds = getBounds(rawData.features);
-          if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 30 });
+          if (!bounds.isEmpty() && telaLivre()) map.fitBounds(bounds, { padding: 30 });
       }
     }
 
