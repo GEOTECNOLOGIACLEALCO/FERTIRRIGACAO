@@ -1,8 +1,10 @@
-const CACHE_NAME = 'ferti-clealco-v47'; 
+// Ao mudar index.html ou a lista ASSETS, aumente o número da versão abaixo
+// para os celulares descartarem o cache antigo.
+const CACHE_NAME = 'ferti-clealco-v48';
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
-  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './tubulacao.geojson', './indicadores.json', './labels.json', './manifest.json',
+  './', './index.html', './data.geojson', './talhoes.geojson', './perimetro.geojson', './tubulacao.geojson', './indicadores.json', './manifest.json',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css',
   'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js',
   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap'

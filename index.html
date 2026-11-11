@@ -44,7 +44,7 @@
 
     .bottom-nav {
       position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
-      z-index: 2000; display: flex; justify-around: align-items: center;
+      z-index: 2000; display: flex; justify-content: space-around; align-items: center;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
     .nav-item {
@@ -149,7 +149,7 @@
       <div class="header-bar glass">
         <div>
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/11/2026 09:13</div>
+          <div class="updated-at">Atualizado em: 11/11/2026 10:25</div>
         </div>
         <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
       </div>
@@ -467,9 +467,8 @@
       fetchSafeData('./talhoes.geojson'),
       fetchSafeData('./perimetro.geojson'),
       fetchSafeData('./indicadores.json'),
-      fetchSafeData('./labels.json'),
       fetchSafeData('./tubulacao.geojson')
-    ]).then(([linhasData, talhoesData, perimetroData, indicData, labelsData, tubulacaoData]) => {
+    ]).then(([linhasData, talhoesData, perimetroData, indicData, tubulacaoData]) => {
         
         rawData = linhasData;
         populateDropdown(rawData);
@@ -505,7 +504,6 @@
             map.addSource('talhoes', { type: 'geojson', data: talhoesData });
             map.addSource('perimetro', { type: 'geojson', data: perimetroData });
             map.addSource('linhas', { type: 'geojson', data: linhasData });
-            map.addSource('labels', { type: 'geojson', data: labelsData });
             map.addSource('tubulacao', { type: 'geojson', data: tubulacaoData });
             map.addSource('markers', { type: 'geojson', data: { type: 'FeatureCollection', features: markersFeatures } });
             
@@ -540,7 +538,7 @@
             map.addLayer({
                 id: 'linhas-labels',
                 type: 'symbol',
-                source: 'labels',
+                source: 'linhas',
                 minzoom: 10,
                 layout: {
                     'symbol-placement': 'line',
