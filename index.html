@@ -14,7 +14,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #0f172a; color: #f8fafc; }
     
-    .view-section { width: 100%; height: calc(100% - 60px); position: absolute; top: 0; left: 0; }
+    .view-section { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     #map-view { display: block; }
     #dash-view { display: none; overflow-y: auto; padding: 20px; background: #0f172a; z-index: 500; }
 
@@ -25,11 +25,18 @@
       border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    .top-panel { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-    .header-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 16px; }
-    .title { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(135deg, #ffffff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .updated-at { font-size: 10px; color: #38bdf8; font-weight: 600; margin-top: 2px; }
-    .btn-toggle { background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    /* Barra do topo compacta: título + data | GPS | menu */
+    .top-panel { position: absolute; top: 8px; left: 8px; right: 8px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+    .header-bar { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 14px; }
+    .hdr-txt { flex: 1; min-width: 0; }
+    .title { font-size: 12px; font-weight: 800; letter-spacing: 0.6px; color: #f8fafc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .updated-at { font-size: 9.5px; color: #38bdf8; font-weight: 600; white-space: nowrap; }
+    .gps-pill { display: flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; background: rgba(255,255,255,0.08); font-size: 11px; font-weight: 800; color: #cbd5e1; white-space: nowrap; }
+    .gps-dot { width: 8px; height: 8px; border-radius: 50%; background: #64748b; flex: 0 0 auto; }
+    .btn-toggle { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 34px; height: 34px; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .btn-toggle.on { background: #38bdf8; color: #0f172a; }
+    #toast { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); z-index: 1500; padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; color: #fff; opacity: 0; pointer-events: none; transition: opacity .25s; white-space: nowrap; }
+    #toast.show { opacity: 1; }
 
     .search-body { padding: 16px; border-radius: 18px; display: flex; flex-direction: column; gap: 12px; transition: all 0.3s ease; transform-origin: top; }
     .search-body.collapsed { opacity: 0; transform: scaleY(0); pointer-events: none; position: absolute; visibility: hidden; }
@@ -42,27 +49,21 @@
     .btn-download { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
     .btn-update { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
 
-    .bottom-nav {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
-      z-index: 2000; display: flex; justify-content: space-around; align-items: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700; cursor: pointer; flex: 1; height: 100%; justify-content: center;
-    }
-    .nav-item.active { color: #38bdf8; }
-    .nav-icon { font-size: 18px; }
+    .btn-indicadores { background: linear-gradient(135deg, #0284c7, #2563eb); color: white; }
 
-    .fab-group { position: absolute; bottom: 80px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
-    .fab { width: 45px; height: 45px; border-radius: 50%; border: none; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-    .fab-compass { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 20px;} 
-    .fab-gps { background: linear-gradient(135deg, #0284c7, #2563eb); }
-    .fab-reset { background: linear-gradient(135deg, #475569, #334155); }
+    /* Botões redondos no estilo dos apps do Google: brancos, ícone cinza */
+    /* Todos os botões com o mesmo tamanho (mude --fab para aumentar/diminuir todos) */
+    :root { --fab: 42px; }
+    .fab-group { position: absolute; bottom: 20px; right: 12px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .fab { width: var(--fab); height: var(--fab); border-radius: 50%; border: none; padding: 0; background: #fff; color: #5f6368; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.3), 0 3px 10px rgba(0,0,0,.25); }
+    .fab:active { background: #f1f3f4; }
+    .fab svg { width: 20px; height: 20px; display: block; }
+    .fab-gps.ativo { color: #1a73e8; }          /* azul: mapa centralizado na sua posição */
+    .fab-gps.sem-fix .gps-centro { display: none; }  /* sem posição ainda: só a mira */
+    .fab-lock.on { background: #fef3c7; color: #d97706; box-shadow: 0 0 0 2px #f59e0b, 0 3px 10px rgba(0,0,0,.25); }
+    .fab-compass.oculto { display: none; }      /* só aparece quando o mapa está girado */
 
-    .gps-status-bar { align-self: flex-start; padding: 6px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 6px; }
-
-    #map-legend { position: absolute; bottom: 80px; left: 16px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
+    #map-legend { position: absolute; bottom: 20px; left: 10px; z-index: 1000; padding: 12px; border-radius: 12px; display: none; flex-direction: column; gap: 6px; max-width: 250px; }
     .legend-title { font-size: 11px; color: #38bdf8; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
     .legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: #f8fafc; }
     .legend-color { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
@@ -97,7 +98,7 @@
     .spray-stream-2 { animation: sprayFlow 0.4s linear infinite; opacity: 0.7; }
     .spray-stream-3 { animation: sprayFlow 0.6s linear infinite; opacity: 0.8; }
 
-    #progress-container { position: absolute; bottom: 80px; left: 16px; right: 80px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
+    #progress-container { position: absolute; bottom: 20px; left: 10px; right: 76px; z-index: 1000; background: rgba(15, 23, 42, 0.95); padding: 12px; border-radius: 12px; display: none; border: 1px solid rgba(255,255,255,0.2); }
     .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 6px; }
     .progress-fill { width: 0%; height: 100%; background: #22c55e; transition: width 0.2s; }
     .progress-text { font-size: 11px; font-weight: 600; color: #fff; }
@@ -107,7 +108,10 @@
     /* ===== Dashboard (aba Indicadores) ===== */
     #dash-view { padding: 0; }
     .dsh { max-width: 880px; margin: 0 auto; padding: 18px 16px 28px; display: flex; flex-direction: column; gap: 14px; }
-    .dsh-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .dsh-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 5; background: #0f172a; margin: -18px -16px 0; padding: 12px 16px 10px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .dsh-head-esq { display: flex; align-items: center; gap: 12px; }
+    .dsh-back { display: flex; align-items: center; gap: 4px; padding: 8px 12px 8px 8px; border-radius: 12px; border: none; background: rgba(255,255,255,.08); color: #f8fafc; font-size: 13px; font-weight: 800; cursor: pointer; }
+    .dsh-back svg { width: 18px; height: 18px; }
     .dsh-kicker { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: #38bdf8; }
     .dsh-title { font-size: 22px; font-weight: 800; color: #fff; }
     .dsh-upd { font-size: 11px; color: #94a3b8; font-weight: 600; text-align: right; }
@@ -198,19 +202,20 @@
   <div id="map-view" class="view-section">
     <div class="top-panel">
       <div class="header-bar glass">
-        <div>
+        <div class="hdr-txt">
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado em: 11/11/2026 16:20</div>
+          <div class="updated-at">Atualizado 11/11/2026 16:50</div>
         </div>
-        <button class="btn-toggle" onclick="toggleMenu()"><span>👁️</span> Menu</button>
-      </div>
-      
-      <div class="gps-status-bar glass">
-        <span>🎯</span>
-        <span id="gps-accuracy-text">GPS: Conectando aos satélites...</span>
+        <div class="gps-pill" title="Precisão do GPS">
+          <span class="gps-dot" id="gps-dot"></span>
+          <span id="gps-accuracy-text">GPS...</span>
+        </div>
+        <button class="btn-toggle" id="btn-menu" onclick="toggleMenu()" title="Menu" aria-label="Menu">☰</button>
       </div>
 
       <div class="search-body glass collapsed" id="search-box">
+        <button class="action-btn btn-indicadores" onclick="switchView('dash')">📊 Ver indicadores</button>
+
         <div>
           <label>Pesquisar Fazenda (Linhas)</label>
           <select id="layerSelect" onchange="filterMap()">
@@ -256,10 +261,25 @@
 
     <div id="map-legend" class="glass"></div>
 
+    <div id="toast" class="glass"></div>
+
     <div class="fab-group">
-      <button class="fab fab-compass" onclick="resetRotation()" title="Alinhar ao Norte (Voltar Reto)">🧭</button>
-      <button class="fab fab-gps" onclick="locateUser()" title="Ir para minha posição">🎯</button>
-      <button class="fab fab-reset" onclick="resetView()" title="Visão Geral">🔄</button>
+      <!-- Bússola: só aparece com o mapa girado; toque para voltar o norte para cima -->
+      <button class="fab fab-compass oculto" id="btn-compass" onclick="resetRotation()" title="Alinhar ao norte">
+        <svg id="compass-agulha" viewBox="0 0 24 24"><path d="M12 2.5 15.6 12H8.4z" fill="#ea4335"/><path d="M12 21.5 8.4 12h7.2z" fill="#9aa0a6"/></svg>
+      </button>
+      <button class="fab fab-lock" id="btn-lock" onclick="toggleZoomLock()" title="Travar o zoom"></button>
+      <button class="fab fab-reset" onclick="resetView()" title="Ver todas as fazendas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+      <!-- Minha localização (igual aos apps do Google) -->
+      <button class="fab fab-gps sem-fix" id="btn-gps" onclick="locateUser()" title="Minha localização">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="7"/>
+          <path d="M12 1.5v3.5M12 19v3.5M1.5 12H5M19 12h3.5"/>
+          <circle class="gps-centro" cx="12" cy="12" r="3.3" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
     </div>
 
     <div id="progress-container">
@@ -273,11 +293,17 @@
   <div id="dash-view" class="view-section">
     <div class="dsh">
       <div class="dsh-head">
-        <div>
-          <div class="dsh-kicker">INDICADORES</div>
-          <div class="dsh-title">Fertirrigação</div>
+        <div class="dsh-head-esq">
+          <button class="dsh-back" onclick="switchView('map')" title="Voltar ao mapa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+            Mapa
+          </button>
+          <div>
+            <div class="dsh-kicker">INDICADORES</div>
+            <div class="dsh-title">Fertirrigação</div>
+          </div>
         </div>
-        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 16:20</div>
+        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 16:50</div>
       </div>
 
       <!-- Filtro por unidade -->
@@ -319,15 +345,6 @@
     </div>
   </div>
 
-  <div class="bottom-nav glass">
-    <button class="nav-item active" id="btn-nav-map" onclick="switchView('map')">
-      <span class="nav-icon">🗺️️</span> Mapa
-    </button>
-    <button class="nav-item" id="btn-nav-dash" onclick="switchView('dash')">
-      <span class="nav-icon">📊</span> Indicadores
-    </button>
-  </div>
-
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   
   <script>
@@ -336,8 +353,7 @@
 
     function startContinuousGPS() {
         if (!navigator.geolocation) {
-            const txt = document.getElementById('gps-accuracy-text');
-            if(txt) txt.innerText = "GPS Indisponível no dispositivo";
+            setGpsStatus('sem GPS', '#ef4444');
             return;
         }
 
@@ -348,15 +364,12 @@
                 const acc = Math.round(pos.coords.accuracy);
                 currentPos = [lng, lat];
 
-                let qual = "Baixa";
-                let color = "#ef4444"; 
-                if (acc <= 10) { qual = "Excelente"; color = "#22c55e"; } 
-                else if (acc <= 25) { qual = "Boa"; color = "#eab308"; } 
-
-                const statusEl = document.getElementById('gps-accuracy-text');
-                if (statusEl) {
-                    statusEl.innerHTML = `GPS: <span style="color:${color}; font-weight:800">${acc}m (${qual})</span>`;
-                }
+                // Verde: até 10 m (excelente) · Amarelo: até 25 m (boa) · Vermelho: acima disso (baixa)
+                let color = "#ef4444";
+                if (acc <= 10) color = "#22c55e";
+                else if (acc <= 25) color = "#eab308";
+                setGpsStatus(`${acc} m`, color);
+                document.getElementById('btn-gps').classList.remove('sem-fix');
 
                 if (window.mapLoaded) {
                     if (!window.userMarker) {
@@ -374,8 +387,7 @@
                 }
             },
             (err) => {
-                const statusEl = document.getElementById('gps-accuracy-text');
-                if (statusEl) statusEl.innerHTML = `<span style="color:#ef4444">GPS: Sem sinal de satélite</span>`;
+                setGpsStatus('sem sinal', '#ef4444');
             },
             { 
                 enableHighAccuracy: true, 
@@ -385,12 +397,58 @@
         );
     }
 
+    function setGpsStatus(texto, cor) {
+        const txt = document.getElementById('gps-accuracy-text');
+        const dot = document.getElementById('gps-dot');
+        if (txt) { txt.innerText = texto; txt.style.color = cor; }
+        if (dot) dot.style.background = cor;
+    }
+
     function locateUser() {
         if (currentPos) {
-            map.flyTo({ center: currentPos, zoom: 17 });
+            // Com o zoom travado, só centraliza (mantém o zoom atual)
+            map.flyTo(zoomTravado ? { center: currentPos } : { center: currentPos, zoom: 17 });
+            document.getElementById('btn-gps').classList.add('ativo');  // fica azul, como no Google Maps
         } else {
             alert("Aguardando os satélites localizarem seu dispositivo...");
         }
+    }
+
+    // ---------------------------------------------------------------
+    // TRAVA DE ZOOM: bloqueia pinça, duplo toque e roda do mouse.
+    // O mapa continua arrastável. A escolha fica salva no aparelho.
+    // ---------------------------------------------------------------
+    let zoomTravado = false;
+    const GESTOS_ZOOM = ['scrollZoom', 'boxZoom', 'doubleClickZoom', 'touchZoomRotate', 'keyboard'];
+
+    const ICONE_CADEADO = (fechado) => `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+          <rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor" stroke="none"/>
+          <path d="${fechado ? 'M8 11V8a4 4 0 0 1 8 0v3' : 'M8 11V8a4 4 0 0 1 7.6-1.8'}"/>
+        </svg>`;
+
+    function aplicarTravaZoom() {
+        GESTOS_ZOOM.forEach(g => { if (map[g]) zoomTravado ? map[g].disable() : map[g].enable(); });
+        const btn = document.getElementById('btn-lock');
+        btn.classList.toggle('on', zoomTravado);
+        btn.innerHTML = ICONE_CADEADO(zoomTravado);
+        btn.title = zoomTravado ? 'Zoom travado: toque para liberar' : 'Travar o zoom';
+    }
+
+    function toggleZoomLock() {
+        zoomTravado = !zoomTravado;
+        aplicarTravaZoom();
+        try { localStorage.setItem('ferti-zoom-travado', zoomTravado ? '1' : '0'); } catch (e) {}
+        mostrarAviso(zoomTravado ? `🔒 Zoom travado (nível ${map.getZoom().toFixed(1).replace('.', ',')})` : '🔓 Zoom liberado');
+    }
+
+    let avisoTimer = null;
+    function mostrarAviso(texto) {
+        const el = document.getElementById('toast');
+        el.innerText = texto;
+        el.classList.add('show');
+        clearTimeout(avisoTimer);
+        avisoTimer = setTimeout(() => el.classList.remove('show'), 1800);
     }
 
     function forceSkipLoader() {
@@ -477,20 +535,22 @@
       "UNIDADE": { "CLEMENTINA": "#f97316", "QUEIROZ": "#3b82f6" }
     };
 
-    function toggleMenu() { document.getElementById('search-box').classList.toggle('collapsed'); }
+    function toggleMenu() {
+      const fechado = document.getElementById('search-box').classList.toggle('collapsed');
+      document.getElementById('btn-menu').classList.toggle('on', !fechado);
+    }
 
+    // Troca entre o mapa e os indicadores (o botão "Ver indicadores" fica no menu ☰)
     function switchView(view) {
       if(view === 'map') {
         document.getElementById('map-view').style.display = 'block';
         document.getElementById('dash-view').style.display = 'none';
-        document.getElementById('btn-nav-map').classList.add('active');
-        document.getElementById('btn-nav-dash').classList.remove('active');
         map.resize();
       } else {
+        if (!document.getElementById('search-box').classList.contains('collapsed')) toggleMenu();
         document.getElementById('map-view').style.display = 'none';
         document.getElementById('dash-view').style.display = 'block';
-        document.getElementById('btn-nav-dash').classList.add('active');
-        document.getElementById('btn-nav-map').classList.remove('active');
+        document.getElementById('dash-view').scrollTop = 0;
       }
     }
 
@@ -522,6 +582,20 @@
     }
 
     startContinuousGPS();
+
+    // Restaura a trava de zoom escolhida da última vez neste aparelho
+    try { zoomTravado = localStorage.getItem('ferti-zoom-travado') === '1'; } catch (e) {}
+    aplicarTravaZoom();
+
+    // Botão de localização volta a cinza quando a pessoa arrasta o mapa (como no Google Maps)
+    map.on('dragstart', () => document.getElementById('btn-gps').classList.remove('ativo'));
+
+    // Bússola: aparece só com o mapa girado e a agulha acompanha o giro
+    map.on('rotate', () => {
+        const giro = map.getBearing();
+        document.getElementById('btn-compass').classList.toggle('oculto', Math.abs(giro) < 0.5);
+        document.getElementById('compass-agulha').style.transform = `rotate(${-giro}deg)`;
+    });
 
     Promise.all([
       fetchSafeData('./data.geojson'),
