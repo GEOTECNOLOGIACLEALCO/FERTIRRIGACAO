@@ -1,48 +1,6 @@
 {
-  "unidades": [
-    {
-      "label": "CLEMENTINA",
-      "area_ha": 5603.52
-    },
-    {
-      "label": "QUEIROZ",
-      "area_ha": 13206.23
-    }
-  ],
-  "projeto_clementina": [
-    {
-      "label": "PROJETO FEITO",
-      "area_ha": 2820.98
-    },
-    {
-      "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 2782.54
-    },
-    {
-      "label": "TOTAL CLEMENTINA",
-      "area_ha": 5603.52
-    }
-  ],
-  "projeto_queiroz": [
-    {
-      "label": "A VALIDAR",
-      "area_ha": 3166.34
-    },
-    {
-      "label": "PROJETO FEITO",
-      "area_ha": 6272.26
-    },
-    {
-      "label": "SEM PROJETO OU OPORTUNIDADE",
-      "area_ha": 3767.62
-    },
-    {
-      "label": "TOTAL QUEIROZ",
-      "area_ha": 13206.23
-    }
-  ],
-  "area_total_ha": 18809.74,
-  "atualizado_em": "11/11/2026 17:05",
+  "atualizado_em": "12/11/2026 09:32",
+  "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
     "QUEIROZ"
@@ -52,85 +10,85 @@
       "cod": "200501",
       "nome": "FAZENDA SANTA INES",
       "unidade": "QUEIROZ",
-      "area": 2089.7,
-      "talhoes": 78,
+      "area": 2094.19,
+      "talhoes": 79,
+      "talhoes_projetados": 39,
       "status": {
-        "A VALIDAR": 2089.7
+        "PROJETADO": 1065.92,
+        "SEM PROJETO": 1028.27
       },
-      "linhas_km": 112.32,
+      "linhas_km": 109.49,
       "tub_km": 17.78
-    },
-    {
-      "cod": "200506",
-      "nome": "FAZENDA SANTA MARIA DO CARU",
-      "unidade": "QUEIROZ",
-      "area": 1076.64,
-      "talhoes": 33,
-      "status": {
-        "A VALIDAR": 1076.64
-      },
-      "linhas_km": 114.26,
-      "tub_km": 18.85
-    },
-    {
-      "cod": "202617",
-      "nome": "FAZENDA SAO LUIZ",
-      "unidade": "QUEIROZ",
-      "area": 986.14,
-      "talhoes": 29,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 986.14
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "201227",
       "nome": "FAZENDA SAO BENTO",
       "unidade": "QUEIROZ",
-      "area": 937.06,
-      "talhoes": 26,
+      "area": 1707.63,
+      "talhoes": 35,
+      "talhoes_projetados": 25,
       "status": {
-        "PROJETO FEITO": 937.06
+        "PROJETADO": 866.96,
+        "SEM PROJETO": 840.67
       },
-      "linhas_km": 102.57,
+      "linhas_km": 97.32,
       "tub_km": 15.0
+    },
+    {
+      "cod": "200506",
+      "nome": "FAZENDA SANTA MARIA DO CARU",
+      "unidade": "QUEIROZ",
+      "area": 1225.1,
+      "talhoes": 39,
+      "talhoes_projetados": 29,
+      "status": {
+        "PROJETADO": 1060.24,
+        "SEM PROJETO": 164.86
+      },
+      "linhas_km": 111.79,
+      "tub_km": 18.85
     },
     {
       "cod": "200518",
       "nome": "FAZENDA CACHOEIRA DOS INDIOS",
       "unidade": "QUEIROZ",
-      "area": 932.63,
-      "talhoes": 34,
+      "area": 986.11,
+      "talhoes": 36,
+      "talhoes_projetados": 17,
       "status": {
-        "PROJETO FEITO": 932.63
+        "PROJETADO": 440.85,
+        "SEM PROJETO": 545.26
       },
-      "linhas_km": 43.67,
+      "linhas_km": 42.16,
       "tub_km": 5.53
-    },
-    {
-      "cod": "303315",
-      "nome": "FAZENDA NOVA ESPERANCA",
-      "unidade": "QUEIROZ",
-      "area": 812.01,
-      "talhoes": 58,
-      "status": {
-        "PROJETO FEITO": 812.01
-      },
-      "linhas_km": 32.93,
-      "tub_km": 14.07
     },
     {
       "cod": "200498",
       "nome": "FAZENDA SANTO ANTONIO",
       "unidade": "CLEMENTINA",
-      "area": 600.35,
-      "talhoes": 17,
+      "area": 864.23,
+      "talhoes": 27,
+      "talhoes_projetados": 18,
       "status": {
-        "PROJETO FEITO": 600.35
+        "PROJETADO": 622.91,
+        "SEM PROJETO": 241.32
       },
-      "linhas_km": 68.49,
+      "linhas_km": 66.2,
       "tub_km": 12.0
+    },
+    {
+      "cod": "303315",
+      "nome": "FAZENDA NOVA ESPERANCA",
+      "unidade": "QUEIROZ",
+      "area": 810.67,
+      "talhoes": 58,
+      "talhoes_projetados": 50,
+      "status": {
+        "PROJETADO": 757.93,
+        "SEM PROJETO": 52.74
+      },
+      "linhas_km": 85.65,
+      "tub_km": 14.07
     },
     {
       "cod": "200507",
@@ -138,10 +96,12 @@
       "unidade": "QUEIROZ",
       "area": 517.9,
       "talhoes": 14,
+      "talhoes_projetados": 13,
       "status": {
-        "PROJETO FEITO": 517.9
+        "PROJETADO": 516.09,
+        "SEM PROJETO": 1.81
       },
-      "linhas_km": 51.4,
+      "linhas_km": 50.12,
       "tub_km": 8.23
     },
     {
@@ -150,191 +110,162 @@
       "unidade": "CLEMENTINA",
       "area": 486.26,
       "talhoes": 37,
+      "talhoes_projetados": 37,
       "status": {
-        "PROJETO FEITO": 486.26
+        "PROJETADO": 486.26
       },
-      "linhas_km": 57.62,
+      "linhas_km": 55.47,
       "tub_km": 12.29
     },
     {
       "cod": "303252",
       "nome": "FAZENDA PLANALTO",
       "unidade": "QUEIROZ",
-      "area": 472.31,
+      "area": 473.54,
       "talhoes": 36,
+      "talhoes_projetados": 31,
       "status": {
-        "PROJETO FEITO": 472.31
+        "PROJETADO": 465.01,
+        "SEM PROJETO": 8.53
       },
-      "linhas_km": 53.08,
+      "linhas_km": 52.13,
       "tub_km": 8.08
+    },
+    {
+      "cod": "201431",
+      "nome": "FAZENDA CARRILHO IV",
+      "unidade": "QUEIROZ",
+      "area": 438.45,
+      "talhoes": 18,
+      "talhoes_projetados": 18,
+      "status": {
+        "PROJETADO": 438.45
+      },
+      "linhas_km": 54.04,
+      "tub_km": 8.64
     },
     {
       "cod": "100862",
       "nome": "FAZENDA VALE FORMOSO",
       "unidade": "CLEMENTINA",
-      "area": 400.55,
-      "talhoes": 15,
+      "area": 428.34,
+      "talhoes": 16,
+      "talhoes_projetados": 14,
       "status": {
-        "PROJETO FEITO": 400.55
+        "PROJETADO": 404.48,
+        "SEM PROJETO": 23.86
       },
-      "linhas_km": 47.11,
+      "linhas_km": 45.9,
       "tub_km": 9.37
     },
     {
-      "cod": "306209",
-      "nome": "FAZENDA RECANTO DO VALE FORMOSO",
-      "unidade": "CLEMENTINA",
-      "area": 335.49,
-      "talhoes": 8,
+      "cod": "307846",
+      "nome": "FAZENDA ESMERALDA",
+      "unidade": "QUEIROZ",
+      "area": 419.04,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 335.49
+        "PROJETADO": 419.04
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
+      "linhas_km": 21.91,
+      "tub_km": 4.7
+    },
+    {
+      "cod": "208252",
+      "nome": "FAZENDA SANTA EDWYGES",
+      "unidade": "",
+      "area": 373.19,
+      "talhoes": 14,
+      "talhoes_projetados": 14,
+      "status": {
+        "PROJETADO": 373.19
+      },
+      "linhas_km": 37.63,
+      "tub_km": 8.79
     },
     {
       "cod": "200533",
       "nome": "FAZENDA SAO JOAO",
       "unidade": "QUEIROZ",
-      "area": 315.91,
+      "area": 317.45,
       "talhoes": 15,
+      "talhoes_projetados": 13,
       "status": {
-        "PROJETO FEITO": 315.91
+        "PROJETADO": 287.06,
+        "SEM PROJETO": 30.39
       },
-      "linhas_km": 31.59,
+      "linhas_km": 30.53,
       "tub_km": 4.88
-    },
-    {
-      "cod": "303944",
-      "nome": "FAZENDA FLORIDA",
-      "unidade": "CLEMENTINA",
-      "area": 306.22,
-      "talhoes": 15,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 306.22
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "201359",
       "nome": "FAZENDA SAO FRANCISCO",
       "unidade": "QUEIROZ",
-      "area": 296.01,
+      "area": 296.82,
       "talhoes": 10,
+      "talhoes_projetados": 10,
       "status": {
-        "PROJETO FEITO": 296.01
+        "PROJETADO": 296.82
       },
-      "linhas_km": 37.19,
+      "linhas_km": 36.3,
       "tub_km": 6.82
     },
     {
-      "cod": "303621",
-      "nome": "FAZENDA CHAPADAO",
-      "unidade": "QUEIROZ",
-      "area": 286.1,
-      "talhoes": 22,
+      "cod": "202948",
+      "nome": "FAZENDA SANTA LUZIA",
+      "unidade": "CLEMENTINA",
+      "area": 279.12,
+      "talhoes": 12,
+      "talhoes_projetados": 7,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 286.1
+        "PROJETADO": 185.29,
+        "SEM PROJETO": 93.83
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "206823",
-      "nome": "FAZENDA REALEZA",
-      "unidade": "QUEIROZ",
-      "area": 283.22,
-      "talhoes": 10,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 283.22
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
+      "linhas_km": 23.53,
+      "tub_km": 3.91
     },
     {
       "cod": "201147",
       "nome": "FAZENDA PEROBAL",
       "unidade": "CLEMENTINA",
-      "area": 277.52,
+      "area": 278.65,
       "talhoes": 12,
+      "talhoes_projetados": 5,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 277.52
+        "PROJETADO": 106.75,
+        "SEM PROJETO": 171.9
       },
-      "linhas_km": 13.12,
+      "linhas_km": 12.85,
       "tub_km": 2.68
     },
     {
       "cod": "300002",
       "nome": "FAZENDA BOA VISTA",
       "unidade": "CLEMENTINA",
-      "area": 276.47,
+      "area": 276.49,
       "talhoes": 15,
+      "talhoes_projetados": 14,
       "status": {
-        "PROJETO FEITO": 276.47
+        "PROJETADO": 274.38,
+        "SEM PROJETO": 2.11
       },
-      "linhas_km": 32.0,
+      "linhas_km": 30.86,
       "tub_km": 5.58
     },
     {
       "cod": "301728",
       "nome": "FAZENDA SAO PEDRO",
       "unidade": "QUEIROZ",
-      "area": 256.93,
+      "area": 256.46,
       "talhoes": 19,
+      "talhoes_projetados": 6,
       "status": {
-        "PROJETO FEITO": 256.93
+        "PROJETADO": 59.84,
+        "SEM PROJETO": 196.62
       },
-      "linhas_km": 7.11,
+      "linhas_km": 6.6,
       "tub_km": 1.43
-    },
-    {
-      "cod": "303086",
-      "nome": "FAZENDA NOSSA SENHORA DE FATIMA",
-      "unidade": "QUEIROZ",
-      "area": 244.73,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 244.73
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "201431",
-      "nome": "FAZENDA CARRILHO IV",
-      "unidade": "QUEIROZ",
-      "area": 242.57,
-      "talhoes": 11,
-      "status": {
-        "PROJETO FEITO": 242.57
-      },
-      "linhas_km": 55.07,
-      "tub_km": 8.64
-    },
-    {
-      "cod": "200106",
-      "nome": "FAZENDA SAO BOM JESUS DOS PASSOS",
-      "unidade": "CLEMENTINA",
-      "area": 230.67,
-      "talhoes": 10,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 230.67
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "200526",
-      "nome": "FAZENDA SANTA RITA DE CASSIA",
-      "unidade": "QUEIROZ",
-      "area": 229.92,
-      "talhoes": 16,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 229.92
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "306319",
@@ -342,131 +273,109 @@
       "unidade": "QUEIROZ",
       "area": 222.88,
       "talhoes": 13,
+      "talhoes_projetados": 11,
       "status": {
-        "PROJETO FEITO": 222.88
+        "PROJETADO": 194.25,
+        "SEM PROJETO": 28.63
       },
-      "linhas_km": 22.55,
+      "linhas_km": 22.18,
       "tub_km": 3.35
-    },
-    {
-      "cod": "100565",
-      "nome": "FAZENDA LUIZIANIA",
-      "unidade": "CLEMENTINA",
-      "area": 218.84,
-      "talhoes": 15,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 218.84
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "201104",
-      "nome": "FAZENDA BOA ESPERANCA II",
-      "unidade": "QUEIROZ",
-      "area": 217.91,
-      "talhoes": 7,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 217.91
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "301639",
-      "nome": "FAZENDA NOSSA SENHORA DA CONCEICAO",
-      "unidade": "QUEIROZ",
-      "area": 205.5,
-      "talhoes": 18,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 205.5
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "100474",
-      "nome": "FAZENDA POUSO ALEGRE",
-      "unidade": "QUEIROZ",
-      "area": 201.71,
-      "talhoes": 10,
-      "status": {
-        "PROJETO FEITO": 201.71
-      },
-      "linhas_km": 11.82,
-      "tub_km": 2.26
-    },
-    {
-      "cod": "207251",
-      "nome": "FAZENDA SANTA LUIZA",
-      "unidade": "CLEMENTINA",
-      "area": 196.82,
-      "talhoes": 9,
-      "status": {
-        "PROJETO FEITO": 196.82
-      },
-      "linhas_km": 25.29,
-      "tub_km": 5.39
-    },
-    {
-      "cod": "202948",
-      "nome": "FAZENDA SANTA LUZIA",
-      "unidade": "CLEMENTINA",
-      "area": 187.68,
-      "talhoes": 8,
-      "status": {
-        "PROJETO FEITO": 187.68
-      },
-      "linhas_km": 24.68,
-      "tub_km": 3.91
-    },
-    {
-      "cod": "207749",
-      "nome": "FAZENDA NOSSA SENHORA APARECIDA",
-      "unidade": "CLEMENTINA",
-      "area": 185.74,
-      "talhoes": 5,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 185.74
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "303316",
       "nome": "FAZENDA CACULA",
       "unidade": "QUEIROZ",
-      "area": 179.6,
-      "talhoes": 1,
+      "area": 219.25,
+      "talhoes": 17,
+      "talhoes_projetados": 16,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 179.6
+        "PROJETADO": 216.29,
+        "SEM PROJETO": 2.96
       },
-      "linhas_km": 25.46,
+      "linhas_km": 25.16,
       "tub_km": 5.25
     },
     {
       "cod": "301726",
       "nome": "FAZENDA SAO FRANCISCO",
       "unidade": "QUEIROZ",
-      "area": 173.5,
+      "area": 208.68,
       "talhoes": 1,
+      "talhoes_projetados": 1,
       "status": {
-        "PROJETO FEITO": 173.5
+        "PROJETADO": 208.68
       },
-      "linhas_km": 24.51,
+      "linhas_km": 23.98,
       "tub_km": 5.28
     },
     {
-      "cod": "201039",
-      "nome": "FAZENDA GUARANI",
-      "unidade": "CLEMENTINA",
-      "area": 157.21,
-      "talhoes": 5,
+      "cod": "100474",
+      "nome": "FAZENDA POUSO ALEGRE",
+      "unidade": "QUEIROZ",
+      "area": 202.06,
+      "talhoes": 10,
+      "talhoes_projetados": 5,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 157.21
+        "PROJETADO": 108.11,
+        "SEM PROJETO": 93.95
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
+      "linhas_km": 11.35,
+      "tub_km": 2.26
+    },
+    {
+      "cod": "207251",
+      "nome": "FAZENDA SANTA LUIZA",
+      "unidade": "CLEMENTINA",
+      "area": 201.96,
+      "talhoes": 10,
+      "talhoes_projetados": 9,
+      "status": {
+        "PROJETADO": 197.48,
+        "SEM PROJETO": 4.48
+      },
+      "linhas_km": 23.78,
+      "tub_km": 5.39
+    },
+    {
+      "cod": "207968",
+      "nome": "FAZENDA NOSSA SENHORA APARECIDA",
+      "unidade": "QUEIROZ",
+      "area": 173.95,
+      "talhoes": 4,
+      "talhoes_projetados": 3,
+      "status": {
+        "PROJETADO": 134.79,
+        "SEM PROJETO": 39.16
+      },
+      "linhas_km": 14.53,
+      "tub_km": 1.24
+    },
+    {
+      "cod": "306906",
+      "nome": "FAZENDA PONTEIO",
+      "unidade": "QUEIROZ",
+      "area": 156.77,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
+      "status": {
+        "PROJETADO": 156.77
+      },
+      "linhas_km": 12.65,
+      "tub_km": 1.74
+    },
+    {
+      "cod": "202957",
+      "nome": "FAZENDA CALIFORNIA LL",
+      "unidade": "CLEMENTINA",
+      "area": 146.87,
+      "talhoes": 7,
+      "talhoes_projetados": 6,
+      "status": {
+        "PROJETADO": 126.21,
+        "SEM PROJETO": 20.66
+      },
+      "linhas_km": 15.29,
+      "tub_km": 3.63
     },
     {
       "cod": "307079",
@@ -474,23 +383,12 @@
       "unidade": "CLEMENTINA",
       "area": 144.29,
       "talhoes": 4,
+      "talhoes_projetados": 4,
       "status": {
-        "PROJETO FEITO": 144.29
+        "PROJETADO": 144.29
       },
-      "linhas_km": 17.22,
+      "linhas_km": 16.67,
       "tub_km": 4.1
-    },
-    {
-      "cod": "306906",
-      "nome": "FAZENDA PONTEIO",
-      "unidade": "QUEIROZ",
-      "area": 141.33,
-      "talhoes": 1,
-      "status": {
-        "PROJETO FEITO": 141.33
-      },
-      "linhas_km": 12.84,
-      "tub_km": 1.74
     },
     {
       "cod": "207059",
@@ -498,83 +396,12 @@
       "unidade": "QUEIROZ",
       "area": 134.91,
       "talhoes": 5,
+      "talhoes_projetados": 5,
       "status": {
-        "PROJETO FEITO": 134.91
+        "PROJETADO": 134.91
       },
-      "linhas_km": 15.57,
+      "linhas_km": 15.34,
       "tub_km": 2.8
-    },
-    {
-      "cod": "207968",
-      "nome": "FAZENDA NOSSA SENHORA APARECIDA",
-      "unidade": "QUEIROZ",
-      "area": 133.78,
-      "talhoes": 3,
-      "status": {
-        "PROJETO FEITO": 133.78
-      },
-      "linhas_km": 14.89,
-      "tub_km": 1.24
-    },
-    {
-      "cod": "100542",
-      "nome": "FAZENDA PAIQUERE",
-      "unidade": "QUEIROZ",
-      "area": 133.62,
-      "talhoes": 3,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 133.62
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "202957",
-      "nome": "FAZENDA CALIFORNIA LL",
-      "unidade": "CLEMENTINA",
-      "area": 125.25,
-      "talhoes": 6,
-      "status": {
-        "PROJETO FEITO": 125.25
-      },
-      "linhas_km": 15.56,
-      "tub_km": 3.63
-    },
-    {
-      "cod": "307119",
-      "nome": "SITIO SAO MANOEL",
-      "unidade": "QUEIROZ",
-      "area": 124.77,
-      "talhoes": 4,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 124.77
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307846",
-      "nome": "FAZENDA ESMERALDA",
-      "unidade": "QUEIROZ",
-      "area": 116.86,
-      "talhoes": 1,
-      "status": {
-        "PROJETO FEITO": 116.86
-      },
-      "linhas_km": 22.2,
-      "tub_km": 4.7
-    },
-    {
-      "cod": "207969",
-      "nome": "FAZENDA SANTA ISABEL I",
-      "unidade": "QUEIROZ",
-      "area": 115.44,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 115.44
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "201145",
@@ -582,10 +409,11 @@
       "unidade": "QUEIROZ",
       "area": 114.55,
       "talhoes": 2,
+      "talhoes_projetados": 2,
       "status": {
-        "PROJETO FEITO": 114.55
+        "PROJETADO": 114.55
       },
-      "linhas_km": 14.64,
+      "linhas_km": 14.28,
       "tub_km": 1.91
     },
     {
@@ -594,10 +422,12 @@
       "unidade": "QUEIROZ",
       "area": 114.06,
       "talhoes": 6,
+      "talhoes_projetados": 5,
       "status": {
-        "PROJETO FEITO": 114.06
+        "PROJETADO": 80.77,
+        "SEM PROJETO": 33.29
       },
-      "linhas_km": 9.64,
+      "linhas_km": 9.39,
       "tub_km": 1.34
     },
     {
@@ -606,58 +436,40 @@
       "unidade": "CLEMENTINA",
       "area": 107.16,
       "talhoes": 8,
+      "talhoes_projetados": 7,
       "status": {
-        "PROJETO FEITO": 107.16
+        "PROJETADO": 107.02,
+        "SEM PROJETO": 0.14
       },
-      "linhas_km": 13.29,
+      "linhas_km": 12.86,
       "tub_km": 3.47
     },
     {
-      "cod": "207982",
-      "nome": "FAZENDA BOA ESPERANCA",
-      "unidade": "QUEIROZ",
-      "area": 105.39,
-      "talhoes": 6,
+      "cod": "300162",
+      "nome": "SITIO DOIS IRMAOS",
+      "unidade": "CLEMENTINA",
+      "area": 101.95,
+      "talhoes": 5,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 105.39
+        "PROJETADO": 61.51,
+        "SEM PROJETO": 40.44
       },
-      "linhas_km": 0.0,
+      "linhas_km": 7.83,
       "tub_km": 0.0
     },
     {
-      "cod": "306907",
-      "nome": "FAZENDA PONTEIO II",
-      "unidade": "QUEIROZ",
-      "area": 99.02,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 99.02
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307258",
-      "nome": "FAZENDA SANTO ANTONIO II",
-      "unidade": "QUEIROZ",
-      "area": 92.14,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 92.14
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "207485",
-      "nome": "FAZENDA SANTA MARIA",
-      "unidade": "QUEIROZ",
-      "area": 90.14,
+      "cod": "107383",
+      "nome": "FAZENDA GUARANI",
+      "unidade": "CLEMENTINA",
+      "area": 91.59,
       "talhoes": 4,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 90.14
+        "PROJETADO": 44.29,
+        "SEM PROJETO": 47.3
       },
-      "linhas_km": 0.0,
+      "linhas_km": 4.36,
       "tub_km": 0.0
     },
     {
@@ -666,35 +478,13 @@
       "unidade": "CLEMENTINA",
       "area": 88.49,
       "talhoes": 4,
+      "talhoes_projetados": 3,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 88.49
+        "PROJETADO": 85.08,
+        "SEM PROJETO": 3.41
       },
-      "linhas_km": 10.46,
+      "linhas_km": 10.28,
       "tub_km": 2.66
-    },
-    {
-      "cod": "307139",
-      "nome": "FAZENDA SANTO ANTONIO",
-      "unidade": "CLEMENTINA",
-      "area": 88.32,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 88.32
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307403",
-      "nome": "FAZENDA IRACEMA",
-      "unidade": "CLEMENTINA",
-      "area": 87.76,
-      "talhoes": 5,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 87.76
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "307093",
@@ -702,34 +492,11 @@
       "unidade": "QUEIROZ",
       "area": 87.42,
       "talhoes": 3,
+      "talhoes_projetados": 3,
       "status": {
-        "PROJETO FEITO": 87.42
+        "PROJETADO": 87.42
       },
-      "linhas_km": 7.57,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "300162",
-      "nome": "SITIO DOIS IRMAOS",
-      "unidade": "CLEMENTINA",
-      "area": 84.61,
-      "talhoes": 3,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 84.61
-      },
-      "linhas_km": 7.93,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307147",
-      "nome": "FAZENDA RECANTO DO VALE FORMOSO",
-      "unidade": "CLEMENTINA",
-      "area": 83.4,
-      "talhoes": 4,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 83.4
-      },
-      "linhas_km": 0.0,
+      "linhas_km": 7.39,
       "tub_km": 0.0
     },
     {
@@ -738,119 +505,12 @@
       "unidade": "CLEMENTINA",
       "area": 74.04,
       "talhoes": 3,
+      "talhoes_projetados": 3,
       "status": {
-        "PROJETO FEITO": 74.04
+        "PROJETADO": 74.04
       },
-      "linhas_km": 8.3,
+      "linhas_km": 7.96,
       "tub_km": 2.25
-    },
-    {
-      "cod": "307293",
-      "nome": "FAZENDA PEROBAL",
-      "unidade": "CLEMENTINA",
-      "area": 73.6,
-      "talhoes": 4,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 73.6
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "207110",
-      "nome": "SITIO AGUA BOA",
-      "unidade": "QUEIROZ",
-      "area": 71.14,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 71.14
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "301729",
-      "nome": "SITIO SAO JOAO",
-      "unidade": "QUEIROZ",
-      "area": 70.6,
-      "talhoes": 8,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 70.6
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "107383",
-      "nome": "FAZENDA GUARANI",
-      "unidade": "CLEMENTINA",
-      "area": 66.85,
-      "talhoes": 2,
-      "status": {
-        "PROJETO FEITO": 66.85
-      },
-      "linhas_km": 4.45,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "302446",
-      "nome": "FAZENDA SANTO ANTONIO",
-      "unidade": "CLEMENTINA",
-      "area": 58.2,
-      "talhoes": 4,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 58.2
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307392",
-      "nome": "SITIO AEROPORTO",
-      "unidade": "QUEIROZ",
-      "area": 57.4,
-      "talhoes": 8,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 57.4
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307338",
-      "nome": "FAZENDA TRINDADE",
-      "unidade": "QUEIROZ",
-      "area": 56.68,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 56.68
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "202076",
-      "nome": "ESTANCIA BELA VISTA",
-      "unidade": "CLEMENTINA",
-      "area": 49.22,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 49.22
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307525",
-      "nome": "SITIO MAMORE",
-      "unidade": "CLEMENTINA",
-      "area": 48.11,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 48.11
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "202598",
@@ -858,47 +518,25 @@
       "unidade": "QUEIROZ",
       "area": 47.93,
       "talhoes": 2,
+      "talhoes_projetados": 2,
       "status": {
-        "PROJETO FEITO": 47.93
+        "PROJETADO": 47.93
       },
-      "linhas_km": 6.18,
+      "linhas_km": 5.86,
       "tub_km": 0.3
     },
     {
-      "cod": "307503",
-      "nome": "ESTANCIA VALE VERDE",
-      "unidade": "CLEMENTINA",
-      "area": 46.49,
-      "talhoes": 3,
+      "cod": "308209",
+      "nome": "SITIO NOSSA SENHORA APARECIDA II",
+      "unidade": "",
+      "area": 41.48,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 46.49
+        "PROJETADO": 41.48
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "301272",
-      "nome": "SITIO ANDORINHA",
-      "unidade": "CLEMENTINA",
-      "area": 44.21,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 44.21
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "308057",
-      "nome": "SITIO BOA VISTA",
-      "unidade": "CLEMENTINA",
-      "area": 37.29,
-      "talhoes": 3,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 37.29
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
+      "linhas_km": 4.68,
+      "tub_km": 1.76
     },
     {
       "cod": "202783",
@@ -906,70 +544,24 @@
       "unidade": "CLEMENTINA",
       "area": 37.22,
       "talhoes": 2,
+      "talhoes_projetados": 2,
       "status": {
-        "PROJETO FEITO": 37.22
+        "PROJETADO": 37.22
       },
-      "linhas_km": 4.7,
+      "linhas_km": 4.61,
       "tub_km": 1.28
     },
     {
-      "cod": "207384",
-      "nome": "SITIO SAO JORGE",
+      "cod": "308026",
+      "nome": "SITIO SANTO ANTONIO",
       "unidade": "CLEMENTINA",
-      "area": 35.76,
+      "area": 31.19,
       "talhoes": 1,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 35.76
+        "PROJETADO": 31.19
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "200800",
-      "nome": "SITIO BELA VISTA",
-      "unidade": "QUEIROZ",
-      "area": 34.74,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 34.74
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307497",
-      "nome": "SITIO NOSSA SENHORA APARECIDA",
-      "unidade": "QUEIROZ",
-      "area": 33.4,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 33.4
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "208066",
-      "nome": "SITIO SANTA TEREZINHA",
-      "unidade": "QUEIROZ",
-      "area": 32.88,
-      "talhoes": 3,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 32.88
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "301363",
-      "nome": "SITIO SANTA FE I",
-      "unidade": "CLEMENTINA",
-      "area": 32.25,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 32.25
-      },
-      "linhas_km": 0.0,
+      "linhas_km": 2.85,
       "tub_km": 0.0
     },
     {
@@ -978,35 +570,25 @@
       "unidade": "CLEMENTINA",
       "area": 30.67,
       "talhoes": 3,
+      "talhoes_projetados": 3,
       "status": {
-        "PROJETO FEITO": 30.67
+        "PROJETADO": 30.67
       },
-      "linhas_km": 3.75,
+      "linhas_km": 3.58,
       "tub_km": 0.66
     },
     {
-      "cod": "307381",
-      "nome": "FAZ MACUCO",
+      "cod": "200096",
+      "nome": "FAZENDA SANTA HELENA",
       "unidade": "CLEMENTINA",
-      "area": 27.86,
+      "area": 26.48,
       "talhoes": 2,
+      "talhoes_projetados": 2,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 27.86
+        "PROJETADO": 26.48
       },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307522",
-      "nome": "SITIO COLISEU",
-      "unidade": "CLEMENTINA",
-      "area": 27.12,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 27.12
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
+      "linhas_km": 3.35,
+      "tub_km": 1.88
     },
     {
       "cod": "200349",
@@ -1014,35 +596,13 @@
       "unidade": "CLEMENTINA",
       "area": 25.49,
       "talhoes": 3,
+      "talhoes_projetados": 2,
       "status": {
-        "PROJETO FEITO": 25.49
+        "PROJETADO": 16.75,
+        "SEM PROJETO": 8.74
       },
-      "linhas_km": 1.69,
+      "linhas_km": 1.65,
       "tub_km": 0.22
-    },
-    {
-      "cod": "200096",
-      "nome": "FAZENDA SANTA HELENA",
-      "unidade": "CLEMENTINA",
-      "area": 25.41,
-      "talhoes": 2,
-      "status": {
-        "PROJETO FEITO": 25.41
-      },
-      "linhas_km": 3.47,
-      "tub_km": 1.88
-    },
-    {
-      "cod": "306850",
-      "nome": "SITIO MACUQUINHO",
-      "unidade": "CLEMENTINA",
-      "area": 21.78,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 21.78
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
     },
     {
       "cod": "300358",
@@ -1050,10 +610,12 @@
       "unidade": "CLEMENTINA",
       "area": 20.92,
       "talhoes": 2,
+      "talhoes_projetados": 1,
       "status": {
-        "PROJETO FEITO": 20.92
+        "PROJETADO": 18.79,
+        "SEM PROJETO": 2.13
       },
-      "linhas_km": 2.2,
+      "linhas_km": 2.18,
       "tub_km": 0.15
     },
     {
@@ -1062,10 +624,11 @@
       "unidade": "CLEMENTINA",
       "area": 20.78,
       "talhoes": 2,
+      "talhoes_projetados": 2,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 20.78
+        "PROJETADO": 20.78
       },
-      "linhas_km": 2.85,
+      "linhas_km": 2.68,
       "tub_km": 0.18
     },
     {
@@ -1074,171 +637,12 @@
       "unidade": "CLEMENTINA",
       "area": 20.74,
       "talhoes": 1,
+      "talhoes_projetados": 1,
       "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 20.74
+        "PROJETADO": 20.74
       },
       "linhas_km": 2.84,
       "tub_km": 0.0
-    },
-    {
-      "cod": "307507",
-      "nome": "SITIO ANDORINHAS",
-      "unidade": "CLEMENTINA",
-      "area": 20.12,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 20.12
-      },
-      "linhas_km": 0.0,
-      "tub_km": 1.42
-    },
-    {
-      "cod": "303986",
-      "nome": "SITIO BOA ESPERANCA",
-      "unidade": "CLEMENTINA",
-      "area": 15.55,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 15.55
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "308026",
-      "nome": "SITIO SANTO ANTONIO",
-      "unidade": "CLEMENTINA",
-      "area": 15.55,
-      "talhoes": 1,
-      "status": {
-        "PROJETO FEITO": 15.55
-      },
-      "linhas_km": 2.95,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307581",
-      "nome": "SITIO SAO JOAO",
-      "unidade": "CLEMENTINA",
-      "area": 15.18,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 15.18
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "200395",
-      "nome": "SITIO FUJIKURA",
-      "unidade": "CLEMENTINA",
-      "area": 14.36,
-      "talhoes": 2,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 14.36
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "308023",
-      "nome": "SITIO BOA SORTE",
-      "unidade": "QUEIROZ",
-      "area": 12.1,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 12.1
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "307719",
-      "nome": "SITIO SANTA LUZIA",
-      "unidade": "CLEMENTINA",
-      "area": 10.71,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 10.71
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "301039",
-      "nome": "FAZENDA GUARANI",
-      "unidade": "CLEMENTINA",
-      "area": 10.01,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 10.01
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "202699",
-      "nome": "SITIO SANTA LUZIA DO JH",
-      "unidade": "CLEMENTINA",
-      "area": 8.93,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 8.93
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "202303",
-      "nome": "SITIO GEMEAS",
-      "unidade": "QUEIROZ",
-      "area": 5.04,
-      "talhoes": 1,
-      "status": {
-        "SEM PROJETO OU OPORTUNIDADE": 5.04
-      },
-      "linhas_km": 0.0,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "202527",
-      "nome": "FAZENDA SANTA EDWIRGES",
-      "unidade": "",
-      "area": 0.0,
-      "talhoes": 0,
-      "status": {},
-      "linhas_km": 39.17,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "208252",
-      "nome": "FAZENDA SANTA EDWYGES",
-      "unidade": "",
-      "area": 0.0,
-      "talhoes": 0,
-      "status": {},
-      "linhas_km": 0.0,
-      "tub_km": 8.79
-    },
-    {
-      "cod": "308125",
-      "nome": "FAZENDA MACUCO",
-      "unidade": "",
-      "area": 0.0,
-      "talhoes": 0,
-      "status": {},
-      "linhas_km": 54.82,
-      "tub_km": 0.0
-    },
-    {
-      "cod": "308209",
-      "nome": "SITIO NOSSA SENHORA APARECIDA II",
-      "unidade": "",
-      "area": 0.0,
-      "talhoes": 0,
-      "status": {},
-      "linhas_km": 4.73,
-      "tub_km": 1.76
     }
   ]
 }

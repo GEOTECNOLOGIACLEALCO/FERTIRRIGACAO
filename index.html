@@ -134,7 +134,7 @@
     .hero-lbl { font-size: 12px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
     .hero-line { font-size: 12px; color: #cbd5e1; margin-top: 10px; font-weight: 600; line-height: 1.6; }
     .hero-line b { color: #22c55e; }
-    .hero-line i { font-style: normal; color: #eab308; font-weight: 800; }
+    .hero-line i { font-style: normal; color: #ef4444; font-weight: 800; }
     .stack { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); }
     .stack > div { height: 100%; transition: width .5s ease; }
     .stack.sm { height: 6px; margin: 8px 0 6px; }
@@ -160,7 +160,8 @@
     .faz:active, .faz:hover { background: rgba(255,255,255,.03); }
     .faz-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
     .faz-nome { font-size: 13px; font-weight: 700; color: #f8fafc; }
-    .faz-area { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; }
+    .faz-area { font-size: 13px; font-weight: 800; color: #22c55e; white-space: nowrap; }  /* área projetada */
+    .faz-area small { font-size: 11px; font-weight: 700; color: #94a3b8; }                /* "de X ha" = área total */
     .faz-meta { font-size: 11px; color: #94a3b8; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
     .faz-go { color: #38bdf8; font-weight: 800; white-space: nowrap; }
     .tag { display: inline-block; padding: 1px 6px; border-radius: 6px; font-size: 9px; font-weight: 800; margin-right: 6px; vertical-align: 1px; }
@@ -204,7 +205,7 @@
       <div class="header-bar glass">
         <div class="hdr-txt">
           <div class="title">FERTIRRIGAÇÃO | CLEALCO</div>
-          <div class="updated-at">Atualizado 11/11/2026 17:05</div>
+          <div class="updated-at">Atualizado 12/11/2026 09:32</div>
         </div>
         <div class="gps-pill" title="Precisão do GPS">
           <span class="gps-dot" id="gps-dot"></span>
@@ -227,7 +228,7 @@
           <label>Tematização dos Talhões</label>
           <select id="themeSelect" onchange="applyTheme()">
             <option value="default">Padrão (Cinza)</option>
-            <option value="STATUS PROJETO">Status do Projeto</option>
+            <option value="PROJETO">Projetado / Sem projeto</option>
             <option value="UNIDADE">Unidade</option>
           </select>
         </div>
@@ -303,24 +304,24 @@
             <div class="dsh-title">Fertirrigação</div>
           </div>
         </div>
-        <div class="dsh-upd" id="dsh-upd">Atualizado em 11/11/2026 17:05</div>
+        <div class="dsh-upd" id="dsh-upd">Atualizado em 12/11/2026 09:32</div>
       </div>
 
       <!-- Filtro por unidade -->
       <div class="chips" id="dsh-chips"></div>
 
-      <!-- Destaque: % da área com projeto feito -->
+      <!-- Destaque: % da área projetada (talhões com linha) -->
       <div class="pane hero">
         <div class="ring">
           <svg width="112" height="112" viewBox="0 0 112 112">
             <circle cx="56" cy="56" r="48" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="12" />
             <circle id="ring-arc" class="ring-arc" cx="56" cy="56" r="48" fill="none" stroke="#22c55e" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 302" />
           </svg>
-          <div class="ring-txt"><div class="ring-pct" id="ring-pct">0%</div><div class="ring-sub">PROJETO FEITO</div></div>
+          <div class="ring-txt"><div class="ring-pct" id="ring-pct">0%</div><div class="ring-sub">PROJETADO</div></div>
         </div>
         <div>
           <div class="hero-big" id="hero-area">0 <span>ha</span></div>
-          <div class="hero-lbl" id="hero-lbl">área total monitorada</div>
+          <div class="hero-lbl" id="hero-lbl">área das fazendas com projeto</div>
           <div class="hero-line" id="hero-line"></div>
         </div>
       </div>
@@ -548,7 +549,8 @@
     let rawData = null;
 
     const PALETTE = {
-      "STATUS PROJETO": { "A VALIDAR": "#eab308", "PROJETO FEITO": "#166534", "SEM PROJETO OU OPORTUNIDADE": "#ef4444", "TOTAL CLEMENTINA": "#f97316", "TOTAL QUEIROZ": "#3b82f6" },
+      // PROJETO é calculado pelo gerar_app.py: talhão com linha da Solinftec = PROJETADO
+      "PROJETO": { "PROJETADO": "#16a34a", "SEM PROJETO": "#ef4444" },
       "UNIDADE": { "CLEMENTINA": "#f97316", "QUEIROZ": "#3b82f6" }
     };
 
@@ -749,7 +751,7 @@
                 map.on('mouseleave', layerId, () => map.getCanvas().style.cursor = '');
             }
 
-            bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
+            bindPopup('talhoes-fill', ['CHAVE', 'AREA_CALC', 'LINHA_M', 'ÁREA', 'AREA', 'AREA_HA', 'HECTARES']);
             bindPopup('linhas-line', ['start_point', 'end_point']);
 
             if (rawData && rawData.features) {
@@ -834,14 +836,15 @@
     // =====================================================================
     // DASHBOARD (aba Indicadores) - dados em indicadores.json -> "fazendas"
     // =====================================================================
-    const STATUS_ORDEM = ['PROJETO FEITO', 'A VALIDAR', 'SEM PROJETO OU OPORTUNIDADE'];
-    const STATUS_NOME = { 'PROJETO FEITO': 'Projeto feito', 'A VALIDAR': 'A validar', 'SEM PROJETO OU OPORTUNIDADE': 'Sem projeto / oportunidade' };
+    // Projetado = talhão com linha da Solinftec; Sem projeto = demais talhões das fazendas com projeto
+    const STATUS_ORDEM = ['PROJETADO', 'SEM PROJETO'];
+    const STATUS_NOME = { 'PROJETADO': 'Projetados', 'SEM PROJETO': 'Sem projeto' };
     const dash = { dados: null, unidade: 'TODAS', ordem: 'area', limite: 30 };
 
     function fmt(n, casas = 1) {
       return Number(n || 0).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
     }
-    function corStatus(s) { return PALETTE['STATUS PROJETO'][s] || '#64748b'; }
+    function corStatus(s) { return PALETTE['PROJETO'][s] || '#64748b'; }
     function ordenarStatus(lista) {
       return [...STATUS_ORDEM.filter(s => lista.includes(s)), ...lista.filter(s => !STATUS_ORDEM.includes(s))];
     }
@@ -863,7 +866,7 @@
       const unidades = (data.lista_unidades || []).map(u => [u, u.charAt(0) + u.slice(1).toLowerCase(), PALETTE['UNIDADE'][u]]);
       document.getElementById('dsh-chips').innerHTML = [['TODAS', 'Consolidado', null], ...unidades]
         .map(([v, l, c]) => `<button class="chip" data-v="${v}" onclick="dashUnidade('${v}')">${c ? `<span class="dot" style="background:${c}"></span>` : ''}${l}</button>`).join('');
-      document.getElementById('faz-sort').innerHTML = [['area', 'Maior área'], ['pendente', 'Mais pendências'], ['linhas', 'Mais linhas'], ['nome', 'A–Z']]
+      document.getElementById('faz-sort').innerHTML = [['area', 'Maior área'], ['pendente', 'Mais área sem projeto'], ['linhas', 'Mais linhas'], ['nome', 'A–Z']]
         .map(([v, l]) => `<button class="chip" data-v="${v}" onclick="dashOrdem('${v}')">${l}</button>`).join('');
       renderDashboard();
     }
@@ -879,7 +882,7 @@
       fz.forEach(f => Object.entries(f.status).forEach(([s, a]) => porStatus[s] = (porStatus[s] || 0) + a));
       const statuses = ordenarStatus(Object.keys(porStatus));
       const totalStatus = statuses.reduce((s, k) => s + porStatus[k], 0) || 1;
-      const feito = porStatus['PROJETO FEITO'] || 0;
+      const feito = porStatus['PROJETADO'] || 0;
       const pct = area ? feito / area * 100 : 0;
 
       // Anel de progresso
@@ -887,8 +890,8 @@
       document.getElementById('ring-arc').setAttribute('stroke-dasharray', `${C * pct / 100} ${C}`);
       document.getElementById('ring-pct').innerText = Math.round(pct) + '%';
       document.getElementById('hero-area').innerHTML = `${fmt(area, 0)} <span>ha</span>`;
-      document.getElementById('hero-lbl').innerText = dash.unidade === 'TODAS' ? 'área total monitorada' : 'área monitorada · ' + dash.unidade;
-      document.getElementById('hero-line').innerHTML = `<b>${fmt(feito, 0)} ha</b> com projeto feito<br><i>${fmt(area - feito, 0)} ha</i> a validar ou sem projeto`;
+      document.getElementById('hero-lbl').innerText = dash.unidade === 'TODAS' ? 'área das fazendas com projeto' : 'fazendas com projeto · ' + dash.unidade;
+      document.getElementById('hero-line').innerHTML = `<b>${fmt(feito, 0)} ha</b> projetados<br><i>${fmt(area - feito, 0)} ha</i> sem projeto`;
 
       // Barra e legenda por status
       document.getElementById('stack').innerHTML = statuses
@@ -901,16 +904,14 @@
         || '<div class="empty">Sem dados para esta unidade.</div>';
 
       // Números-chave
-      const comLinhas = fz.filter(f => f.linhas_km > 0).length;
       const km = fz.reduce((s, f) => s + f.linhas_km, 0);
-      const tub = fz.reduce((s, f) => s + f.tub_km, 0);
       const talhoes = fz.reduce((s, f) => s + f.talhoes, 0);
-      const nFaz = fz.filter(f => f.area > 0).length;
+      const talhoesProj = fz.reduce((s, f) => s + (f.talhoes_projetados || 0), 0);
       document.getElementById('kpis').innerHTML = [
-        ['🏡', `${nFaz}`, 'Fazendas monitoradas'],
-        ['🌱', `${talhoes.toLocaleString('pt-BR')}`, 'Talhões com status'],
-        ['📏', `${fmt(km, 0)} <small>km</small>`, `Linhas em ${comLinhas} fazendas`],
-        ['🚰', `${fmt(tub, 1)} <small>km</small>`, 'Tubulação'],
+        ['🏡', `${fz.length}`, 'Fazendas com projeto'],
+        ['🌱', `${talhoesProj.toLocaleString('pt-BR')} <small>de ${talhoes.toLocaleString('pt-BR')}</small>`, 'Talhões projetados'],
+        ['📏', `${fmt(km, 0)} <small>km</small>`, 'Linhas projetadas'],
+        ['✅', `${fmt(feito, 0)} <small>ha</small>`, 'Área projetada'],
       ].map(([ico, val, lbl]) => `<div class="pane kpi"><div class="kpi-ico">${ico}</div><div class="kpi-val">${val}</div><div class="kpi-lbl">${lbl}</div></div>`).join('');
 
       renderFazendas();
@@ -920,7 +921,7 @@
       if (!dash.dados) return;
       marcar('faz-sort', dash.ordem);
       const busca = (document.getElementById('faz-busca').value || '').trim().toUpperCase();
-      const pendente = f => f.area - (f.status['PROJETO FEITO'] || 0);
+      const pendente = f => f.status['SEM PROJETO'] || 0;
       const ordens = {
         area: (a, b) => b.area - a.area,
         pendente: (a, b) => pendente(b) - pendente(a),
@@ -942,11 +943,11 @@
         const corUni = PALETTE['UNIDADE'][f.unidade];
         const tag = f.unidade
           ? `<span class="tag" style="background:${corUni}33;color:${corUni}">${f.unidade}</span>`
-          : '<span class="tag" style="background:#47556966;color:#cbd5e1">SEM STATUS</span>';
-        const pf = f.area ? Math.round((f.status['PROJETO FEITO'] || 0) / f.area * 100) + '% feito' : null;
+          : '<span class="tag" style="background:#47556966;color:#cbd5e1">SEM UNIDADE</span>';
+        const pf = f.area ? Math.round((f.status['PROJETADO'] || 0) / f.area * 100) + '% projetado' : null;
         const meta = [f.cod, f.linhas_km ? fmt(f.linhas_km, 1) + ' km de linhas' : 'sem linhas', pf].filter(Boolean).join(' · ');
         return `<button class="faz" onclick="irParaFazenda('${f.cod}')">
-            <div class="faz-top"><span class="faz-nome">${tag}${f.nome}</span><span class="faz-area">${f.area ? fmt(f.area, 1) + ' ha' : '—'}</span></div>
+            <div class="faz-top"><span class="faz-nome">${tag}${f.nome}</span><span class="faz-area">${fmt(f.status['PROJETADO'] || 0, 1)} ha <small>de ${fmt(f.area, 1)} ha</small></span></div>
             <div class="stack sm">${barra}</div>
             <div class="faz-meta"><span>${meta}</span><span class="faz-go">Ver no mapa ›</span></div>
           </button>`;

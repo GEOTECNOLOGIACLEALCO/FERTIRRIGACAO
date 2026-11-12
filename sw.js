@@ -1,6 +1,6 @@
 // Ao mudar index.html ou a lista ASSETS, aumente o número da versão abaixo
 // para os celulares descartarem o cache antigo.
-const CACHE_NAME = 'ferti-clealco-v52';
+const CACHE_NAME = 'ferti-clealco-v53';
 const TILE_CACHE = 'ferti-tiles-v1';
 
 const ASSETS = [
