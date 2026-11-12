@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "12/11/2026 09:32",
+  "atualizado_em": "12/11/2026 09:45",
   "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
@@ -174,7 +174,7 @@
     {
       "cod": "208252",
       "nome": "FAZENDA SANTA EDWYGES",
-      "unidade": "",
+      "unidade": "QUEIROZ",
       "area": 373.19,
       "talhoes": 14,
       "talhoes_projetados": 14,
@@ -528,7 +528,7 @@
     {
       "cod": "308209",
       "nome": "SITIO NOSSA SENHORA APARECIDA II",
-      "unidade": "",
+      "unidade": "QUEIROZ",
       "area": 41.48,
       "talhoes": 1,
       "talhoes_projetados": 1,
