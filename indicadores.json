@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "12/11/2026 09:45",
+  "atualizado_em": "16/11/2026 12:14",
   "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
@@ -45,7 +45,7 @@
         "PROJETADO": 1060.24,
         "SEM PROJETO": 164.86
       },
-      "linhas_km": 111.79,
+      "linhas_km": 110.23,
       "tub_km": 18.85
     },
     {
@@ -155,7 +155,7 @@
         "PROJETADO": 404.48,
         "SEM PROJETO": 23.86
       },
-      "linhas_km": 45.9,
+      "linhas_km": 45.94,
       "tub_km": 9.37
     },
     {
@@ -347,7 +347,7 @@
         "PROJETADO": 134.79,
         "SEM PROJETO": 39.16
       },
-      "linhas_km": 14.53,
+      "linhas_km": 14.55,
       "tub_km": 1.24
     },
     {
@@ -511,6 +511,19 @@
       },
       "linhas_km": 7.96,
       "tub_km": 2.25
+    },
+    {
+      "cod": "307293",
+      "nome": "FAZENDA PEROBAL",
+      "unidade": "CLEMENTINA",
+      "area": 73.6,
+      "talhoes": 4,
+      "talhoes_projetados": 4,
+      "status": {
+        "PROJETADO": 73.6
+      },
+      "linhas_km": 7.53,
+      "tub_km": 1.36
     },
     {
       "cod": "202598",
