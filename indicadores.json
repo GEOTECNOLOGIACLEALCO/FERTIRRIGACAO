@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "16/11/2026 12:14",
+  "atualizado_em": "18/11/2026 17:28",
   "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
@@ -18,7 +18,7 @@
         "SEM PROJETO": 1028.27
       },
       "linhas_km": 109.49,
-      "tub_km": 17.78
+      "tub_km": 19.52
     },
     {
       "cod": "201227",
@@ -59,7 +59,7 @@
         "PROJETADO": 440.85,
         "SEM PROJETO": 545.26
       },
-      "linhas_km": 42.16,
+      "linhas_km": 42.2,
       "tub_km": 5.53
     },
     {
@@ -209,7 +209,7 @@
         "PROJETADO": 296.82
       },
       "linhas_km": 36.3,
-      "tub_km": 6.82
+      "tub_km": 5.09
     },
     {
       "cod": "202948",
@@ -237,7 +237,7 @@
         "SEM PROJETO": 171.9
       },
       "linhas_km": 12.85,
-      "tub_km": 2.68
+      "tub_km": 3.33
     },
     {
       "cod": "300002",
@@ -296,6 +296,20 @@
       "tub_km": 5.25
     },
     {
+      "cod": "301639",
+      "nome": "FAZENDA NOSSA SENHORA DA CONCEICAO",
+      "unidade": "QUEIROZ",
+      "area": 213.24,
+      "talhoes": 20,
+      "talhoes_projetados": 18,
+      "status": {
+        "PROJETADO": 207.71,
+        "SEM PROJETO": 5.53
+      },
+      "linhas_km": 21.49,
+      "tub_km": 3.38
+    },
+    {
       "cod": "301726",
       "nome": "FAZENDA SAO FRANCISCO",
       "unidade": "QUEIROZ",
@@ -351,6 +365,20 @@
       "tub_km": 1.24
     },
     {
+      "cod": "308176",
+      "nome": "FAZENDA MARIANA",
+      "unidade": "",
+      "area": 161.0,
+      "talhoes": 11,
+      "talhoes_projetados": 9,
+      "status": {
+        "PROJETADO": 129.82,
+        "SEM PROJETO": 31.18
+      },
+      "linhas_km": 14.68,
+      "tub_km": 2.8
+    },
+    {
       "cod": "306906",
       "nome": "FAZENDA PONTEIO",
       "unidade": "QUEIROZ",
@@ -369,13 +397,12 @@
       "unidade": "CLEMENTINA",
       "area": 146.87,
       "talhoes": 7,
-      "talhoes_projetados": 6,
+      "talhoes_projetados": 7,
       "status": {
-        "PROJETADO": 126.21,
-        "SEM PROJETO": 20.66
+        "PROJETADO": 146.87
       },
-      "linhas_km": 15.29,
-      "tub_km": 3.63
+      "linhas_km": 17.08,
+      "tub_km": 3.8
     },
     {
       "cod": "307079",
@@ -522,8 +549,36 @@
       "status": {
         "PROJETADO": 73.6
       },
-      "linhas_km": 7.53,
+      "linhas_km": 7.98,
       "tub_km": 1.36
+    },
+    {
+      "cod": "301729",
+      "nome": "SITIO SAO JOAO",
+      "unidade": "QUEIROZ",
+      "area": 70.6,
+      "talhoes": 8,
+      "talhoes_projetados": 7,
+      "status": {
+        "PROJETADO": 70.28,
+        "SEM PROJETO": 0.32
+      },
+      "linhas_km": 7.54,
+      "tub_km": 1.45
+    },
+    {
+      "cod": "207110",
+      "nome": "SITIO AGUA BOA",
+      "unidade": "QUEIROZ",
+      "area": 69.15,
+      "talhoes": 2,
+      "talhoes_projetados": 1,
+      "status": {
+        "PROJETADO": 46.86,
+        "SEM PROJETO": 22.29
+      },
+      "linhas_km": 4.33,
+      "tub_km": 0.7
     },
     {
       "cod": "202598",
@@ -537,6 +592,19 @@
       },
       "linhas_km": 5.86,
       "tub_km": 0.3
+    },
+    {
+      "cod": "301272",
+      "nome": "SITIO ANDORINHA",
+      "unidade": "CLEMENTINA",
+      "area": 44.21,
+      "talhoes": 2,
+      "talhoes_projetados": 2,
+      "status": {
+        "PROJETADO": 44.21
+      },
+      "linhas_km": 5.03,
+      "tub_km": 0.0
     },
     {
       "cod": "308209",
@@ -565,6 +633,19 @@
       "tub_km": 1.28
     },
     {
+      "cod": "301363",
+      "nome": "SITIO SANTA FE I",
+      "unidade": "CLEMENTINA",
+      "area": 32.25,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
+      "status": {
+        "PROJETADO": 32.25
+      },
+      "linhas_km": 2.13,
+      "tub_km": 0.0
+    },
+    {
       "cod": "308026",
       "nome": "SITIO SANTO ANTONIO",
       "unidade": "CLEMENTINA",
@@ -589,6 +670,19 @@
       },
       "linhas_km": 3.58,
       "tub_km": 0.66
+    },
+    {
+      "cod": "307381",
+      "nome": "FAZ MACUCO",
+      "unidade": "CLEMENTINA",
+      "area": 27.86,
+      "talhoes": 2,
+      "talhoes_projetados": 2,
+      "status": {
+        "PROJETADO": 27.86
+      },
+      "linhas_km": 3.23,
+      "tub_km": 1.21
     },
     {
       "cod": "200096",
@@ -655,6 +749,32 @@
         "PROJETADO": 20.74
       },
       "linhas_km": 2.84,
+      "tub_km": 0.0
+    },
+    {
+      "cod": "308246",
+      "nome": "SITIO S2",
+      "unidade": "",
+      "area": 17.03,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
+      "status": {
+        "PROJETADO": 17.03
+      },
+      "linhas_km": 2.27,
+      "tub_km": 0.38
+    },
+    {
+      "cod": "308196",
+      "nome": "SITIO SAO LUIZ",
+      "unidade": "",
+      "area": 16.24,
+      "talhoes": 1,
+      "talhoes_projetados": 1,
+      "status": {
+        "PROJETADO": 16.24
+      },
+      "linhas_km": 0.59,
       "tub_km": 0.0
     }
   ]
