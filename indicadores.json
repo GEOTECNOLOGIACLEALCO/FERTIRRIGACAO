@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "18/11/2026 17:33",
+  "atualizado_em": "25/11/2026 14:58",
   "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
@@ -18,7 +18,7 @@
         "SEM PROJETO": 1028.27
       },
       "linhas_km": 109.49,
-      "tub_km": 19.52
+      "tub_km": 19.32
     },
     {
       "cod": "201227",
@@ -32,7 +32,7 @@
         "SEM PROJETO": 840.67
       },
       "linhas_km": 97.32,
-      "tub_km": 15.0
+      "tub_km": 15.72
     },
     {
       "cod": "200506",
@@ -45,7 +45,7 @@
         "PROJETADO": 1060.24,
         "SEM PROJETO": 164.86
       },
-      "linhas_km": 110.23,
+      "linhas_km": 110.13,
       "tub_km": 18.85
     },
     {
@@ -74,7 +74,7 @@
         "SEM PROJETO": 241.32
       },
       "linhas_km": 66.2,
-      "tub_km": 12.0
+      "tub_km": 12.62
     },
     {
       "cod": "303315",
@@ -82,12 +82,12 @@
       "unidade": "QUEIROZ",
       "area": 810.67,
       "talhoes": 58,
-      "talhoes_projetados": 50,
+      "talhoes_projetados": 49,
       "status": {
-        "PROJETADO": 757.93,
-        "SEM PROJETO": 52.74
+        "PROJETADO": 756.11,
+        "SEM PROJETO": 54.56
       },
-      "linhas_km": 85.65,
+      "linhas_km": 84.72,
       "tub_km": 14.07
     },
     {
@@ -115,7 +115,7 @@
         "PROJETADO": 486.26
       },
       "linhas_km": 55.47,
-      "tub_km": 12.29
+      "tub_km": 12.2
     },
     {
       "cod": "303252",
@@ -128,8 +128,8 @@
         "PROJETADO": 465.01,
         "SEM PROJETO": 8.53
       },
-      "linhas_km": 52.13,
-      "tub_km": 8.08
+      "linhas_km": 51.73,
+      "tub_km": 8.39
     },
     {
       "cod": "201431",
@@ -141,8 +141,8 @@
       "status": {
         "PROJETADO": 438.45
       },
-      "linhas_km": 54.04,
-      "tub_km": 8.64
+      "linhas_km": 54.03,
+      "tub_km": 10.07
     },
     {
       "cod": "100862",
@@ -182,7 +182,7 @@
         "PROJETADO": 373.19
       },
       "linhas_km": 37.63,
-      "tub_km": 8.79
+      "tub_km": 10.79
     },
     {
       "cod": "200533",
@@ -196,7 +196,7 @@
         "SEM PROJETO": 30.39
       },
       "linhas_km": 30.53,
-      "tub_km": 4.88
+      "tub_km": 7.01
     },
     {
       "cod": "201359",
@@ -209,7 +209,7 @@
         "PROJETADO": 296.82
       },
       "linhas_km": 36.3,
-      "tub_km": 5.09
+      "tub_km": 5.53
     },
     {
       "cod": "202948",
@@ -223,7 +223,7 @@
         "SEM PROJETO": 93.83
       },
       "linhas_km": 23.53,
-      "tub_km": 3.91
+      "tub_km": 5.97
     },
     {
       "cod": "201147",
@@ -237,7 +237,7 @@
         "SEM PROJETO": 171.9
       },
       "linhas_km": 12.85,
-      "tub_km": 3.33
+      "tub_km": 2.68
     },
     {
       "cod": "300002",
@@ -251,7 +251,7 @@
         "SEM PROJETO": 2.11
       },
       "linhas_km": 30.86,
-      "tub_km": 5.58
+      "tub_km": 6.22
     },
     {
       "cod": "301728",
@@ -333,7 +333,7 @@
         "PROJETADO": 108.11,
         "SEM PROJETO": 93.95
       },
-      "linhas_km": 11.35,
+      "linhas_km": 10.95,
       "tub_km": 2.26
     },
     {
@@ -348,7 +348,7 @@
         "SEM PROJETO": 4.48
       },
       "linhas_km": 23.78,
-      "tub_km": 5.39
+      "tub_km": 6.21
     },
     {
       "cod": "207968",
@@ -362,7 +362,7 @@
         "SEM PROJETO": 39.16
       },
       "linhas_km": 14.55,
-      "tub_km": 1.24
+      "tub_km": 2.51
     },
     {
       "cod": "308176",
@@ -389,7 +389,7 @@
         "PROJETADO": 156.77
       },
       "linhas_km": 12.65,
-      "tub_km": 1.74
+      "tub_km": 2.45
     },
     {
       "cod": "202957",
@@ -402,7 +402,7 @@
         "PROJETADO": 146.87
       },
       "linhas_km": 17.08,
-      "tub_km": 3.8
+      "tub_km": 3.78
     },
     {
       "cod": "307079",
@@ -428,7 +428,7 @@
         "PROJETADO": 134.91
       },
       "linhas_km": 15.34,
-      "tub_km": 2.8
+      "tub_km": 1.38
     },
     {
       "cod": "201145",
@@ -455,7 +455,7 @@
         "SEM PROJETO": 33.29
       },
       "linhas_km": 9.39,
-      "tub_km": 1.34
+      "tub_km": 1.56
     },
     {
       "cod": "100453",
@@ -469,7 +469,7 @@
         "SEM PROJETO": 0.14
       },
       "linhas_km": 12.86,
-      "tub_km": 3.47
+      "tub_km": 3.69
     },
     {
       "cod": "300162",
@@ -483,7 +483,7 @@
         "SEM PROJETO": 40.44
       },
       "linhas_km": 7.83,
-      "tub_km": 0.0
+      "tub_km": 1.42
     },
     {
       "cod": "107383",
@@ -497,7 +497,7 @@
         "SEM PROJETO": 47.3
       },
       "linhas_km": 4.36,
-      "tub_km": 0.0
+      "tub_km": 0.84
     },
     {
       "cod": "306856",
@@ -537,7 +537,7 @@
         "PROJETADO": 74.04
       },
       "linhas_km": 7.96,
-      "tub_km": 2.25
+      "tub_km": 1.95
     },
     {
       "cod": "307293",
@@ -550,7 +550,7 @@
         "PROJETADO": 73.6
       },
       "linhas_km": 7.98,
-      "tub_km": 1.36
+      "tub_km": 2.04
     },
     {
       "cod": "301729",
@@ -591,7 +591,7 @@
         "PROJETADO": 47.93
       },
       "linhas_km": 5.86,
-      "tub_km": 0.3
+      "tub_km": 1.52
     },
     {
       "cod": "301272",
@@ -604,7 +604,7 @@
         "PROJETADO": 44.21
       },
       "linhas_km": 5.03,
-      "tub_km": 0.0
+      "tub_km": 1.21
     },
     {
       "cod": "308209",
@@ -630,7 +630,7 @@
         "PROJETADO": 37.22
       },
       "linhas_km": 4.61,
-      "tub_km": 1.28
+      "tub_km": 1.57
     },
     {
       "cod": "301363",
@@ -643,7 +643,7 @@
         "PROJETADO": 32.25
       },
       "linhas_km": 2.13,
-      "tub_km": 0.0
+      "tub_km": 0.26
     },
     {
       "cod": "308026",
@@ -656,7 +656,7 @@
         "PROJETADO": 31.19
       },
       "linhas_km": 2.85,
-      "tub_km": 0.0
+      "tub_km": 1.03
     },
     {
       "cod": "306792",
@@ -682,7 +682,7 @@
         "PROJETADO": 27.86
       },
       "linhas_km": 3.23,
-      "tub_km": 1.21
+      "tub_km": 0.66
     },
     {
       "cod": "200096",
@@ -695,7 +695,7 @@
         "PROJETADO": 26.48
       },
       "linhas_km": 3.35,
-      "tub_km": 1.88
+      "tub_km": 0.52
     },
     {
       "cod": "200349",
@@ -723,7 +723,7 @@
         "SEM PROJETO": 2.13
       },
       "linhas_km": 2.18,
-      "tub_km": 0.15
+      "tub_km": 0.73
     },
     {
       "cod": "208091",
@@ -736,7 +736,7 @@
         "PROJETADO": 20.78
       },
       "linhas_km": 2.68,
-      "tub_km": 0.18
+      "tub_km": 1.08
     },
     {
       "cod": "306905",
@@ -749,7 +749,7 @@
         "PROJETADO": 20.74
       },
       "linhas_km": 2.84,
-      "tub_km": 0.0
+      "tub_km": 0.47
     },
     {
       "cod": "308246",
@@ -762,7 +762,7 @@
         "PROJETADO": 17.03
       },
       "linhas_km": 2.27,
-      "tub_km": 0.38
+      "tub_km": 0.41
     },
     {
       "cod": "308196",
@@ -775,7 +775,7 @@
         "PROJETADO": 16.24
       },
       "linhas_km": 0.59,
-      "tub_km": 0.0
+      "tub_km": 0.11
     }
   ]
 }
