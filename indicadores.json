@@ -1,5 +1,5 @@
 {
-  "atualizado_em": "25/11/2026 14:58",
+  "atualizado_em": "26/11/2026 14:51",
   "criterio": "Projetado = talhão com pelo menos 20 m de linha da Solinftec",
   "lista_unidades": [
     "CLEMENTINA",
@@ -210,6 +210,20 @@
       },
       "linhas_km": 36.3,
       "tub_km": 5.53
+    },
+    {
+      "cod": "201039",
+      "nome": "FAZENDA GUARANI",
+      "unidade": "CLEMENTINA",
+      "area": 279.75,
+      "talhoes": 10,
+      "talhoes_projetados": 2,
+      "status": {
+        "PROJETADO": 53.61,
+        "SEM PROJETO": 226.14
+      },
+      "linhas_km": 6.85,
+      "tub_km": 1.69
     },
     {
       "cod": "202948",
